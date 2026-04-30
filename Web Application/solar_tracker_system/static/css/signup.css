@@ -1,0 +1,157 @@
+@import url('./theme.css');
+
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: var(--max-width);
+    padding: 40px;
+    margin: auto;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    font-family: var(--font-family);
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--card);
+    border: 1px solid #e5e7eb
+}
+
+.body.dark .container {
+    background: rgba(17,24,39,0.7); 
+    border: 1px solid #374151;
+}
+
+.container h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+    color: var(--accent);
+}
+
+label {
+    color: var(--accent);
+    display: block;
+    margin-top: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    color: var(--card);
+    background: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+input:focus {
+    border-color: #2a5298;
+    box-shadow: 0 0 0 2px #2a529833;
+    outline: none;
+}
+
+.password-group {
+    display: flex;
+    gap: 10px;
+}
+
+.password-group div {
+    flex: 1;
+}
+
+.btn {
+    background: #ffb347;
+    color: #111827;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: 0.2s;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    margin-top: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.btn:hover {
+  background: #e09a2f;
+  transform: translateY(-1px);
+}
+
+.divider {
+    margin-top: 40px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #eee;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #d1d5db;
+  margin: 0 10px;
+}
+
+.social {
+    display: flex;
+    gap: 10px;
+}
+
+.social a {
+    flex: 1;
+    padding: 10px;
+    background: #eee;
+    border: 1px solid #ccc;
+    text-align: center;
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+}
+
+.btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.btn-social:hover {
+  background: #f5f7fa;
+}
+
+.login-link {
+    color: var(--accent);
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.login-link a {
+    color: var(--a);
+    text-decoration: none;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+.form-errors,
+.errorlist {
+    color: #51dc26;
+    font-size: 13px;
+    margin-top: 5px;
+    list-style: none;
+    padding-left: 0;
+}

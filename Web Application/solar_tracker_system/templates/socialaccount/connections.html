@@ -1,0 +1,92 @@
+{% load i18n %}
+{% load allauth %}
+{% load socialaccount %}
+{% load static %}
+
+{% block content %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/connections.css' %}">
+{% endblock %}
+
+<div class="body">
+
+<div class="connections-container">
+    {% include "components/back_button.html" %}
+    <!-- Título -->
+    <h1 class="page-title">{% trans "Account Connections" %}</h1>
+
+    {% if form.accounts %}
+        <p class="subtitle">
+            {% blocktrans %}
+            You can sign in to your account using any of the following third-party accounts:
+            {% endblocktrans %}
+        </p>
+
+        <form method="post" action="{% url 'socialaccount_connections' %}" class="connections-form">
+            {% csrf_token %}
+
+            <!-- Lista de contas -->
+            <div class="connections-list">
+                {% for acc in form.fields.account.choices %}
+                    {% with account=acc.0.instance.get_provider_account %}
+
+                    <label class="connection-card">
+
+                        <input type="radio"
+                               name="account"
+                               value="{{ account.account.pk }}">
+
+                        <div class="connection-info">
+                            <span class="provider-name">
+                                {{ account }}
+                            </span>
+
+                            <span class="badge provider">
+                                {{ account.get_brand.name }}
+                            </span>
+                        </div>
+
+                    </label>
+
+                    {% endwith %}
+                {% endfor %}
+            </div>
+
+            <!-- ação -->
+            <div class="actions">
+                <button type="submit" class="btn danger">
+                    {% trans "Remove" %}
+                </button>
+            </div>
+
+        </form>
+
+    {% else %}
+        <p class="empty-text">
+            {% trans 'You currently have no third-party accounts connected to this account.' %}
+        </p>
+    {% endif %}
+
+    <!-- adicionar conta -->
+    <h2 class="section-title">{% trans 'Add a Third-Party Account' %}</h2>
+    
+
+    <div class="social">
+        <a href="{% provider_login_url 'google' %}" class="btn-social">
+            <i class="fa-brands fa-google"></i> Google
+        </a>
+        <br>
+        <a href="{% provider_login_url 'github' %}" class="btn-social">
+            <i class="fa-brands fa-github"></i> GitHub
+        </a>
+    </div>
+  
+
+</div>
+
+</div>
+
+<script src="{% static 'js/theme.js' %}"></script>
+{% endblock content %}

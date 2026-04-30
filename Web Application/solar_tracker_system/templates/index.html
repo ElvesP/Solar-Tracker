@@ -1,0 +1,490 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SolarTracker IoT</title>
+  <link rel="stylesheet" href="{% static 'css/index.css' %}">
+</head>
+<body>
+<!-- TOPBAR -->
+<div class="topbar" id="topbar">
+  <div class="sys">
+    <button class="btn" onclick="toggleSidebar()">☰</button>
+    <div class="brand">SolarTracker IoT</div>
+  </div>
+  <div class="actions">
+    <button class="noti-btn" id="notificationBtn" data-count="3">🔔</button>
+    <button class="icon-btn" id="settingsBtn" onclick="toggleSettings()">⚙️</button>
+    <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">🌓</button>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS PANEL -->
+<div class="noti-dropdown" id="notiDropdown">
+  <div class="noti-header">Notificações</div>
+  <div class="noti-item">Nova mensagem recebida</div>
+  <div class="noti-item">Atualização disponível</div>
+</div>
+
+<!-- SETTINGS PANEL  -->
+<settings-panel id="settingsPane">
+<div class="settings-panel" id="settingsPanel">
+  <div class="sp-header">
+    <span>Conta</span>
+    <button id="closeSettings" onclick="toggleSettings()">✕</button>
+  </div>
+
+  <div class="sp-content">
+    <a class="sp-item" href="#">👤 Perfil</a>
+    <a class="sp-item" href="{% url 'account_change_password' %}">🔒 Alterar senha</a>
+    <a class="sp-item" href="{% url 'account_email' %}">📧 Adicionar email</a>
+    <a class="sp-item" href="{% url 'socialaccount_connections' %}">🔗 Contas conectadas</a>
+  </div>
+
+  <div class="sp-footer">
+    <div class="logout">
+      <a class="item" href="{% url 'account_logout' %}">⏻ Logout</a>
+    </div>
+  </div>
+</div>
+</settings-panel>
+
+<div class="layout" id="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar collapsed" id="sidebar">
+
+  <nav class="nav">
+    <a class="ni active" id="nav-dashboard" onclick="navigate('dashboard')">
+      <span class="icon">⊞</span><span class="text">Dashboard</span>
+    </a>
+    <a class="ni" id="nav-monitoring" onclick="navigate('monitoring')">
+      <span class="icon">📈</span><span class="text">Monitoramento</span>
+    </a>
+    <a class="ni" id="nav-control" onclick="navigate('control')">
+      <span class="icon">🎛</span><span class="text">Controle</span>
+    </a>
+    <a class="ni" id="nav-reports" onclick="navigate('reports')">
+      <span class="icon">📊</span><span class="text">Histórico</span>
+    </a>
+  </nav>
+
+  <div class="footer">
+      <a href="{% url "account_logout" %}">      
+        <span>⏻</span><span class="text">Parada de Emergência</span>
+      </a>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+<!-- ════════ PAGE: DASHBOARD ════════ -->
+<div class="page active" id="page-dashboard">
+  <div class="ph">
+    <div>
+      <h1 class="ptitle">Operational Overview</h1>
+      <div class="pmeta">
+        <span>📍 40.7128° N, 74.0060° W · New York, USA</span>
+        <span>🕐 Last Sync: 2m ago</span>
+      </div>
+    </div>
+    <div class="solar-evt">
+      <div>
+        <div class="se-lbl">Próximo Evento Solar</div>
+        <div class="se-val">Sunset in 4h 12m</div>
+      </div>
+      <div class="se-ico">🌅</div>
+    </div>
+  </div>
+
+  <div class="stat-g">
+    <div class="card sc">
+      <div class="sc-top"><div class="clabel">Geração Atual</div><div class="sico y">⚡</div></div>
+      <div class="sv">4,820<span class="u">W</span></div>
+      <div class="sdelta up">↗ +12% vs last hour</div>
+    </div>
+    <div class="card sc">
+      <div class="sc-top"><div class="clabel">Eficiência</div><div class="sico t">◎</div></div>
+      <div class="sv">94.2<span class="u">%</span></div>
+      <div class="sbar"><div class="sbar-f" style="width:94.2%"></div></div>
+    </div>
+    <div class="card sc">
+      <div class="sc-top"><div class="clabel">Tensão</div><div class="sico b">⚡</div></div>
+      <div class="sv">420.5<span class="u">V</span></div>
+      <div class="snote">✔ Within nominal range</div>
+    </div>
+    <div class="card sc">
+      <div class="sc-top"><div class="clabel">Corrente</div><div class="sico o">↓</div></div>
+      <div class="sv">11.4<span class="u">A</span></div>
+      <div class="snote">ℹ Stable load profile</div>
+    </div>
+  </div>
+
+  <div class="mid-g">
+    <div class="card tracker-card">
+      <div class="clabel" style="margin-bottom:22px">Posicionamento do Tracker</div>
+      <div class="gauges">
+        <div class="gw">
+          <svg width="130" height="130" viewBox="0 0 130 130">
+            <circle cx="65" cy="65" r="52" fill="none" stroke="#f0f0ee" stroke-width="10"/>
+            <circle cx="65" cy="65" r="52" fill="none" stroke="var(--accent)" stroke-width="10"
+              stroke-dasharray="326.7" stroke-dashoffset="158" stroke-linecap="round" transform="rotate(-90 65 65)"/>
+          </svg>
+          <div class="gt"><div class="gv">185°</div><div class="gs">Azimute</div></div>
+        </div>
+        <div class="gw">
+          <svg width="130" height="130" viewBox="0 0 130 130">
+            <circle cx="65" cy="65" r="52" fill="none" stroke="#f0f0ee" stroke-width="10"/>
+            <circle cx="65" cy="65" r="52" fill="none" stroke="var(--dark)" stroke-width="10"
+              stroke-dasharray="326.7" stroke-dashoffset="234" stroke-linecap="round" transform="rotate(-90 65 65)"/>
+          </svg>
+          <div class="gt"><div class="gv">42°</div><div class="gs">Elevação</div></div>
+        </div>
+      </div>
+      <div class="ctrl-row">
+        <div class="ctrl-grp">
+          <button class="cbtn">↺</button><button class="cbtn">↻</button>
+        </div>
+        <div class="ctrl-grp">
+          <button class="cbtn">↑</button><button class="cbtn">↓</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="thermal-card">
+      <div class="th-hd">
+        <div>
+          <div class="th-lbl">Real-Time Thermal Scan</div>
+          <div class="th-ttl">Array Node A1-A12</div>
+        </div>
+        <button class="exp-btn">⤢ Expand View</button>
+      </div>
+      <div class="t-nodes">
+        <div class="tnode nm">32°C</div>
+        <div class="tnode nm">31°C</div>
+        <div class="tnode wm">38°C</div>
+        <div class="tnode nm">33°C</div>
+      </div>
+      <div class="t-alert">
+        <span style="font-size:18px;flex-shrink:0">⚠️</span>
+        <span class="t-alert-txt">Slight thermal variance detected in Panel Node 3. Monitoring for peak efficiency optimization.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card chart-card">
+    <div class="ch-hd">
+      <div class="clabel">Diurnal Production Curve</div>
+      <div class="chtabs">
+        <button class="chtab active">24H</button>
+        <button class="chtab">7D</button>
+      </div>
+    </div>
+    <div class="bar-area" id="dashChart">
+      <div class="cx"><span>06:00 AM</span><span>12:00 PM</span><span>06:00 PM</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ PAGE: MONITORING ════════ -->
+<div class="page" id="page-monitoring">
+  <div class="ph" style="margin-bottom:22px">
+    <div>
+      <div style="display:inline-block;background:#eff6ff;color:var(--blue);border:1px solid #bfdbfe;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">Real-Time Telemetry</div>
+      <h1 class="ptitle">Monitoramento de Sensores</h1>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="exb ol" onclick="exportCSV(this)">⬇ Export CSV</button>
+      <button class="exb dk" id="liveBtn" onclick="toggleLive()">
+        <span id="liveDot" style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;animation:blink 1.5s infinite"></span> Live Sync
+      </button>
+    </div>
+  </div>
+
+  <div class="mon-top">
+    <div class="card sensor-card">
+      <div class="sch">
+        <div>
+          <div class="clabel" style="margin-bottom:4px">Intensidade Luminosa (LDR)</div>
+          <div class="ctitle">Sensores Cardeais</div>
+        </div>
+        <div class="legend">
+          <div class="leg-i"><div class="leg-d" style="background:#3b82f6"></div>Superior</div>
+          <div class="leg-i"><div class="leg-d" style="background:#f97316"></div>Inferior</div>
+          <div class="leg-i"><div class="leg-d" style="background:#22c55e"></div>Esquerdo</div>
+          <div class="leg-i"><div class="leg-d" style="background:#8b5cf6"></div>Direito</div>
+        </div>
+      </div>
+      <div class="lc-wrap">
+        <div class="live-pk">
+          <div class="lp-tag">Live Peak</div>
+          <div class="lp-val">842 <span class="lp-u">Lux</span></div>
+        </div>
+        <svg class="lc" id="lineChart" viewBox="0 0 700 220" preserveAspectRatio="none"></svg>
+      </div>
+    </div>
+    <div class="card ang-card">
+      <div>
+        <div class="clabel" style="margin-bottom:4px">Alinhamento Angular</div>
+        <div class="ctitle">Teórico vs. Real</div>
+      </div>
+      <div class="gw2">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="62" fill="none" stroke="#f0f0ee" stroke-width="12"/>
+          <circle cx="80" cy="80" r="62" fill="none" stroke="var(--accent)" stroke-width="12"
+            stroke-dasharray="389.6" stroke-dashoffset="100" stroke-linecap="round" transform="rotate(-90 80 80)"/>
+        </svg>
+        <div class="gc2">
+          <div class="gv2">142.5°</div>
+          <div class="gs2">Azimute Atual</div>
+        </div>
+      </div>
+      <div class="ang-stats">
+        <div class="ast"><div class="ast-lbl">Teórico</div><div class="ast-v amb">145.2°</div></div>
+        <div class="ast"><div class="ast-lbl">Variação</div><div class="ast-v rd">-2.7°</div></div>
+      </div>
+      <div>
+        <div class="eff-h"><span>Eficiência de Rastreamento</span><span class="eff-v">98.1%</span></div>
+        <div class="eff-b"><div class="eff-f" style="width:98.1%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mon-stats">
+    <div class="card msc">
+      <div class="msc-top"><div class="msico y">⚡</div><div class="msdelta up">+12% ↗</div></div>
+      <div class="ms-lbl">Geração Atual</div>
+      <div class="ms-v">4.2<span class="u">kW</span></div>
+    </div>
+    <div class="card msc">
+      <div class="msc-top"><div class="msico b">🌡</div><div class="msdelta ok">Estável</div></div>
+      <div class="ms-lbl">Temp. Painel</div>
+      <div class="ms-v">32.8<span class="u">°C</span></div>
+    </div>
+    <div class="card msc">
+      <div class="msc-top"><div class="msico g">⚙</div><div class="msdelta tm">Latência 12ms</div></div>
+      <div class="ms-lbl">Carga Motores</div>
+      <div class="ms-v">18<span class="u">%</span></div>
+    </div>
+    <div class="card msc">
+      <div class="msc-top"><div class="msico p">🛡</div><div class="msdelta pu">Vento 4km/h</div></div>
+      <div class="ms-lbl">Status Segurança</div>
+      <div class="ms-v" style="font-size:22px">Nominal</div>
+    </div>
+  </div>
+
+  <div class="card logs-s">
+    <div class="logs-hd">
+      <div><div class="logs-sub">Logs de Atividade</div><div class="logs-ttl">Atividade dos Motores (Az/El)</div></div>
+      <a class="logs-lnk" href="#">Ver Histórico Completo →</a>
+    </div>
+    <table>
+      <thead><tr><th>Timestamp</th><th>Motor / Atuador</th><th>Ação Realizada</th><th>Posição Final</th><th>Consumo</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><div class="ts">14:32:01.24</div></td><td><div class="mn">AZ-Motor-01</div><div class="msub">(Azimute)</div></td><td>Ajuste de rastreamento (+0.5°)</td><td><span class="mono">142.5°</span></td><td><span class="mono">124 mA</span></td><td><span class="sdot dn">Concluído</span></td></tr>
+        <tr><td><div class="ts">14:30:45.12</div></td><td><div class="mn">EL-Motor-02</div><div class="msub">(Elevação)</div></td><td>Otimização Zenital (-0.2°)</td><td><span class="mono">45.8°</span></td><td><span class="mono">89 mA</span></td><td><span class="sdot dn">Concluído</span></td></tr>
+        <tr><td><div class="ts">14:28:12.88</div></td><td><div class="mn">AZ-Motor-01</div><div class="msub">(Azimute)</div></td><td>Ajuste de rastreamento (+0.5°)</td><td><span class="mono">142.0°</span></td><td><span class="mono">131 mA</span></td><td><span class="sdot dn">Concluído</span></td></tr>
+        <tr><td><div class="ts">14:15:00.00</div></td><td><div class="mn">System Core</div></td><td>Rotina de recalibração LDR</td><td><span class="mono">N/A</span></td><td><span class="mono">12 mA</span></td><td><span class="sdot lo">Log Only</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════ PAGE: CONTROL ════════ -->
+<div class="page" id="page-control" style="padding-bottom:110px">
+  <div style="margin-bottom:22px">
+    <h1 class="ptitle">Controle Remoto</h1>
+    <p style="font-size:14px;color:var(--t2);line-height:1.6;max-width:600px;margin-top:8px">Ajuste fino da orientação dos painéis solares. Alterne entre o rastreamento automatizado baseado em sensores ou controle manual para manutenção.</p>
+  </div>
+
+  <div class="card mode-card" style="margin-bottom:18px">
+    <div>
+      <div class="mode-lbl">Modo de Operação</div>
+      <div class="mode-val">Sistema Ativo em <span id="modeText">Automático</span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="m-ind" id="modeInd"></div>
+      <div class="mode-tog">
+        <button class="tbtn active" id="btnAuto" onclick="setMode('auto')">AUTOMÁTICO</button>
+        <button class="tbtn" id="btnManual" onclick="setMode('manual')">MANUAL</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ctrl-g">
+    <div class="card mov-card">
+      <div class="ch">
+        <div class="clabel">Controle de Movimento (Manual)</div>
+        <div class="ang-badges">
+          <div class="abadge" id="azBadge">AZIMUTE: 145.2°</div>
+          <div class="abadge" id="elBadge">ELEVAÇÃO: 42.8°</div>
+        </div>
+      </div>
+      <div class="ctrls">
+        <div class="dpad-grid">
+          <div class="dpbtn dpe"></div>
+          <div class="dpbtn" onclick="move('up')">▲</div>
+          <div class="dpbtn dpe"></div>
+          <div class="dpbtn" onclick="move('left')">◀</div>
+          <div class="dpbtn dpc">⊕</div>
+          <div class="dpbtn" onclick="move('right')">▶</div>
+          <div class="dpbtn dpe"></div>
+          <div class="dpbtn" onclick="move('down')">▼</div>
+          <div class="dpbtn dpe"></div>
+        </div>
+        <div class="axis-sl">
+          <div class="axbox">
+            <div class="ax-lbl">Eixo Horizontal</div>
+            <div class="sl-row">
+              <div class="sl-ico" onclick="adjSl('hz',-5)">↺</div>
+              <input type="range" id="slHz" min="0" max="360" value="145" oninput="updAz(this.value)">
+              <div class="sl-ico" onclick="adjSl('hz',5)">↻</div>
+            </div>
+          </div>
+          <div class="axbox">
+            <div class="ax-lbl">Eixo Vertical</div>
+            <div class="sl-row">
+              <div class="sl-ico" onclick="adjSl('vt',-5)">▼</div>
+              <input type="range" id="slVt" min="0" max="90" value="43" oninput="updEl(this.value)">
+              <div class="sl-ico" onclick="adjSl('vt',5)">▲</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="cal-btn" id="calBtn" onclick="calibrate()">CALIBRAR POSIÇÃO</button>
+    </div>
+
+    <div class="rp">
+      <div class="card cfg-card">
+        <div class="cfg-h">
+          <div class="cfg-lbl">Configuração</div>
+          <span style="font-size:18px;color:var(--tm);cursor:pointer">⇌</span>
+        </div>
+        <div class="fl">Sensibilidade do LDR</div>
+        <input type="range" id="ldrSl" min="0" max="100" value="55" style="width:100%;margin-bottom:4px">
+        <div class="fm"><span>BAIXA</span><span>MÉDIA</span><span>ALTA</span></div>
+        <div class="fl">Intervalo de Atualização</div>
+        <div class="ni-row">
+          <input type="number" class="ni-inp" id="intInp" value="500">
+          <span class="ni-unit">ms</span>
+          <div class="ni-btns">
+            <button class="nb" onclick="adjInt(50)">+</button>
+            <button class="nb" onclick="adjInt(-50)">−</button>
+          </div>
+        </div>
+        <div class="fl">Limite de Torque do Servo</div>
+        <input type="text" class="ti" value="85%">
+        <button class="sv-btn" onclick="saveP(this)">SALVAR PARÂMETROS</button>
+      </div>
+
+      <div class="viz-card">
+        <div class="viz-lbl">Visualização 3D</div>
+        <div class="viz-c">
+          <div class="sdot2"></div>
+          <div class="panel3d" id="panel3d">
+            <div class="pc"></div><div class="pc"></div>
+            <div class="pc"></div><div class="pc"></div>
+          </div>
+        </div>
+        <div class="viz-ft">
+          <div>
+            <div>Sinal Wireless</div>
+            <div class="sig-b"><div class="sig-f"></div></div>
+          </div>
+          <div style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:rgba(255,255,255,.75)">-64 dBm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ PAGE: REPORTS ════════ -->
+<div class="page" id="page-reports">
+  <div class="rph">
+    <div>
+      <div class="ptag" style="color:var(--accent)">Analytics Core</div>
+      <h1 class="ptitle" style="font-size:38px;line-height:1.15">Histórico e<br>Relatórios</h1>
+    </div>
+    <div class="rp-right">
+      <div class="date-r">
+        <input type="date" class="di" value="2023-10-20">
+        <span style="color:var(--tm)">→</span>
+        <input type="date" class="di" value="2023-10-27">
+      </div>
+      <div class="ex-btns">
+        <button class="exb dk" onclick="exportData(this,'CSV')">⬇ CSV</button>
+        <button class="exb ol" onclick="exportData(this,'PDF')">📄 PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="r-top">
+    <div class="card r-chart-card">
+      <div class="rch">
+        <div>
+          <div class="clabel" style="margin-bottom:4px">Geração de Energia Diária</div>
+          <div class="ctitle">Última Semana (kWh)</div>
+        </div>
+        <div class="spill">Otimização Ativa</div>
+      </div>
+      <div class="r-bar-chart" id="repChart">
+        <div class="rgl"><div class="rg"></div><div class="rg"></div><div class="rg"></div><div class="rg"></div></div>
+      </div>
+    </div>
+    <div class="r-right">
+      <div class="tot-card">
+        <div class="tot-lbl">Total Gerado (Semanas)<span style="font-size:24px;color:rgba(255,255,255,.15)">⚡</span></div>
+        <div class="tot-v">4,821.4<span class="tu">kWh</span></div>
+        <div class="tot-d">↗ +8.4% vs semana anterior</div>
+      </div>
+      <div class="card ins-card">
+        <div class="ins-h">
+          <div class="ins-ttl">Performance<br>Insights</div>
+          <span style="color:var(--tm);font-size:18px">✦</span>
+        </div>
+        <div class="ins-i">
+          <div class="ins-str g"></div>
+          <div class="ins-ico g">✔</div>
+          <div><div class="ins-tt">Eficiência aumentada em 12%</div><div class="ins-dc">Relativo ao desempenho médio de ontem.</div></div>
+        </div>
+        <div class="ins-i">
+          <div class="ins-str b"></div>
+          <div class="ins-ico b">☁</div>
+          <div><div class="ins-tt">Previsão: Sol Intenso</div><div class="ins-dc">Ajuste automático para máxima captura em 2h.</div></div>
+        </div>
+        <div class="ins-i">
+          <div class="ins-str y"></div>
+          <div class="ins-ico y">🔧</div>
+          <div><div class="ins-tt">Manutenção Sugerida</div><div class="ins-dc">O inversor 03 apresenta queda de 3% no log.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card r-logs">
+    <div class="rlh">
+      <div class="rlt">Histórico de Logs por Dispositivo</div>
+      <a class="rll" href="#">Ver todos os logs →</a>
+    </div>
+    <table class="rtable">
+      <thead><tr><th>ID Dispositivo</th><th>Localização</th><th>Status</th><th>Geração Atual</th><th>Última Atualização</th></tr></thead>
+      <tbody>
+        <tr><td><div class="dv">ST-0192-A</div></td><td><div class="loc">Setor Sul, Ala 4</div></td><td><span class="badge op">OPERACIONAL</span></td><td><span class="gv">4.21</span> <span class="gu">kW</span></td><td><div class="tv">2 min atrás</div></td></tr>
+        <tr><td><div class="dv">ST-0193-B</div></td><td><div class="loc">Setor Sul, Ala 2</div></td><td><span class="badge op">OPERACIONAL</span></td><td><span class="gv">3.88</span> <span class="gu">kW</span></td><td><div class="tv">5 min atrás</div></td></tr>
+        <tr><td><div class="dv">ST-0211-C</div></td><td><div class="loc">Setor Norte, Ala 1</div></td><td><span class="badge warn">ATENÇÃO</span></td><td><span class="gv">1.12</span> <span class="gu">kW</span></td><td><div class="tv">1 min atrás</div></td></tr>
+        <tr><td><div class="dv">ST-0198-D</div></td><td><div class="loc">Setor Leste, Ala 3</div></td><td><span class="badge op">OPERACIONAL</span></td><td><span class="gv">4.67</span> <span class="gu">kW</span></td><td><div class="tv">3 min atrás</div></td></tr>
+        <tr><td><div class="dv">ST-0205-E</div></td><td><div class="loc">Setor Oeste, Ala 2</div></td><td><span class="badge op">OPERACIONAL</span></td><td><span class="gv">3.54</span> <span class="gu">kW</span></td><td><div class="tv">7 min atrás</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</main><!-- end main -->
+</div><!-- end layout -->
+
+<script src="{%static 'js/index.js' %}"></script>
+</body>
+</html>

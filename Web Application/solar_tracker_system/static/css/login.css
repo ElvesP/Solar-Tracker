@@ -1,0 +1,239 @@
+@import url('./theme.css');
+
+.auth-container {
+    height: var(--min-height);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--core);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.body.dark .auth-container {
+    background: rgba(17,24,39,0.7);
+    border: 1px solid var(--border);
+    display: flex;
+}
+
+/* LEFT */
+.auth-left {
+    flex: 1;
+    height: 98%;
+    margin: 5px;
+    border-radius: 10px;
+    position: relative;
+    padding: 5px;
+    color: white;
+    background: url('https://stksolar.com.br/blog/wp-content/uploads/2025/11/energia-fotovoltaica.webp') no-repeat center;
+    background-size: cover;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+
+.left-content {
+    position: relative;
+    z-index: 2;
+}
+
+.left-content h2 {
+    font-size: 20px;
+    text-align: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+}
+
+.logo span {
+    width: 10px;
+    height: 10px;
+    background: gold;
+    border-radius: 50%;
+}
+
+/* RIGHT */
+.auth-right {
+    display: flex;
+    z-index: 4;
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    padding: 5px;
+    margin: 10px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    border: 1px solid var(--border);
+}
+
+.body.dark .auth-right {
+    background: rgba(17,24,39,0.7);
+    border: 1px solid var(--border);
+}
+
+.auth-box {
+    display: block;
+    width: 90%;
+    padding: 20px;
+    margin: 20px;
+    max-width: 400px;
+    color: var(--accent);
+}
+
+.auth-box h2 {
+    text-align: center;
+    
+}
+
+.auth-box label {
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 5px;
+}
+
+.auth-box input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    background: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.auth-box input:hover {
+    border-color: #2a5298;
+    box-shadow: 0 0 0 2px #2a529833;
+    outline: none;
+}
+
+.btn {
+    background: #ffb347;
+    color: #111827;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: 0.2s;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    margin-top: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.btn:hover {
+  background: #e09a2f;
+  transform: translateY(-1px);
+}
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+    gap: 40px;
+}
+
+.options label {
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.options a {
+    margin-top: 0px;
+    align-items: bottom;
+    text-decoration: none;
+    white-space: nowrap;
+    color: var(--a);
+}
+
+.options a:hover {
+  text-decoration: underline;
+}
+
+.divider {
+    margin-top: 40px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--text);
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #d1d5db;
+  margin: 0 10px;
+}
+
+.social {
+    display: flex;
+    gap: 10px;
+}
+
+.social a {
+    flex: 1;
+    padding: 10px;
+    background: #eee;
+    border: 1px solid #ccc;
+    text-align: center;
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+}
+
+.btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.btn-social:hover {
+  background: #f5f7fa;
+}
+
+.signup-link {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.signup-link a {
+    color: var(--a);
+    text-decoration: none;
+}
+
+.signup-link a:hover {
+    text-decoration: underline;
+}
+
+.form-errors,
+.errorlist {
+    color: #ff0000;
+    font-size: 13px;
+    margin-top: 5px;
+    list-style: none;
+    padding-left: 0;
+}
