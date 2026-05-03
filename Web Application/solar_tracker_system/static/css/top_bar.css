@@ -1,0 +1,217 @@
+@import url('./theme.css');
+
+.topbar { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    height: 56px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 0 18px; 
+    background: rgba(255,255,255,0.7); 
+    backdrop-filter: blur(12px); 
+    border-bottom: 1px solid var(--border); 
+    transition: all .3s ease; 
+    z-index: 100; 
+}
+
+body.dark .topbar { 
+    background: rgba(17,24,39,0.7); 
+}
+
+.topbar.scrolled { 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+}
+
+.sys {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.brand { 
+    font-weight: 600; 
+    letter-spacing: 3px; 
+}
+
+.btn { 
+    position: relative; 
+    border: none; 
+    color: var(--text); 
+    font-size: 18px; 
+    background: transparent; 
+    cursor: pointer; 
+    padding: 8px; 
+    border-radius: 10px; 
+    color: var(--text); 
+    transition: all .2s ease; 
+}
+
+.btn:hover { 
+    background: var(--hover); 
+}
+
+.sys-online { 
+    position: absolute;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--green);
+    background: var(--bg);
+    border-radius: 20px;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+
+.sys-online::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 2px #bbf7d0;
+    animation: pulse 2s infinite
+} 
+
+@keyframes pulse{ 0%, 100%{ box-shadow: 0 0 0 2px #bbf7d0} 50%{ box-shadow: 0 0 0 4px #86efac}}
+
+.sys-online.off {
+    color: #f59e0b;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.sys-online.off::before {
+    background: red;
+}
+
+.actions { 
+    display: flex; 
+    gap: 10px; 
+    align-items: center; 
+}
+
+.icon-btn { 
+    border: none; 
+    color: var(--text); 
+    font-size: 18px; 
+    background: transparent; 
+    cursor: pointer; 
+    padding: 8px; 
+    border-radius: 10px; 
+    color: var(--text); 
+    transition: all .2s ease; 
+}
+
+.icon-btn:hover { 
+    background: var(--hover); 
+    border-radius: 50%; 
+    transform: rotate(20deg); 
+}
+
+.settings-panel { 
+    display: flex; 
+    flex-direction: column; 
+    position: fixed; 
+    top: 56px; 
+    right: -320px; 
+    width: 300px; 
+    height: calc(100% - 56px); 
+    background: rgba(255,255,255,0.5); 
+    backdrop-filter: blur(16px); 
+    border-left: 1px solid var(--border); 
+    transition: right .3s ease; 
+    z-index: 100; 
+}
+
+body.dark .settings-panel {
+    background: rgba(17,24,39,0.5);
+}
+
+.settings-panel.open { 
+    right: 0; 
+}
+
+.sp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+}
+
+.sp-header button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text);
+}
+
+.sp-content {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.sp-content a {
+    text-decoration: none;
+}
+
+.sp-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--muted);
+    transition: all .2s ease;
+    text-decoration: none;
+}
+
+.sp-item:hover {
+    background: var(--hover);
+    color: var(--text);
+    transform: translateX(3px);
+}
+
+button.sp-item {
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+}
+
+.sp-footer {
+    margin-top: auto;
+    padding: 14px;
+}
+
+.sp-logout a {
+    display: block;
+    text-align: center;
+    font-weight: 600;
+    width: 90%;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: var(--bg);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all .2s;
+}
+
+.sp-logout a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}

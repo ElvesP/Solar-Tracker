@@ -1,0 +1,43 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/monitoring.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<div class="page" id="page-monitoring">
+    <h1 class="page-title">Monitoramento Eléctrico</h1>
+
+    <div class="monitor-grid">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    Variáveis Eléctricas em Função do Tempo
+                </div>
+                <div class="controls">
+                    <select id="graphSelector">
+                        <option value="voltage">Tensão</option>
+                        <option value="current">Corrente</option>
+                        <option value="light">Luminosidade</option>
+                        <option value="power">Potência</option>
+                        <option value="efficiency">Eficiência</option>
+                    </select>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="electricalChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    Ângulo de Elevação vs Ângulo de Azimute
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="solarAngleChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/monitoring.js' %}"></script>

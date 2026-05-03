@@ -1,0 +1,113 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SolarTracker IoT</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+
+</head>
+
+<body>
+
+<div class="container">
+    {% include 'components/back_button.html' %}
+    <div class="header">
+        <h1>Perfil</h1>
+        <p>Informações da conta e sistema solar</p>
+    </div>
+
+    <div class="grid">
+
+        <!-- CONTA -->
+
+        <section class="card">
+
+            <h2 class="card-title">
+                Conta
+            </h2>
+
+            <div class="table">
+
+                <div class="row">
+                    <span class="label">Nome de utilizador</span>
+                    <span class="value">{{ user.username }}</span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Email</span>
+                    <span class="value">{{ user.email }}</span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Conta criada</span>
+                    <span class="value">{{ user.date_joined }}</span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Último login</span>
+                    <span class="value">{{ user.last_login }}</span>
+                </div>
+
+                <div class="row">
+                    <span class="label">ID do Utilizador</span>
+                    <span class="value">{{ user.id }}</span>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- SISTEMA SOLAR -->
+
+        <section class="card">
+
+            <h2 class="card-title">
+                Sistema Solar
+            </h2>
+
+            <div class="table">
+
+                <div class="row">
+                    <span class="label">Painéis conectados</span>
+                    <span class="value">-</span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Estado</span>
+                    <span class="value">-</span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Tracker</span>
+                    <span class="value">-</span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Controlador</span>
+                    <span class="value">-</span>
+                </div>
+
+                <div class="row">
+                    <span class="label">GPS</span>
+                    <span class="value">-</span>
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

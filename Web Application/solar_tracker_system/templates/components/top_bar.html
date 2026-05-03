@@ -1,0 +1,41 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/top_bar.css' %}">
+
+<!-- BARRA SUPERIOR -->
+<div class="topbar" id="topbar">
+  <div class="sys">
+    <button class="btn" onclick="toggleSidebar()">☰</button>
+    <div class="brand">SolarTracker IoT</div>
+  </div>
+  <div class="sys-online" id="statusBadge" onclick="toggleSystem()"><span>SISTEMA ONLINE</span></div>
+  <div class="actions">
+    <button class="icon-btn" id="settingsBtn" onclick="toggleSettings()">⚙️</button>
+  </div>
+</div>
+
+<!-- PAINEL DE DEFINIÇÕES  -->
+<div class="settings-panel" id="settingsPanel">
+    <div class="sp-header">
+      <span>Conta</span>
+      <button id="closeSettings" onclick="toggleSettings()">✕</button>
+    </div>
+    <div class="sp-content">
+      <a class="sp-item" href="{% url 'profile' %}">👤 Perfil</a>
+      <a class="sp-item" href="{% url 'account_change_password' %}">🔒 Alterar senha</a>
+      <a class="sp-item" href="{% url 'account_email' %}">📧 Adicionar email</a>
+      <a class="sp-item" href="{% url 'socialaccount_connections' %}">🔗 Contas conectadas</a>
+    </div>
+    <div class="sp-header">
+      <span>Tema</span>
+    </div>
+    <div class="sp-content">
+      <button class="sp-item" id="themeBtn" onclick="toggleTheme()">🌓 Alterar Tema</button>
+    </div>
+    <div class="sp-footer">
+      <div class="sp-logout">
+        <a href="{% url 'account_logout' %}">⏻ Logout</a>
+      </div>
+    </div>
+</div>
+
+<script src="{% static 'js/top_bar.js' %}"></script>

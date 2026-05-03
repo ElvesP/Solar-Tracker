@@ -1,0 +1,90 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/control.css' %}">
+
+
+<div class="page" id="page-control">
+  <div style="margin-bottom:22px">
+    <h1 class="ptitle">Controle Remoto</h1>
+    <p style="font-size:14px;color:var(--t2);line-height:1.6;max-width:600px;margin-top:8px">Ajuste fino da orientação dos painéis solares. Alterne entre o rastreamento automatizado baseado em sensores ou controle manual para manutenção.</p>
+  </div>
+
+  <div class="card mode-card" style="margin-bottom:18px">
+    <div>
+      <div class="mode-lbl">Modo de Operação</div>
+      <div class="mode-val">Sistema Ativo em <span id="modeText">Automático</span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="m-ind" id="modeInd"></div>
+      <div class="mode-tog">
+        <button class="tbtn active" id="btnAuto" onclick="setMode('auto')">AUTOMÁTICO</button>
+        <button class="tbtn" id="btnManual" onclick="setMode('manual')">MANUAL</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ctrl-g">
+    <div class="card mov-card">
+      <div class="ch">
+        <div class="clabel">Controle de Movimento (Manual)</div>
+        <div class="ang-badges">
+          <div class="abadge" id="azBadge">AZIMUTE: 145.2°</div>
+          <div class="abadge" id="elBadge">ELEVAÇÃO: 42.8°</div>
+        </div>
+      </div>
+      <div class="ctrls">
+        <div class="dpad-grid">
+          <div class="dpbtn dpe"></div>
+          <div class="dpbtn" onclick="move('up')">▲</div>
+          <div class="dpbtn dpe"></div>
+          <div class="dpbtn" onclick="move('left')">◀</div>
+          <div class="dpbtn dpc">⊕</div>
+          <div class="dpbtn" onclick="move('right')">▶</div>
+          <div class="dpbtn dpe"></div>
+          <div class="dpbtn" onclick="move('down')">▼</div>
+          <div class="dpbtn dpe"></div>
+        </div>
+        <div class="axis-sl">
+          <div class="axbox">
+            <div class="ax-lbl">Eixo Horizontal</div>
+            <div class="sl-row">
+              <div class="sl-ico" onclick="adjSl('hz',-5)">↺</div>
+              <input type="range" id="slHz" min="0" max="360" value="145" oninput="updAz(this.value)">
+              <div class="sl-ico" onclick="adjSl('hz',5)">↻</div>
+            </div>
+          </div>
+          <div class="axbox">
+            <div class="ax-lbl">Eixo Vertical</div>
+            <div class="sl-row">
+              <div class="sl-ico" onclick="adjSl('vt',-5)">▼</div>
+              <input type="range" id="slVt" min="0" max="90" value="43" oninput="updEl(this.value)">
+              <div class="sl-ico" onclick="adjSl('vt',5)">▲</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="cal-btn" id="calBtn" onclick="calibrate()">CALIBRAR POSIÇÃO</button>
+    </div>
+
+    <div class="rp">
+      <div class="viz-card">
+        <div class="viz-lbl">Visualização 3D</div>
+        <div class="viz-c">
+          <div class="sdot2"></div>
+          <div class="panel3d" id="panel3d">
+            <div class="pc"></div><div class="pc"></div>
+            <div class="pc"></div><div class="pc"></div>
+          </div>
+        </div>
+        <div class="viz-ft">
+          <div>
+            <div>Sinal Wireless</div>
+            <div class="sig-b"><div class="sig-f"></div></div>
+          </div>
+          <div style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:rgba(255,255,255,.75)">-64 dBm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/control.js' %}"></script>

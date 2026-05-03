@@ -1,0 +1,62 @@
+<div class="page" id="page-reports">
+  <div class="rph">
+    <div>
+      <div class="ptag" style="color:var(--accent)">Analytics Core</div>
+      <h1 class="ptitle" style="font-size:38px;line-height:1.15">Histórico e<br>Relatórios</h1>
+    </div>
+    <div class="rp-right">
+      <div class="date-r">
+        <input type="date" class="di" value="2023-10-20">
+        <span style="color:var(--tm)">→</span>
+        <input type="date" class="di" value="2023-10-27">
+      </div>
+      <div class="ex-btns">
+        <button class="exb dk" onclick="exportData(this,'CSV')">⬇ CSV</button>
+        <button class="exb ol" onclick="exportData(this,'PDF')">📄 PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="r-top">
+    <div class="card r-chart-card">
+      <div class="rch">
+        <div>
+          <div class="clabel" style="margin-bottom:4px">Geração de Energia Diária</div>
+          <div class="ctitle">Última Semana (kWh)</div>
+        </div>
+        <div class="spill">Otimização Ativa</div>
+      </div>
+      <div class="r-bar-chart" id="repChart">
+        <div class="rgl"><div class="rg"></div><div class="rg"></div><div class="rg"></div><div class="rg"></div></div>
+      </div>
+    </div>
+    <div class="r-right">
+      <div class="tot-card">
+        <div class="tot-lbl">Total Gerado (Semanas)<span style="font-size:24px;color:rgba(255,255,255,.15)">⚡</span></div>
+        <div class="tot-v">4,821.4<span class="tu">kWh</span></div>
+        <div class="tot-d">↗ +8.4% vs semana anterior</div>
+      </div>
+      <div class="card ins-card">
+        <div class="ins-h">
+          <div class="ins-ttl">Performance<br>Insights</div>
+          <span style="color:var(--tm);font-size:18px">✦</span>
+        </div>
+        <div class="ins-i">
+          <div class="ins-str g"></div>
+          <div class="ins-ico g">✔</div>
+          <div><div class="ins-tt">Eficiência aumentada em 12%</div><div class="ins-dc">Relativo ao desempenho médio de ontem.</div></div>
+        </div>
+        <div class="ins-i">
+          <div class="ins-str b"></div>
+          <div class="ins-ico b">☁</div>
+          <div><div class="ins-tt">Previsão: Sol Intenso</div><div class="ins-dc">Ajuste automático para máxima captura em 2h.</div></div>
+        </div>
+        <div class="ins-i">
+          <div class="ins-str y"></div>
+          <div class="ins-ico y">🔧</div>
+          <div><div class="ins-tt">Manutenção Sugerida</div><div class="ins-dc">O inversor 03 apresenta queda de 3% no log.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

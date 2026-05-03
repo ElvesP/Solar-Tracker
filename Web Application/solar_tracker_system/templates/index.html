@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SolarTracker IoT</title>
+  <link rel="stylesheet" href="{% static 'css/index.css' %}">
+</head>
+
+<body>
+  <!-- BARRA SUPERIOR -->
+  {% include 'components/top_bar.html' %}
+
+  <div class="layout" id="layout">
+    <!-- BARRA LATERAL ESQUERDA -->
+    {% include 'components/side_bar.html' %}
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="main">
+      <!-- ════════ PÁGINA: DASHBOARD ════════ -->
+      {% include 'components/dashboard.html' %}
+
+      <!-- ════════ PÁGINA: MONITORAMENTO ════════ -->
+      {% include 'components/monitoring.html' %}
+
+      <!-- ════════ PÁGINA: CONTROLE ════════ -->
+      {% include 'components/control.html' %}
+
+      <!-- ════════ PÁGINA: HISTÓRICO E RELATÓRIOS ════════ -->
+      {% include 'components/reports.html' %}
+
+    </main><!-- end main -->
+  </div><!-- end layout -->
+
+<script src="{% static 'js/index.js' %}"></script>
+</body>
+</html>

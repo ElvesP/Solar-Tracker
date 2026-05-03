@@ -1,0 +1,88 @@
+{% load i18n %}
+{% load allauth account %}
+{% load socialaccount %}
+
+{% block content %}
+{% block extra_head %}
+    {% load static %}
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SolarTracker IoT</title>
+        <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+    </head>
+{% endblock %}
+
+<body>
+<div class="container">
+
+    <h2>{% trans "Criar Conta" %}</h2>
+
+    {% if not SOCIALACCOUNT_ONLY %}
+
+        {% url 'account_signup' as action_url %}
+
+        <form method="post" action="{{ action_url }}">
+            {% csrf_token %}
+
+            <label>Nome de usuário</label>
+            {{ form.username }}
+            {{ form.username.errors }}            
+
+            <label>Email (Opcional)</label>
+            {{ form.email }}
+            {{ form.email.errors }}
+
+            <div class="password-group">
+                <div>
+                    <label>Palavra-passe</label>
+                    {{ form.password1 }}
+                    {{ form.password1.errors }}
+                </div>
+
+                <div>
+                    <label>Confirmar</label>
+                    {{ form.password2 }}
+                    {{ form.password2.errors }}
+                </div>
+            </div>
+
+            {{ redirect_field }}
+
+            <button type="submit" class="btn">
+                {% trans "Criar Conta" %} →
+            </button>
+        </form>
+
+    {% endif %}
+
+    <div class="login-link">
+        Já tem conta? <a href="{{ login_url }}">Entrar</a>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="form-errors">
+        <p>{{ form.non_field_errors }}</p>
+    </div>
+    {% endif %}
+
+    {% if SOCIALACCOUNT_ENABLED %}
+        <div class="divider">OU CONTINUE COM</div>
+
+        <div class="social">
+            <a href="{% provider_login_url 'google' %}" class="btn-social">
+                <i class="fa-brands fa-google"></i> Google
+            </a>
+            <a href="{% provider_login_url 'github' %}" class="btn-social">
+                <i class="fa-brands fa-github"></i> GitHub
+            </a>
+        </div>
+    {% endif %}
+</div>
+<script src="{% static 'js/theme.js' %}"></script>
+</body>
+
+{% endblock content %}

@@ -1,0 +1,116 @@
+@import url('./theme.css');
+
+.sidebar { 
+    position: fixed; 
+    top: 56px; 
+    left: 0; 
+    bottom: 0; 
+    width: var(--sidebar-w); 
+    background: rgba(255,255,255,0.6); 
+    backdrop-filter: blur(14px); 
+    border-right: 1px solid var(--border); 
+    display: flex; 
+    flex-direction: column; 
+    transition: width .3s ease; 
+    overflow: hidden; 
+    z-index: 100;
+}
+
+body.dark .sidebar { 
+    background: rgba(17,24,39,0.6); 
+}
+
+.sidebar.collapsed { 
+    width: 70px; 
+}
+
+.nav { 
+    padding: 10px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 6px; 
+}
+
+.ni { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    padding: 10px 12px; 
+    border-radius: 10px; 
+    cursor: pointer; 
+    font-size: 13px; 
+    color: var(--muted); 
+    transition: all .2s ease; 
+    position: relative; 
+}
+
+.ni:hover { 
+    background: rgba(0,0,0,0.05); 
+    color: var(--text); 
+    transform: translateX(2px); 
+}
+
+.ni.active { 
+    color: var(--text); 
+    background: rgba(0,0,0,0.06); 
+    font-weight: 600; 
+}
+
+.ni.active::before { 
+    content: ""; 
+    position: absolute; 
+    left: -8px; 
+    width: 3px; 
+    height: 60%; 
+    background: var(--accent); 
+    border-radius: 10px; 
+}
+
+.sb-icon { 
+    width: 20px; 
+    text-align: center; 
+    font-size: 18px;
+}
+
+/* collapse behavior */
+.sidebar.collapsed .text { 
+    display: none; 
+}
+
+.footer { 
+    margin-top: auto; 
+    padding: 14px; 
+}
+
+.footer a { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    padding: 10px 12px; 
+    text-decoration: none; 
+    border-radius: 10px; 
+    font-size: 10px;
+    cursor: pointer; 
+    color: #fff; 
+    transition: all .2s ease; 
+    position: relative; 
+    background: var(--red); 
+    border: none;
+    transition: all .2s ease; 
+}
+
+.footer a:hover { 
+    transform: translateY(-1px); 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15); 
+}
+
+.footer a .text {
+    display: block;
+    font-size: 13px;
+}
+
+.sb-ficon {
+    width: 20px; 
+    text-align: center; 
+    font-size: 14px;
+}

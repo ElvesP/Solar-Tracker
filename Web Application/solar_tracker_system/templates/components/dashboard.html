@@ -1,0 +1,109 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
+<div class="page active" id="page-dashboard">
+  <!-- Introdrução no topo do conteúdo -->
+  <div class="ph">
+
+    <div class="dash-label">
+      <h1 class="ptitle">Monitoramento do Sistema</h1>
+      <div class="pmeta">
+        <span class="ph-icon">📍</span> <span class="text">40.7128° N, 74.0060° W · Maputo, Moçambique </span>
+        <span class="ph-icon">🕐</span> <span class="text">Último acesso: {{ user.last_login }} </span>
+      </div>
+    </div>
+
+    <div class="solar-evt">
+      <div>
+        <div class="se-lbl">Próximo Evento Solar</div>
+        <div class="se-val">Pôr do Sol em 4h 12m</div>
+      </div>
+      <div class="se-ico">🌅</div>
+    </div>
+
+  </div>
+
+  <!-- Parâmetros exibidos -->
+  <div class="stat-g">
+    <div class="card sc">
+      <div class="sc-top"><div class="clabel">Tensão</div><div class="sico a">V</div></div>
+      <div class="sv">18.5<span class="u">V</span></div>
+    </div>
+    <div class="card sc">
+      <div class="sc-top"><div class="clabel">Corrente</div><div class="sico b">I</div></div>
+      <div class="sv">543.4<span class="u">mA</span></div>
+    </div>
+    <div class="card sc">
+      <div class="sc-top"><div class="clabel">Luminosidade</div><div class="sico c">LUX</div></div>
+      <div class="sv">835<span class="u">Lux</span></div>
+    </div>
+    <div class="card sc">
+      <div class="sc-top"><div class="clabel">Potência</div><div class="sico d">P</div></div>
+      <div class="sv">14,820<span class="u">W</span></div>
+    </div>
+    <div class="card sc">
+      <div class="sc-top"><div class="clabel">Eficiência</div><div class="sico e">η</div></div>
+      <div class="sv">94.2<span class="u">%</span></div>
+    </div>
+  </div>
+
+  <!-- Alinhamento ângular-->
+  <div class="mid-g">
+    <!-- Ângulo de azimute -->
+    <div class="card ang-card">
+      <div>
+        <div class="clabel" style="margin-bottom:4px">Alinhamento Angular no Eixo Azimutal</div>
+        <div class="ctitle">Teórico vs. Real</div>
+      </div>
+      <div class="gw2">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="62" fill="none" stroke="var(--text)" stroke-width="12"/>
+          <circle cx="80" cy="80" r="62" fill="none" stroke="var(--chart)" stroke-width="12"
+            stroke-dasharray="360" stroke-dashoffset="217.5" stroke-linecap="round" transform="rotate(-142.5 80 80)"/>
+        </svg>
+        <div class="gc2">
+          <div class="gv2">142.5°</div>
+          <div class="gs2">Azimute Actual</div>
+        </div>
+      </div>
+      <div class="ang-stats">
+        <div class="ast"><div class="ast-lbl">Teórico</div><div class="ast-v amb">145.2°</div></div>
+        <div class="ast"><div class="ast-lbl">Variação</div><div class="ast-v rd">-2.7°</div></div>
+      </div>
+      <div>
+        <div class="eff-h"><span>Eficiência de Rastreamento</span><span class="eff-v">98.1%</span></div>
+        <div class="eff-b"><div class="eff-f" style="width:98.1%"></div></div>
+      </div>
+    </div>
+
+    <!-- Ângulo de elevação -->
+    <div class="card ang-card">
+      <div>
+        <div class="clabel" style="margin-bottom:4px">Alinhamento Angular no Eixo de Elevação</div>
+        <div class="ctitle">Teórico vs. Real</div>
+      </div>
+      <div class="gw2">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="62" fill="none" stroke="var(--text)" stroke-width="12"/>
+          <circle cx="80" cy="80" r="62" fill="none" stroke="var(--chart)" stroke-width="12"
+            stroke-dasharray="360" stroke-dashoffset="307.5" stroke-linecap="round" transform="rotate(-52.5 80 80)"/>
+        </svg>
+        <div class="gc2">
+          <div class="gv2">52.5°</div>
+          <div class="gs2">Elevação Actual</div>
+        </div>
+      </div>
+      <div class="ang-stats">
+        <div class="ast"><div class="ast-lbl">Teórico</div><div class="ast-v amb">55.2°</div></div>
+        <div class="ast"><div class="ast-lbl">Variação</div><div class="ast-v rd">-2.7°</div></div>
+      </div>
+      <div>
+        <div class="eff-h"><span>Eficiência de Rastreamento</span><span class="eff-v">98.1%</span></div>
+        <div class="eff-b"><div class="eff-f" style="width:98.1%"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/theme.js' %}"></script>

@@ -1,0 +1,28 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/side_bar.css' %}">
+
+<aside class="sidebar collapsed" id="sidebar">
+
+  <nav class="nav">
+    <a class="ni active" id="nav-dashboard" onclick="navigate('dashboard')">
+      <span class="sb-icon">⊞</span><span class="text">Dashboard</span>
+    </a>
+    <a class="ni" id="nav-monitoring" onclick="navigate('monitoring')">
+      <span class="sb-icon">📈</span><span class="text">Monitoramento</span>
+    </a>
+    <a class="ni" id="nav-control" onclick="navigate('control')">
+      <span class="sb-icon">🎛</span><span class="text">Controle</span>
+    </a>
+    <a class="ni" id="nav-reports" onclick="navigate('reports')">
+      <span class="sb-icon">📊</span><span class="text">Histórico</span>
+    </a>
+  </nav>
+
+  <div class="footer">
+      <a href="{% url "account_logout" %}">      
+        <span class="sb-ficon">🛑</span><span class="text">Parada de Emergência</span>
+      </a>
+  </div>
+</aside>
+
+<script src="{% static 'js/side_bar.js' %}"></script>

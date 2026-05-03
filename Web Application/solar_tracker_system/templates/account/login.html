@@ -1,0 +1,98 @@
+{% load i18n %}
+{% load allauth account %}
+{% load socialaccount %}
+
+{% block content %}
+{% block extra_head %}
+    {% load static %}
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SolarTracker IoT</title>
+        <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    </head>
+{% endblock %}
+<body>
+<div class="auth-container">
+
+    <!-- LADO ESQUERDO -->
+    <div class="auth-left">
+        <div class="overlay"></div>
+
+        <div class="left-content">
+            <div class="logo">
+                <span></span> <h2>SolarTracker IoT</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- LADO DIREITO -->
+    <div class="auth-right">
+
+        <div class="auth-box">
+
+            <h2>{% trans "FAÇA LOGIN" %}</h2>
+
+            {% if not SOCIALACCOUNT_ONLY %}
+
+                {% url 'account_login' as login_url %}
+
+                <form method="post" action="{{ login_url }}">
+                    {% csrf_token %}
+
+                    <label>Login</label>
+                    {{ form.login }}
+                    {{ form.login.errors }}
+
+                    <label>Palavra-passe</label>
+                    {{ form.password }}
+                    {{ form.password.errors }}
+
+                    <div class="options">
+                        <label>{{ form.remember }} Lembrar de mim</label>
+                        <a href="{% url 'account_reset_password' %}">Esqueceu a palavra-passe?</a>
+                    </div>
+
+                    {{ redirect_field }}
+
+                    <button type="submit" class="btn">
+                        {% trans "Entrar" %} →
+                    </button>
+                </form>
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        <p>{{ form.non_field_errors }}</p>
+                    </div>
+                {% endif %}
+
+            {% endif %}
+
+            <!-- SOCIAL LOGIN -->
+            {% if SOCIALACCOUNT_ENABLED %}
+                <div class="divider">OU CONTINUE COM</div>
+                <div class="social">
+                    <a href="{% provider_login_url 'google' %}" class="btn-social">
+                        <i class="fa-brands fa-google"></i> Google
+                    </a>
+                    <a href="{% provider_login_url 'github' %}" class="btn-social">
+                        <i class="fa-brands fa-github"></i> GitHub
+                    </a>
+                </div>
+            {% endif %}
+
+            <div class="signup-link">
+                Não tem conta?
+                <a href="{{ signup_url }}">Criar conta</a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+<script type="module" src="{% static 'js/theme.js' %}"></script>
+</body>
+{% endblock content %}
