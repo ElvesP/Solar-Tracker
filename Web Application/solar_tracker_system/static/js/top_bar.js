@@ -3,10 +3,10 @@ function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('collapsed');
 }
 
-// Alternar modo de operação
+// Alternar modo de operação 
 function toggleSystem(){
   const app = document.getElementById('statusBadge');
-  document.getElementById('statusBadge').classList.toggle('off');
+  app.classList.toggle('off');
   app.classList.contains('off') ? app.innerHTML = 'SISTEMA OFFLINE' : app.innerHTML = 'SISTEMA ONLINE'
 }
 

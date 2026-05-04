@@ -7,6 +7,9 @@
               linear-gradient(135deg, #1e3c72, #2a5298);
     --bg: #f5f7fb;
     --card: #ffffff;
+    --card1: #d3d3d3;
+    --card2: #808080;
+    --card3: #808080;
     --text: #111;
     --muted: rgba(0,0,0,0.55);
     --border: rgba(0,0,0,0.08);
@@ -23,6 +26,9 @@
 body.dark {
     --bg: rgba(17,24,39,0.7);
     --card: #111827;
+    --card1: rgba(17,24,39,0.7);
+    --card2: rgba(17,24,39,0.08);
+    --card3: rgba(17,24,39,0.99);
     --text: #f5f5f5;
     --muted: rgba(255,255,255,0.6);
     --border: rgba(255,255,255,0.08);

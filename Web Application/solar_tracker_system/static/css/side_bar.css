@@ -105,7 +105,8 @@ body.dark .sidebar {
 }
 
 .footer a .text {
-    display: block;
+    display: flex;
+    flex-wrap: nowrap;
     font-size: 13px;
 }
 

@@ -5,6 +5,13 @@ function getTextColor() {
 // Carregar o tema salvo
 if(localStorage.getItem('theme') === 'dark'){
   document.body.classList.add('dark');
+  setTimeout(() => {
+        const newColor = getTextColor();
+        chart.options.plugins.legend.labels.color = newColor;
+        chart.options.scales.x.ticks.color = newColor;
+        chart.options.scales.y.ticks.color = newColor;
+        chart.update();
+    }, 0);
 }
 
 const timeLabels = [

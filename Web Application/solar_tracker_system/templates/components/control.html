@@ -3,85 +3,82 @@
 
 
 <div class="page" id="page-control">
-  <div style="margin-bottom:22px">
+  <div style="margin-bottom:22px; color: #fff;">
     <h1 class="ptitle">Controle Remoto</h1>
-    <p style="font-size:14px;color:var(--t2);line-height:1.6;max-width:600px;margin-top:8px">Ajuste fino da orientação dos painéis solares. Alterne entre o rastreamento automatizado baseado em sensores ou controle manual para manutenção.</p>
   </div>
 
   <div class="card mode-card" style="margin-bottom:18px">
-    <div>
-      <div class="mode-lbl">Modo de Operação</div>
-      <div class="mode-val">Sistema Ativo em <span id="modeText">Automático</span></div>
+    <div class="header-left">
+      <div class="label">Modo de Operação</div>
+      <h1 id="headerTitle">Sistema em Modo Automático</h1>
     </div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <div class="m-ind" id="modeInd"></div>
-      <div class="mode-tog">
-        <button class="tbtn active" id="btnAuto" onclick="setMode('auto')">AUTOMÁTICO</button>
-        <button class="tbtn" id="btnManual" onclick="setMode('manual')">MANUAL</button>
+    <div class="mode-toggle">
+      <div class="status-dot" id="statusDot"></div>
+      <div class="btn-container">
+        <button class="mode-btn active" id="btnAuto" onclick="setMode('auto')">AUTOMÁTICO</button>
+        <button class="mode-btn" id="btnManual" onclick="setMode('manual')">MANUAL</button>
       </div>
     </div>
   </div>
 
   <div class="ctrl-g">
-    <div class="card mov-card">
-      <div class="ch">
-        <div class="clabel">Controle de Movimento (Manual)</div>
-        <div class="ang-badges">
-          <div class="abadge" id="azBadge">AZIMUTE: 145.2°</div>
-          <div class="abadge" id="elBadge">ELEVAÇÃO: 42.8°</div>
+    <div class="card control-painel">
+      <div class="panel-header">
+        <div class="panel-title">Controle de Movimento (Manual)</div>
+        <div class="readings">
+          <div class="reading" id="readAz">AZIMUTE: 145.2°</div>
+          <div class="reading" id="readEl">ELEVAÇÃO: 42.8°</div>
         </div>
       </div>
-      <div class="ctrls">
-        <div class="dpad-grid">
-          <div class="dpbtn dpe"></div>
-          <div class="dpbtn" onclick="move('up')">▲</div>
-          <div class="dpbtn dpe"></div>
-          <div class="dpbtn" onclick="move('left')">◀</div>
-          <div class="dpbtn dpc">⊕</div>
-          <div class="dpbtn" onclick="move('right')">▶</div>
-          <div class="dpbtn dpe"></div>
-          <div class="dpbtn" onclick="move('down')">▼</div>
-          <div class="dpbtn dpe"></div>
+
+      <div class="controls-row">
+        <!-- Joystick -->
+        <div class="joystick-wrap">
+          <div class="joy-row">
+            <div style="width:44px"></div>
+            <button class="joy-btn" id="joyUp" onmousedown="startMove('up')" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('up')" ontouchend="stopMove()">▲</button>
+            <div style="width:44px"></div>
+          </div>
+          <div class="joy-row">
+            <button class="joy-btn" id="joyLeft" onmousedown="startMove('left')" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('left')" ontouchend="stopMove()">◀</button>
+            <div class="joy-center" title="Centralizar" onclick="centerAxes()">⊕</div>
+            <button class="joy-btn" id="joyRight" onmousedown="startMove('right')" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('right')" ontouchend="stopMove()">▶</button>
+          </div>
+          <div class="joy-row">
+            <div style="width:44px"></div>
+            <button class="joy-btn" id="joyDown" onmousedown="startMove('down')" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('down')" ontouchend="stopMove()">▼</button>
+            <div style="width:44px"></div>
+          </div>
         </div>
-        <div class="axis-sl">
-          <div class="axbox">
-            <div class="ax-lbl">Eixo Horizontal</div>
-            <div class="sl-row">
-              <div class="sl-ico" onclick="adjSl('hz',-5)">↺</div>
-              <input type="range" id="slHz" min="0" max="360" value="145" oninput="updAz(this.value)">
-              <div class="sl-ico" onclick="adjSl('hz',5)">↻</div>
+
+        <!-- Sliders -->
+        <div class="sliders-wrap">
+          <div class="slider-group">
+            <div class="slider-label">Eixo Horizontal</div>
+            <div class="slider-track-wrap">
+              <button class="slider-side" onclick="nudge('az',-1)">−</button>
+              <input type="range" id="sliderAz" min="0" max="360" value="145.2" step="0.1" oninput="onSliderAz(this.value)">
+              <button class="slider-side" onclick="nudge('az',1)">+</button>
             </div>
           </div>
-          <div class="axbox">
-            <div class="ax-lbl">Eixo Vertical</div>
-            <div class="sl-row">
-              <div class="sl-ico" onclick="adjSl('vt',-5)">▼</div>
-              <input type="range" id="slVt" min="0" max="90" value="43" oninput="updEl(this.value)">
-              <div class="sl-ico" onclick="adjSl('vt',5)">▲</div>
+          <div class="slider-group">
+            <div class="slider-label">Eixo Vertical</div>
+            <div class="slider-track-wrap">
+              <button class="slider-side" onclick="nudge('el',-1)">−</button>
+              <input type="range" id="sliderEl" min="0" max="90" value="42.8" step="0.1" oninput="onSliderEl(this.value)">
+              <button class="slider-side" onclick="nudge('el',1)">+</button>
             </div>
           </div>
         </div>
       </div>
-      <button class="cal-btn" id="calBtn" onclick="calibrate()">CALIBRAR POSIÇÃO</button>
+
+      <button class="calibrate-btn" id="calibBtn" onclick="calibrate()">Calibrar Posição</button>
     </div>
 
-    <div class="rp">
-      <div class="viz-card">
-        <div class="viz-lbl">Visualização 3D</div>
-        <div class="viz-c">
-          <div class="sdot2"></div>
-          <div class="panel3d" id="panel3d">
-            <div class="pc"></div><div class="pc"></div>
-            <div class="pc"></div><div class="pc"></div>
-          </div>
-        </div>
-        <div class="viz-ft">
-          <div>
-            <div>Sinal Wireless</div>
-            <div class="sig-b"><div class="sig-f"></div></div>
-          </div>
-          <div style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:rgba(255,255,255,.75)">-64 dBm</div>
-        </div>
+    <div class="card">
+      <div class="side-card-title">Visualização 3D</div>
+      <div class="viz-3d">
+        <canvas id="antenaCanvas" width="220" height="220"></canvas>
       </div>
     </div>
   </div>
