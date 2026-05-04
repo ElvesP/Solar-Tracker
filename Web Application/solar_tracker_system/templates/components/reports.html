@@ -7,16 +7,13 @@
   <!-- HEADER -->
   <div class="header">
     <h1>Históricos e <br> relatórios</h1>
-
     <div class="date-range">
       <input type="date" value="2026-05-03">
       <input type="date" value="2023-04-05">
     </div>
   </div>
 
-  <!-- MAIN -->
   <div class="container">
-
     <!-- GRÁFICO -->
     <div class="card chart-card">
       <div class="chart-header">
@@ -32,13 +29,13 @@
           </select>
         </div>
       </div>
-
-      <canvas id="energyChart"></canvas>
+      <div class="chart-container">
+        <canvas id="energyChart"></canvas>
+      </div>
     </div>
 
     <!-- LADO DIREITO -->
     <div class="side">
-
       <div class="card total">
         <p class="subtitle">TOTAL GERADO (SEMANAL)</p>
         <h2>4,821.4 kWh</h2>
@@ -46,7 +43,7 @@
       </div>
 
       <div class="card insights">
-        <h3>Performance Insights</h3>
+        <h3>Insights de desempenho</h3>
         <ul>
           <li>✔ Eficiência aumentada em 12%</li>
           <li>✔ Melhor que o desempenho médio</li>
@@ -55,6 +52,6 @@
       </div>
     </div>
   </div>
+</div>
 
 <script src="{% static 'js/reports.js' %}"></script>
-</div>
