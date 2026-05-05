@@ -13,7 +13,6 @@
 }
 
 .connections-container {
-    max-width: var(--max-width);
     margin: auto;
     padding: 30px;
     background: var(--bg);

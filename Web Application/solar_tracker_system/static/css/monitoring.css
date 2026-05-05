@@ -9,10 +9,12 @@
 }
 
 .monitor-grid{
+    max-width: 100%;
     display: grid;
     grid-template-columns: 1fr;
     gap: 25px;
     padding-bottom: 20px;
+    min-width: 0;
 }
 
 .card{
@@ -40,7 +42,7 @@
 .controls{
     display:flex;
     gap:12px;
-    flex-wrap:wrap;
+    flex-wrap: wrap;
 }
 
 select{
@@ -56,8 +58,14 @@ select{
 
 .chart-container{
     width: 100%;
-    height: 420px;
+    height: 380px;
     position: relative;
+    overflow: hidden;
+}
+canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
 }
 
 @media(max-width:900px){

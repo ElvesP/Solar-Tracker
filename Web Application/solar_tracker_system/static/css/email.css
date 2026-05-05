@@ -14,7 +14,6 @@
 }
 
 .email-container {
-    max-width: var(--max-width);
     background: var(--bg);
     padding: 40px;
     margin: auto;

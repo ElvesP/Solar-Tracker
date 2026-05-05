@@ -4,23 +4,20 @@ let state = {
   mode: 'auto',
   moving: null,
   moveInterval: null,
-  rssi: -64,
-  temp: 38,
-  uptime: 0,
   calibrating: false
 };
 
-// ── MODE TOGGLE ──
+// ── Alternação de modos ──
 function setMode(m) {
   state.mode = m;
   document.getElementById('btnAuto').classList.toggle('active', m === 'auto');
   document.getElementById('btnManual').classList.toggle('active', m === 'manual');
   const title = document.getElementById('headerTitle');
   m === 'auto' ? title.textContent = 'Sistema em Modo Automático'
-    : title.textContent = 'Sistema em Modo Manual';
+               : title.textContent = 'Sistema em Modo Manual';
 }
 
-// ── READINGS ──
+// ── Leituras ──
 function updateReadings() {
   document.getElementById('readAz').textContent = `AZIMUTE: ${state.az.toFixed(1)}°`;
   document.getElementById('readEl').textContent = `ELEVAÇÃO: ${state.el.toFixed(1)}°`;
@@ -29,7 +26,7 @@ function updateReadings() {
   draw3D();
 }
 
-// ── SLIDERS ──
+// ── Sliders ──
 function onSliderAz(v) {
   state.az = parseFloat(v);
   updateReadings();
@@ -42,7 +39,7 @@ function onSliderEl(v) {
 
 function nudge(axis, delta) {
   if (axis === 'az') {
-    state.az = Math.max(0, Math.min(360, state.az + delta));
+    state.az = - Math.max(0, Math.min(180, state.az + delta));
   } else {
     state.el = Math.max(0, Math.min(90, state.el + delta));
   }
@@ -55,7 +52,7 @@ function startMove(dir) {
   state.moveInterval = setInterval(() => {
     const step = 0.5;
     if (dir === 'left')  state.az = Math.max(0, state.az - step);
-    if (dir === 'right') state.az = Math.min(360, state.az + step);
+    if (dir === 'right') state.az = Math.min(180, state.az + step);
     if (dir === 'up')    state.el = Math.min(90, state.el + step);
     if (dir === 'down')  state.el = Math.max(0, state.el - step);
     updateReadings();
@@ -68,7 +65,7 @@ function stopMove() {
 }
 
 function centerAxes() {
-  state.az = 180;
+  state.az = 90;
   state.el = 45;
   updateReadings();
   flash('Eixos Centralizados');
@@ -122,7 +119,7 @@ function draw3D() {
   ctx.clearRect(0, 0, W, H);
 
   const cx = W / 2, cy = H / 2 + 20;
-  const azRad = (state.az - 90) * Math.PI / 180;
+  const azRad = (state.az - 180) * Math.PI / 180;
   const elRad = state.el * Math.PI / 180;
 
   // Grid
