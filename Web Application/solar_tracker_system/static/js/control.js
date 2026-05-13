@@ -13,8 +13,20 @@ function setMode(m) {
   document.getElementById('btnAuto').classList.toggle('active', m === 'auto');
   document.getElementById('btnManual').classList.toggle('active', m === 'manual');
   const title = document.getElementById('headerTitle');
-  m === 'auto' ? title.textContent = 'Sistema em Modo Automático'
-               : title.textContent = 'Sistema em Modo Manual';
+  const modeBadge = document.getElementById("modeBadge");
+  const modeIcon = document.getElementById("modeIcon");
+  const modeText = document.getElementById("modeText");
+  if(m === "manual"){
+    title.textContent = 'Sistema em Modo Manual'
+    modeIcon.innerText = "🕹️";
+    modeText.innerText = "MANUAL";
+    modeBadge.style.color = "#f59e0b";
+  }else{
+    title.textContent = 'Sistema em Modo Automático'
+    modeIcon.innerText = "🤖";
+    modeText.innerText = "AUTO";
+    modeBadge.style.color = "#60a5fa";
+  }
 }
 
 // ── Leituras ──
@@ -39,7 +51,7 @@ function onSliderEl(v) {
 
 function nudge(axis, delta) {
   if (axis === 'az') {
-    state.az = - Math.max(0, Math.min(180, state.az + delta));
+    state.az = Math.max(0, Math.min(180, state.az + delta));
   } else {
     state.el = Math.max(0, Math.min(90, state.el + delta));
   }
@@ -221,7 +233,7 @@ function draw3D() {
 function autoTick() {
   if (state.mode === 'auto' && !state.moving) {
     state.az += 0.08;
-    if (state.az > 360) state.az -= 360;
+    if (state.az > 180) state.az -= 180;
     state.el = 45 + Math.sin(Date.now() / 4000) * 15;
     updateReadings();
   }

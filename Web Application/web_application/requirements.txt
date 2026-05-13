@@ -1,0 +1,6 @@
+Django
+psycopg2-binary
+paho-mqtt
+python-decouple
+djangorestframework
+django-allauth

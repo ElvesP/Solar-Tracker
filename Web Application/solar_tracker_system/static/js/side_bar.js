@@ -5,12 +5,5 @@ function navigate(p) {
     document.getElementById('page-'+id).classList.toggle('active', id===p);
     document.getElementById('nav-'+id).classList.toggle('active', id===p);
   });
-  const sb = document.getElementById('safetyBanner');
-  sb.style.display = p==='control' ? 'flex' : 'none';
-  const badge = document.getElementById('statusBadge');
-  badge.className = p==='control' ? 'sys-active' : 'sys-online';
-  badge.textContent = p==='control' ? 'SYSTEM ACTIVE' : 'SYSTEM ONLINE';
-  if(p==='monitoring') buildLineChart();
-  if(p==='reports') buildRepChart();
   window.scrollTo(0,0);
 }

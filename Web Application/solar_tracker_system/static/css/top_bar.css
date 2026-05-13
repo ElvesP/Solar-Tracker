@@ -25,7 +25,7 @@ body.dark .topbar {
     box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
 }
 
-.sys {
+.tb-sys {
     display: flex;
     align-items: center;
     gap: 20px;
@@ -53,28 +53,32 @@ body.dark .topbar {
     background: var(--hover); 
 }
 
+.tb-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+    background: var(--bg);
+    border-radius: 20px;
+    padding: 4px 10px;
+}
+
 .sys-online { 
-    position: absolute;
-    left: 50%;
     display: flex;
     align-items: center;
     gap: 10px;
     font-size: 12px;
     font-weight: 500;
     color: var(--green);
-    background: var(--bg);
-    border-radius: 20px;
-    padding: 4px 10px;
     cursor: pointer;
 }
 
 .sys-online::before {
     content: '';
-    width: 7px;
-    height: 7px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     background: var(--green);
-    box-shadow: 0 0 0 2px #bbf7d0;
     animation: pulse 2s infinite
 } 
 
@@ -90,7 +94,17 @@ body.dark .topbar {
     background: red;
 }
 
-.actions { 
+.sys-mode {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #60a5fa;
+    cursor: pointer;
+}
+
+.tb-actions { 
     display: flex; 
     gap: 10px; 
     align-items: center; 

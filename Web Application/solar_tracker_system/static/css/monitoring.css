@@ -1,6 +1,15 @@
 @import url('./theme.css');
 
 
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items:center;
+    margin-bottom:30px;
+    flex-wrap:wrap;
+    gap:15px;
+}
+
 .page-title{
     font-size:2rem;
     font-weight:700;
@@ -62,6 +71,7 @@ select{
     position: relative;
     overflow: hidden;
 }
+
 canvas {
     display: block;
     width: 100% !important;

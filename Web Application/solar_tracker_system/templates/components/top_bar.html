@@ -3,12 +3,15 @@
 
 <!-- BARRA SUPERIOR -->
 <div class="topbar" id="topbar">
-  <div class="sys">
+  <div class="tb-sys">
     <button class="btn" onclick="toggleSidebar()">☰</button>
     <div class="brand">SolarTracker IoT</div>
   </div>
-  <div class="sys-online" id="statusBadge" onclick="toggleSystem()"><span>SISTEMA ONLINE</span></div>
-  <div class="actions">
+  <div class="tb-info">
+    <div class="sys-online" id="statusBadge" onclick="toggleSystem()"><span>ONLINE</span></div>
+    <div class="sys-mode" id="modeBadge"><span id="modeIcon">🤖</span><span id="modeText">AUTO</span></div>
+  </div>
+  <div class="tb-actions">
     <button class="icon-btn" id="settingsBtn" onclick="toggleSettings()">⚙️</button>
   </div>
 </div>
