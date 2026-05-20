@@ -23,66 +23,60 @@
     </div>
 
     <div class="grid">
-
         <!-- CONTA -->
-
         <section class="card">
-
             <h2 class="card-title">
                 Conta
             </h2>
-
             <div class="table">
-
                 <div class="row">
                     <span class="label">Nome de utilizador</span>
                     <span class="value">{{ user.username }}</span>
                 </div>
-
                 <div class="row">
                     <span class="label">Email</span>
                     <span class="value">{{ user.email }}</span>
                 </div>
-
                 <div class="row">
                     <span class="label">Conta criada</span>
                     <span class="value">{{ user.date_joined }}</span>
                 </div>
-
                 <div class="row">
                     <span class="label">Último login</span>
                     <span class="value">{{ user.last_login }}</span>
                 </div>
-
                 <div class="row">
                     <span class="label">ID do Utilizador</span>
                     <span class="value">{{ user.id }}</span>
                 </div>
-
             </div>
-
         </section>
 
         <!-- SISTEMA SOLAR -->
-
         <section class="card">
-
-            <h2 class="card-title">
-                Sistema Solar
-            </h2>
-
+            <div class="card-title">
+                <h2 >
+                    Sistema Solar
+                </h2>
+                <div class="controls">
+                    <select id="controlar-selecter">
+                        <option value="voltage">Tensão </option>
+                        <option value="current">Corrente</option>
+                        <option value="light">Luminosidade</option>
+                        <option value="power">Potência</option>
+                        <option value="efficiency">Eficiência de rastreamento</option>
+                    </select>
+                </div>
+            </div>
             <div class="table">
-
                 <div class="row">
                     <span class="label">Painéis conectados</span>
                     <span class="value">-</span>
                 </div>
-
                 <div class="row">
                     <span class="label">Estado</span>
                     <span class="value">-</span>
                 </div>
-
                 <div class="row">
                     <span class="label">Tracker</span>
                     <span class="value">-</span>

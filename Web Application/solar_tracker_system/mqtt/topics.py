@@ -1,5 +1,5 @@
 MQTT_TOPICS = [
-    ("solar/painel/dados", 0),
-    ("solar/painel/posicao", 0),
-    ("solar/painel/localizacao", 0),
+    ("solar/+/+/data", 0),
+    ("solar/+/+/position", 0),
+    ("solar/+/+/location", 0),
 ]

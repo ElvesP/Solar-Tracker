@@ -1,37 +1,45 @@
 from rest_framework import viewsets
 from solar_tracker_system.models import (
-    Painel,
-    DadosDashboard,
-    PosicaoPainel,
-    Localizacao
+    SolarPanel,
+    DashboardData,
+    PanelPosition,
+    Location,
+    DailyData
 )
 from .serializers import (
-    PainelSerializer,
-    DadosDashboardSerializer,
-    PosicaoPainelSerializer,
-    LocalizacaoSerializer
+    SolarPanelSerializer,
+    DashboardDataSerializer,
+    PanelPositionSerializer,
+    LocationSerializer,
+    DailyDataSerializer
 )
 
 
-class PainelViewSet(viewsets.ModelViewSet):
-
-    queryset = Painel.objects.all()
-    serializer_class = PainelSerializer
-
-
-class DadosDashboardViewSet(viewsets.ModelViewSet):
-
-    queryset = DadosDashboard.objects.all()
-    serializer_class = DadosDashboardSerializer
+# SOLAR PANEL VIEWSET
+class SolarPanelViewSe (viewsets.ModelViewSet):
+    queryset = SolarPanel.objects.all().order_by('-timestamp')
+    serializer_class = SolarPanelSerializer
 
 
-class PosicaoPainelViewSet(viewsets.ModelViewSet):
+# DASHBOARD DATA VIEWSET
+class DashboardDataViewSet(viewsets.ModelViewSet):
+    queryset = DashboardData.objects.all().order_by('-timestamp')
+    serializer_class = DashboardDataSerializer
 
-    queryset = PosicaoPainel.objects.all()
-    serializer_class = PosicaoPainelSerializer
+
+# PANEL POSITION VIEWSET
+class PanelPositionViewSet(viewsets.ModelViewSet):
+    queryset = PanelPosition.objects.all().order_by('-timestamp')
+    serializer_class = PanelPositionSerializer
 
 
-class LocalizacaoViewSet(viewsets.ModelViewSet):
+# LOCATION VIEWSET
+class LocationViewSet(viewsets.ModelViewSet):
+    queryset = Location.objects.all().order_by('-timestamp')
+    serializer_class = LocationSerializer
 
-    queryset = Localizacao.objects.all()
-    serializer_class = LocalizacaoSerializer
+
+# DAILYDATA VIEWSET
+class DailyDataViewSet(viewsets.ModelViewSet):
+    queryset = DailyData.objects.all().order_by('-timestamp')
+    serializer_class = DailyDataSerializer

@@ -21,7 +21,8 @@
 
 .pmeta {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    justify-content: center;
     gap: 16px;
     margin-top: 8px;
     font-size: 13px;
@@ -91,7 +92,7 @@
 }
 
 .efi {
-    text-align: justify;
+    text-align: left;
 }
 
 .sico {

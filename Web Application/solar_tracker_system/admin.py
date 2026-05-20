@@ -1,54 +1,113 @@
 from django.contrib import admin
 from .models import (
-    Painel,
-    DadosDashboard,
-    PosicaoPainel,
-    Localizacao
+    SolarPanel,
+    DashboardData,
+    PanelPosition,
+    Location
 )
 
 
-# Register your models here.
-@admin.register(Painel)
-class PainelAdmin(admin.ModelAdmin):
+# =========================
+# SOLAR PANEL ADMIN
+# =========================
+@admin.register(SolarPanel)
+class SolarPanelAdmin(admin.ModelAdmin):
+
     list_display = (
         'id',
-        'nome',
-        'utilizador',
+        'name',
+        'user',
         'status',
-        'data_hora'
+        'timestamp'
     )
 
-
-@admin.register(DadosDashboard)
-class DadosDashboardAdmin(admin.ModelAdmin):
-        list_display = (
-        'painel',
-        'tensao',
-        'corrente',
-        'potencia',
-        'eficiencia',
-        'energia',
-        'data_hora'
+    search_fields = (
+        'name',
+        'user__username',
     )
 
+    list_filter = (
+        'status',
+        'timestamp'
+    )
 
-@admin.register(PosicaoPainel)
-class PosicaoPainelAdmin(admin.ModelAdmin):
+    ordering = ('-timestamp',)
+
+
+# =========================
+# DASHBOARD DATA ADMIN
+# =========================
+@admin.register(DashboardData)
+class DashboardDataAdmin(admin.ModelAdmin):
 
     list_display = (
-        'painel',
-        'azimute_real',
-        'elevacao_real',
-        'modo',
-        'data_hora'
+        'panel',
+        'voltage',
+        'current',
+        'luminosity',
+        'power',
+        'timestamp'
     )
 
+    search_fields = (
+        'panel__name',
+    )
 
-@admin.register(Localizacao)
-class LocalizacaoAdmin(admin.ModelAdmin):
+    list_filter = (
+        'timestamp',
+    )
+
+    ordering = ('-timestamp',)
+
+
+# =========================
+# PANEL POSITION ADMIN
+# =========================
+@admin.register(PanelPosition)
+class PanelPositionAdmin(admin.ModelAdmin):
+
     list_display = (
-        'painel',
+        'panel',
+        'actual_azimuth',
+        'theoretical_azimuth',
+        'actual_elevation',
+        'theoretical_elevation',
+        'tracking_efficiency',
+        'mode',
+        'timestamp'
+    )
+
+    search_fields = (
+        'panel__name',
+    )
+
+    list_filter = (
+        'mode',
+        'timestamp'
+    )
+
+    ordering = ('-timestamp',)
+
+
+# =========================
+# LOCATION ADMIN
+# =========================
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'panel',
         'latitude',
         'longitude',
-        'data_hora'
+        'timestamp'
     )
+
+    search_fields = (
+        'panel__name',
+    )
+
+    list_filter = (
+        'timestamp',
+    )
+
+    ordering = ('-timestamp',)

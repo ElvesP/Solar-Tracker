@@ -9,15 +9,14 @@
     <div class="dash-label">
       <h1 class="ptitle">Monitoramento do Sistema</h1>
       <div class="pmeta">
-        <span class="ph-icon">📍</span> <span class="text">40.7128° N, 74.0060° W · Maputo, Moçambique </span>
-        <span class="ph-icon">🕐</span> <span class="text">Último acesso: {{ user.last_login }} </span>
+        <div><span class="ph-icon">📍</span> <span class="text" id="location">--</span></div>
       </div>
     </div>
 
     <div class="solar-evt">
       <div>
         <div class="se-lbl">Próximo Evento Solar</div>
-        <div class="se-val">Pôr do Sol em 4h 12m</div>
+        <div class="se-val" id="solar-event">--</div>
       </div>
       <div class="se-ico">🌅</div>
     </div>
@@ -28,23 +27,23 @@
   <div class="stat-g">
     <div class="card sc">
       <div class="sc-top"><div class="clabel">Tensão</div><div class="sico a">V</div></div>
-      <div class="sv">18.5<span class="u">V</span></div>
+      <div class="sv" id="voltage">--<span class="u">V</span></div>
     </div>
     <div class="card sc">
       <div class="sc-top"><div class="clabel">Corrente</div><div class="sico b">I</div></div>
-      <div class="sv">543.4<span class="u">mA</span></div>
+      <div class="sv" id="current">--<span class="u">mA</span></div>
     </div>
     <div class="card sc">
       <div class="sc-top"><div class="clabel">Luminosidade</div><div class="sico c">LUX</div></div>
-      <div class="sv">835<span class="u">Lux</span></div>
+      <div class="sv" id="luminosity">--<span class="u">Lux</span></div>
     </div>
     <div class="card sc">
       <div class="sc-top"><div class="clabel">Potência</div><div class="sico d">P</div></div>
-      <div class="sv">14,820<span class="u">W</span></div>
+      <div class="sv" id="power">--<span class="u">W</span></div>
     </div>
     <div class="card sc">
-      <div class="sc-top"><div class="clabel efi">Eficiência Energética</div><div class="sico e">η</div></div>
-      <div class="sv">94.2<span class="u">%</span></div>
+      <div class="sc-top"><div class="clabel efi">Eficiência de Rastreamento</div><div class="sico e">η</div></div>
+      <div class="sv" id="trackingEfficiency">--<span class="u">%</span></div>
     </div>
   </div>
 
@@ -59,21 +58,21 @@
       <div class="gw2">
         <svg width="160" height="160" viewBox="0 0 160 160">
           <circle cx="80" cy="80" r="62" fill="none" stroke="var(--text)" stroke-width="12"/>
-          <circle cx="80" cy="80" r="62" fill="none" stroke="var(--chart)" stroke-width="12"
-            stroke-dasharray="360" stroke-dashoffset="217.5" stroke-linecap="round" transform="rotate(-142.5 80 80)"/>
+          <circle id="azimuth-circle" cx="80" cy="80" r="62" fill="none" stroke="var(--chart)" stroke-width="12"
+            stroke-dasharray="389.56" stroke-dashoffset="-194.78" stroke-linecap="round" transform="rotate(0 80 80)"/>
         </svg>
         <div class="gc2">
-          <div class="gv2">142.5°</div>
+          <div class="gv2" id="actual-azimuth">--</div>
           <div class="gs2">Azimute Actual</div>
         </div>
       </div>
       <div class="ang-stats">
-        <div class="ast"><div class="ast-lbl">Teórico</div><div class="ast-v amb">145.2°</div></div>
-        <div class="ast"><div class="ast-lbl">Variação</div><div class="ast-v rd">-2.7°</div></div>
+        <div class="ast"><div class="ast-lbl">Teórico</div><div class="ast-v amb" id="theoretical-azimuth">--</div></div>
+        <div class="ast"><div class="ast-lbl">Variação</div><div class="ast-v rd" id="azimuth-difference">--</div></div>
       </div>
       <div>
-        <div class="eff-h"><span>Eficiência de Rastreamento</span><span class="eff-v">98.1%</span></div>
-        <div class="eff-b"><div class="eff-f" style="width:98.1%"></div></div>
+        <div class="eff-h"><span>Eficiência de Rastreamento</span><span class="eff-v" id="eff-azimuth">--</span></div>
+        <div class="eff-b"><div class="eff-f" style="width:0%" id="eff-azimuthG"></div></div>
       </div>
     </div>
 
@@ -86,24 +85,24 @@
       <div class="gw2">
         <svg width="160" height="160" viewBox="0 0 160 160">
           <circle cx="80" cy="80" r="62" fill="none" stroke="var(--text)" stroke-width="12"/>
-          <circle cx="80" cy="80" r="62" fill="none" stroke="var(--chart)" stroke-width="12"
-            stroke-dasharray="360" stroke-dashoffset="307.5" stroke-linecap="round" transform="rotate(-52.5 80 80)"/>
+          <circle id="elevation-circle" cx="80" cy="80" r="62" fill="none" stroke="var(--chart)" stroke-width="12"
+            stroke-dasharray="389.56" stroke-dashoffset="-194.78" stroke-linecap="round" transform="rotate(0 80 80)"/>
         </svg>
         <div class="gc2">
-          <div class="gv2">52.5°</div>
+          <div class="gv2" id="actual-elevation">--</div>
           <div class="gs2">Elevação Actual</div>
         </div>
       </div>
       <div class="ang-stats">
-        <div class="ast"><div class="ast-lbl">Teórico</div><div class="ast-v amb">55.2°</div></div>
-        <div class="ast"><div class="ast-lbl">Variação</div><div class="ast-v rd">-2.7°</div></div>
+        <div class="ast"><div class="ast-lbl">Teórico</div><div class="ast-v amb" id="theoretical-elevation">--</div></div>
+        <div class="ast"><div class="ast-lbl">Variação</div><div class="ast-v rd" id="elevation-difference">--</div></div>
       </div>
       <div>
-        <div class="eff-h"><span>Eficiência de Rastreamento</span><span class="eff-v">98.1%</span></div>
-        <div class="eff-b"><div class="eff-f" style="width:98.1%"></div></div>
+        <div class="eff-h"><span>Eficiência de Rastreamento</span><span class="eff-v" id="eff-elevation">--</span></div>
+        <div class="eff-b"><div class="eff-f" style="width:0%" id="eff-elevationG"></div></div>
       </div>
     </div>
   </div>
 </div>
 
-<script src="{% static 'js/theme.js' %}"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>

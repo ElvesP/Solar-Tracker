@@ -9,9 +9,20 @@
     margin-bottom: 20px;
 }
 
+.choices-container {
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+}
+
+.cls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .date-range input {
     padding: 5px;
-    margin-left: 10px;
     border-radius: 10px;
     border: none;
     background: var(--card1);

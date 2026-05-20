@@ -22,7 +22,10 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'daphne',
     'django.contrib.staticfiles',
+    'channels',
+    'rest_framework',
     'solar_tracker_system',
     'allauth',
     'allauth.account',
@@ -42,6 +45,16 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "allauth.account.middleware.AccountMiddleware",
 ]
+
+ASGI_APPLICATION = 'web_application.asgi.application'
+
+CHANNEL_LAYERS = {
+
+    'default': {
+
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -80,7 +93,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'web_application.wsgi.application'
 
-
 # Database
 DATABASES = {
     'default': {
@@ -116,15 +128,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 LANGUAGE_CODE = 'pt-pt'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
 USE_TZ = True
+TIME_ZONE = 'Africa/Maputo'
+USE_I18N = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'

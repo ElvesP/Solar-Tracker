@@ -63,35 +63,35 @@ body.dark .topbar {
     padding: 4px 10px;
 }
 
-.sys-online { 
+.sys-offline { 
     display: flex;
     align-items: center;
     gap: 10px;
     font-size: 12px;
     font-weight: 500;
-    color: var(--green);
+    color: var(--red);
     cursor: pointer;
 }
 
-.sys-online::before {
+.sys-offline::before {
     content: '';
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: var(--green);
+    background: var(--red);
     animation: pulse 2s infinite
 } 
 
 @keyframes pulse{ 0%, 100%{ box-shadow: 0 0 0 2px #bbf7d0} 50%{ box-shadow: 0 0 0 4px #86efac}}
 
-.sys-online.off {
-    color: #f59e0b;
+.sys-offline.on {
+    color: var(--green);
     font-size: 12px;
     font-weight: 500;
 }
 
-.sys-online.off::before {
-    background: red;
+.sys-offline.on::before {
+    background: var(--green);
 }
 
 .sys-mode {

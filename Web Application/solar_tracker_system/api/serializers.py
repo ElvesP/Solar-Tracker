@@ -1,35 +1,118 @@
 from rest_framework import serializers
 from solar_tracker_system.models import (
-    Painel,
-    DadosDashboard,
-    PosicaoPainel,
-    Localizacao
+    SolarPanel,
+    DashboardData,
+    PanelPosition,
+    Location,
+    DailyData
 )
 
 
-class PainelSerializer(serializers.ModelSerializer):
+# SOLAR PANEL SERIALIZER
+class SolarPanelSerializer(
+    serializers.ModelSerializer):
 
     class Meta:
-        model = Painel
-        fields = '__all__'
+        model = SolarPanel
+
+        fields = [
+            'id',
+            'name',
+            'status',
+            'timestamp'
+        ]
+
+        read_only_fields = [
+            'id',
+            'timestamp'
+        ]
 
 
-class DadosDashboardSerializer(serializers.ModelSerializer):
+# DASHBOARD DATA SERIALIZER
+class DashboardDataSerializer(
+    serializers.ModelSerializer):
+    
+    class Meta:
+        model = DashboardData
+        fields = [
+            'id',
+            'panel',
+            'voltage',
+            'current',
+            'luminosity',
+            'power',
+            'timestamp'
+        ]
+
+        read_only_fields = [
+            'id',
+            'timestamp'
+        ]
+
+
+# PANEL POSITION SERIALIZER
+class PanelPositionSerializer(
+    serializers.ModelSerializer):
+    
+    class Meta:
+        model = PanelPosition
+
+        fields = [
+            'id',
+            'panel',
+            'theoretical_azimuth',
+            'actual_azimuth',
+            'theoretical_elevation',
+            'actual_elevation',
+            'tracking_efficiency',
+            'mode',
+            'timestamp'
+        ]
+
+        read_only_fields = [
+            'id',
+            'timestamp'
+        ]
+
+
+# LOCATION SERIALIZER
+class LocationSerializer(
+    serializers.ModelSerializer):
 
     class Meta:
-        model = DadosDashboard
-        fields = '__all__'
+        model = Location
+
+        fields = [
+            'id',
+            'panel',
+            'latitude',
+            'longitude',
+            'timestamp'
+        ]
+
+        read_only_fields = [
+            'id',
+            'timestamp'
+        ]
 
 
-class PosicaoPainelSerializer(serializers.ModelSerializer):
-
+# DAILY DATA SERIALIZER
+class DailyDataSerializer(
+    serializers.ModelSerializer):
+    
     class Meta:
-        model = PosicaoPainel
-        fields = '__all__'
+        model = DailyData
 
+        fields = [
+            'id',
+            'panel',
+            'date',
+            'energy_generated',
+            'avg_tracking_efficiency',
+            'timestamp'
+        ]
 
-class LocalizacaoSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Localizacao
-        fields = '__all__'
+        read_only_fields = [
+            'id',
+            'timestamp'
+        ]
