@@ -21,30 +21,26 @@ client.loop_start()
 # SIMULATION LOOP
 # =========================
 while True:
-    voltage = round(random.uniform(16, 22), 2)
-    current = round(random.uniform(1, 5), 2)
     payload1 = {
         #data
-        "voltage": voltage,
-        "current": current,
-        "luminosity": random.randint(100, 1000),
-        "power": round(voltage * current, 2),
-        "energy": round(random.uniform(0.1, 5), 2),
+        "voltage": round(random.uniform(16, 22), 2),
+        "current": round(random.uniform(1, 5), 2),
+        "luminosity": random.randint(100, 1000)
     }
 
     payload2 = {
         # position
-        "theoretical_azimuth": 120,
-        "actual_azimuth": 118,
-        "theoretical_elevation": 45,
-        "actual_elevation": 44,
-        "mode": "automatic",
+        "theoretical_azimuth": round(random.uniform(99, 150), 1),
+        "actual_azimuth": round(random.uniform(99, 150), 1),
+        "theoretical_elevation": round(random.uniform(35, 90), 1),
+        "actual_elevation": round(random.uniform(35, 90), 1),
+        "mode": "automatic"
     }
 
     payload3 = {
          # GPS
-        "latitude": -25.96,
-        "longitude": 32.58
+        "latitude": round(random.uniform(-25.96, -25.95), 6),
+        "longitude": round(random.uniform(32.57, 32.58), 6)
     }
 
     # Publish

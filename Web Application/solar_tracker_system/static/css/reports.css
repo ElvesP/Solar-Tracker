@@ -23,7 +23,7 @@
 
 .date-range input {
     padding: 5px;
-    border-radius: 10px;
+    border-radius: 5px;
     border: none;
     background: var(--card1);
     color: var(--accent);
@@ -47,6 +47,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
     margin-bottom: 20px;
 }
 
@@ -72,12 +73,6 @@
   align-items: center;
 }
 
-canvas {
-  display: flex;
-  margin-top: 20px;
-  flex-shrink: 3;
-}
-
 .side {
   flex: 1;
   display: flex;
@@ -95,9 +90,22 @@ canvas {
   font-size: 14px;
 }
 
+.insights {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
 .insights h3 {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   display: inline-block;
+}
+
+#insghtSubtitle {
+  padding-bottom: 15px;
+  font-size: 12px;
 }
 
 .insights ul {

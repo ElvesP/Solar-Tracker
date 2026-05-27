@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
 ]
 
+SITE_ID = 1
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -49,9 +51,7 @@ MIDDLEWARE = [
 ASGI_APPLICATION = 'web_application.asgi.application'
 
 CHANNEL_LAYERS = {
-
     'default': {
-
         'BACKEND': 'channels.layers.InMemoryChannelLayer'
     }
 }
@@ -128,6 +128,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
+    ]
+}
+
 # Internationalization
 LANGUAGE_CODE = 'pt-pt'
 USE_TZ = True
@@ -140,13 +147,11 @@ STATICFILES_DIRS = [
     BASE_DIR / "solar_tracker_system" / "static"
 ]
 
+AUTH_USER_MODEL = 'solar_tracker_system.CustomUser'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 LOGIN_REDIRECT_URL = '/home/'
-
 ACCOUNT_LOGIN_METHODS = {"email", "username"}
-
 ACCOUNT_LOGIN_ON_SIGNUP = False
 ACCOUNT_SIGNUP_REDIRECT_URL = '/accounts/login/'
 SOCIALACCOUNT_LOGIN_ON_GET = True

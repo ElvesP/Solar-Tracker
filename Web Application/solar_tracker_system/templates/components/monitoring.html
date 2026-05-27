@@ -1,15 +1,15 @@
 {% load static %}
 
 <link rel="stylesheet" href="{% static 'css/monitoring.css' %}">
-<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
 <div class="page" id="page-monitoring">
     <div class="header">
         <h1 class="page-title">Monitoramento Eléctrico</h1>
         <div class="date-range">
-            <input class="ds-item" id="date-monitoring" type="date" value="2026-04-05">
-            <button class="data-submit" onclick="getMonitoringData()">Aplicar</button>
+            <input class="ds-item" id="date-monitoring" type="date">
+            <button class="data-submit" id="data-submit-btn1">Aplicar</button>
         </div>
     </div>
 
@@ -19,7 +19,9 @@
                 <div class="card-title">
                     Variáveis Eléctricas em Função do Tempo
                 </div>
-                <div class="controls">
+                <div id="data-selected-indicador"></div>
+            </div>
+            <div class="controls">
                     <select id="graphSelector">
                         <option value="voltage">Tensão</option>
                         <option value="current">Corrente</option>
@@ -28,7 +30,6 @@
                         <option value="efficiency">Eficiência de rastreamento</option>
                     </select>
                 </div>
-            </div>
             <div class="chart-container">
                 <canvas id="electricalChart"></canvas>
             </div>
@@ -36,8 +37,9 @@
         <div class="card">
             <div class="card-header">
                 <div class="card-title">
-                    Ângulo de Elevação vs Ângulo de Azimute
+                    Ângulos Solares em Função do Tempo
                 </div>
+                <div id="data-selected-indicador1"></div>
             </div>
             <div class="chart-container">
                 <canvas id="solarAngleChart"></canvas>
@@ -46,4 +48,4 @@
     </div>
 </div>
 
-<script src="{% static 'js/monitoring.js' %}" defer></script>
+<script type="module" src="{% static 'js/monitoring.js' %}"></script>

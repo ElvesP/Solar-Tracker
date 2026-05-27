@@ -24,6 +24,35 @@ body.dark .sidebar {
     width: 70px; 
 }
 
+.sys-info{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 40px;
+    flex-wrap: wrap;
+    padding: 20px 0 20px 5px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 10px
+}
+
+.sys-info select{
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--chart);
+    padding: 5px 5px;
+    border-radius: 10px;
+    outline: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.panel-name{
+    font-weight:600;
+    font-size: 0.95rem;
+    color: var(--text);
+    overflow-x: hidden;
+}
+
 .nav { 
     padding: 10px; 
     display: flex; 

@@ -1,12 +1,10 @@
 @import url(./theme.css);
 
 body {
-    min-height: 100vh;
-    display: flex;
+    min-height: 100%;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: var(--height);
     width: var(--width);
     background: var(--core);
     color: var(--accent);
@@ -14,8 +12,7 @@ body {
 }
 
 .container{
-    position: relative;
-    top: auto;
+    padding: 20px;
     width:100%;
     max-width:1100px;
     margin: auto;
@@ -63,6 +60,23 @@ body {
     gap:16px;
 }
 
+.controls{
+    display:flex;
+    gap:12px;
+    flex-wrap: wrap;
+}
+
+select{
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--chart);
+    padding: 5px 5px;
+    border-radius: 10px;
+    outline: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
 .row{
     display: flex;
     justify-content: space-between;
@@ -80,6 +94,67 @@ body {
 .value{
     font-weight:600;
     text-align:right;
+}
+
+.actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+}
+
+.primary-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 14px;
+    border: none;
+    background: #38bdf8;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.primary-btn:hover {
+    background: #0ea5e9;
+}
+
+.secondary-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 14px;
+    border: none;
+    background: #6366f1;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.secondary-btn:hover {
+    background: #4f46e5;
+}
+
+.danger-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 14px;
+    border: none;
+    background: #ef4444;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.danger-btn:hover {
+    background: #dc2626;
+}
+
+.solar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
 }
 
 @media(max-width:850px){

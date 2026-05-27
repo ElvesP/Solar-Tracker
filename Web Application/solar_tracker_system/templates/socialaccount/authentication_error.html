@@ -1,14 +1,97 @@
-{% extends "socialaccount/base_entrance.html" %}
 {% load i18n %}
 {% load allauth %}
-{% block head_title %}
-    {% trans "Third-Party Login Failure" %}
-{% endblock head_title %}
 {% block content %}
-    {% element h1 %}
-        {% trans "Third-Party Login Failure" %}
-    {% endelement %}
-    {% element p %}
-        {% trans "An error occurred while attempting to login via your third-party account." %}
-    {% endelement %}
+
+<style>
+    body {
+        background: #0b0b0f;
+        color: #ffffff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    .auth-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    .auth-card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 40px;
+        max-width: 480px;
+        width: 100%;
+        text-align: center;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    .auth-title {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        letter-spacing: 0.5px;
+    }
+
+    .auth-text {
+        font-size: 14px;
+        opacity: 0.75;
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
+
+    .auth-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        background: radial-gradient(circle at top, #ff3b3b, #a80000);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .auth-button {
+        display: inline-block;
+        padding: 12px 20px;
+        border-radius: 10px;
+        background: white;
+        color: black;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.2s ease;
+    }
+
+    .auth-button:hover {
+        transform: scale(1.03);
+        opacity: 0.9;
+    }
+</style>
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+
+        <div class="auth-icon">!</div>
+
+        <div class="auth-title">
+            {% trans "Falha no Login" %}
+        </div>
+
+        <div class="auth-text">
+            {% trans "Ocorreu um erro ao tentar iniciar sessão com a sua conta de terceiros. Por favor, tente novamente ou use outro método de login." %}
+        </div>
+
+        <a href="/" class="auth-button">
+            {% trans "Voltar ao Início" %}
+        </a>
+
+    </div>
+</div>
+
 {% endblock content %}

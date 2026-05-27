@@ -2,7 +2,16 @@
 <link rel="stylesheet" href="{% static 'css/side_bar.css' %}">
 
 <aside class="sidebar collapsed" id="sidebar">
-
+  <div class="sys-info">
+    <div class="sb-icon">
+      <select id="sb-panel">
+        <option selected>--</option>
+      </select>
+    </div>
+    <div class="text panel-name">
+      <span id="panel-name"></span>
+    </div>
+  </div>
   <nav class="nav">
     <a class="ni active" id="nav-dashboard" onclick="navigate('dashboard')">
       <span class="sb-icon">⊞</span><span class="text">Dashboard</span>

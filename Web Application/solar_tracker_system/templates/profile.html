@@ -2,7 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="pt">
-    
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,18 +16,19 @@
 <body>
 
 <div class="container">
-    {% include 'components/back_button.html' %}
     <div class="header">
+        {% include 'components/back_button.html' %}
         <h1>Perfil</h1>
-        <p>Informações da conta e sistema solar</p>
+        <p>Informações da conta e sistema de rastreamento</p>
     </div>
 
     <div class="grid">
+
         <!-- CONTA -->
         <section class="card">
-            <h2 class="card-title">
-                Conta
-            </h2>
+            <div class="card-title">
+                <h2>Conta</h2>
+            </div>
             <div class="table">
                 <div class="row">
                     <span class="label">Nome de utilizador</span>
@@ -38,69 +39,75 @@
                     <span class="value">{{ user.email }}</span>
                 </div>
                 <div class="row">
-                    <span class="label">Conta criada</span>
-                    <span class="value">{{ user.date_joined }}</span>
-                </div>
-                <div class="row">
                     <span class="label">Último login</span>
                     <span class="value">{{ user.last_login }}</span>
+                </div>
+                <div class="row">
+                    <span class="label">Criada em</span>
+                    <span class="value">{{ user.date_joined }}</span>
                 </div>
                 <div class="row">
                     <span class="label">ID do Utilizador</span>
                     <span class="value">{{ user.id }}</span>
                 </div>
             </div>
+
+            <!-- ACTION -->
+            <div class="actions">
+                <button class="danger-btn">
+                    Eliminar conta
+                </button>
+            </div>
         </section>
 
         <!-- SISTEMA SOLAR -->
         <section class="card">
-            <div class="card-title">
-                <h2 >
-                    Sistema Solar
-                </h2>
+            <div class="card-title solar-header">
+                <h2>Sistema de Rastreamento</h2>
                 <div class="controls">
                     <select id="controlar-selecter">
-                        <option value="voltage">Tensão </option>
-                        <option value="current">Corrente</option>
-                        <option value="light">Luminosidade</option>
-                        <option value="power">Potência</option>
-                        <option value="efficiency">Eficiência de rastreamento</option>
+                        <option>--</option>
                     </select>
                 </div>
             </div>
             <div class="table">
                 <div class="row">
-                    <span class="label">Painéis conectados</span>
-                    <span class="value">-</span>
+                    <span class="label">Quantidade de painéis</span>
+                    <span class="value" id="panel-count">-</span> 
+                </div>
+                <div class="row">
+                    <span class="label">Nome</span>
+                    <span class="value" id="panel-name">-</span>
                 </div>
                 <div class="row">
                     <span class="label">Estado</span>
-                    <span class="value">-</span>
+                    <span class="value" id="panel-status">-</span>
                 </div>
                 <div class="row">
-                    <span class="label">Tracker</span>
-                    <span class="value">-</span>
+                    <span class="label">Criado em</span>
+                    <span class="value" id="panel-date-joined">-</span>
                 </div>
-
                 <div class="row">
-                    <span class="label">Controlador</span>
-                    <span class="value">-</span>
+                    <span class="label">ID do painel</span>
+                    <span class="value" id="panel-id">-</span>
                 </div>
-
-                <div class="row">
-                    <span class="label">GPS</span>
-                    <span class="value">-</span>
-                </div>
-
             </div>
-
+            <div class="actions">
+                <button class="primary-btn" id="add-panel-btn">
+                    Adicionar painel
+                </button>
+                <button class="secondary-btn" id="rename-panel-btn">
+                    Renomear painel
+                </button>
+                <button class="danger-btn" id="remove-panel-btn">
+                    Remover painel
+                </button>
+            </div>
         </section>
-
     </div>
-
 </div>
 
-<script src="{% static 'js/theme.js' %}"></script>
+<script src="{% static 'js/profile.js' defer%}"></script>
 
 </body>
 </html>

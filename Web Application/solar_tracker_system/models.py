@@ -1,6 +1,14 @@
+import uuid
 from django.db import models
 from django.conf import settings
-import uuid
+from django.contrib.auth.models import AbstractUser
+
+
+
+#USER MODEL
+class CustomUser(AbstractUser):
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False)
 
 
 # BASE MODEL
@@ -85,7 +93,7 @@ class PanelPosition(BaseModel):
     actual_elevation = models.DecimalField(
         max_digits=8, decimal_places=2)
     tracking_efficiency = models.DecimalField(
-        max_digits=5, decimal_places=2, default=0.0)
+        max_digits=5, decimal_places=2)
     mode = models.CharField(
         max_length=20, choices=MODE_CHOICES, default='automatic')
 
@@ -116,25 +124,3 @@ class Location(BaseModel):
 
     def __str__(self):
         return f"{self.latitude}, {self.longitude}"
-
-
-class DailyData(BaseModel):
-    panel = models.ForeignKey(
-        SolarPanel,
-        on_delete=models.CASCADE,
-        related_name='daily_data',
-        db_index=True
-    )
-    date = models.DateField()
-    energy_generated = models.DecimalField(max_digits=10, decimal_places=2)
-    avg_tracking_efficiency = models.DecimalField(
-        max_digits=5, decimal_places=2)
-
-    class Meta:
-        verbose_name = 'Daily Data'
-        verbose_name_plural = 'Daily Data'
-        ordering = ['-date']
-        unique_together = ('panel', 'date')
-
-    def __str__(self):
-        return f"{self.panel.name} - {self.date}"

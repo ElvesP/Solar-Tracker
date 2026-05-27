@@ -31,7 +31,20 @@
 
     <!-- LADO DIREITO -->
     <div class="auth-right">
-
+        {% if form.non_field_errors %}
+        <div id="toast" class="toast hidden error">
+                <div class="form-errors">
+                    <p>{{ form.non_field_errors }}</p>
+                </div>
+        </div>
+        <script>
+            const teste = document.getElementById('toast');
+            teste.classList.remove('hidden');
+            setTimeout(() => {
+                teste.classList.add('hidden');
+            }, 10000);
+        </script>
+        {% endif %}
         <div class="auth-box">
 
             <h2>{% trans "FAÇA LOGIN" %}</h2>
@@ -45,11 +58,9 @@
 
                     <label>Login</label>
                     {{ form.login }}
-                    {{ form.login.errors }}
 
                     <label>Palavra-passe</label>
                     {{ form.password }}
-                    {{ form.password.errors }}
 
                     <div class="options">
                         <label>{{ form.remember }} Lembrar de mim</label>
@@ -62,12 +73,6 @@
                         {% trans "Entrar" %} →
                     </button>
                 </form>
-
-                {% if form.non_field_errors %}
-                    <div class="form-errors">
-                        <p>{{ form.non_field_errors }}</p>
-                    </div>
-                {% endif %}
 
             {% endif %}
 

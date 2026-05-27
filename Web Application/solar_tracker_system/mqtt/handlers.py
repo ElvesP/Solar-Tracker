@@ -13,9 +13,7 @@ from asgiref.sync import async_to_sync
 
 User = get_user_model()
 
-# =========================
-# UTIL: SAFE PARSE JSON
-# =========================
+
 def parse_payload(payload):
     try:
         return json.loads(payload)
@@ -23,9 +21,6 @@ def parse_payload(payload):
         return None
 
 
-# =========================
-# UTIL: GET PANEL SAFELY
-# =========================
 def get_user(user_id):
     try:
         return User.objects.get(id=user_id)
@@ -47,9 +42,7 @@ def validate_access(user_id, panel):
 
     return str(panel.user_id) == str(user_id)
 
-# =========================
-# DASHBOARD DATA
-# =========================
+
 def save_dashboard_data(payload, user_id, panel_id):
     data = parse_payload(payload)
     user = get_user(user_id)
@@ -70,8 +63,7 @@ def save_dashboard_data(payload, user_id, panel_id):
     required_fields = [
         'voltage', 
         'current', 
-        'luminosity',
-        'power'
+        'luminosity'
     ]
 
     if not all(field in data for field in required_fields):
@@ -83,12 +75,12 @@ def save_dashboard_data(payload, user_id, panel_id):
         current=data['current'],
         luminosity=data['luminosity'],
         power=EnergyService.calculate_power(
-            data['voltage'], data['current']),
+            data['voltage'], data['current'])
     )
 
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
-        'dashboard',
+        f"dashboard_panel_{panel_id}",
         {
             'type': 'send_dashboard_data',
             'data': {
@@ -105,9 +97,6 @@ def save_dashboard_data(payload, user_id, panel_id):
     return {"success": True}
 
 
-# =========================
-# PANEL POSITION
-# =========================
 def save_panel_position(payload, user_id, panel_id):
     data = parse_payload(payload)
     user = get_user(user_id)
@@ -142,7 +131,7 @@ def save_panel_position(payload, user_id, panel_id):
         actual_azimuth=data['actual_azimuth'],
         theoretical_elevation=data['theoretical_elevation'],
         actual_elevation=data['actual_elevation'],
-        tracking_efficiency=EnergyService.tracking_efficiency(
+        tracking_efficiency=EnergyService.calculate_tracking_efficiency(
             data['theoretical_azimuth'], data['theoretical_elevation'],
             data['actual_azimuth'], data['actual_elevation']
         ),
@@ -151,7 +140,7 @@ def save_panel_position(payload, user_id, panel_id):
 
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
-        'dashboard',
+        f"dashboard_panel_{panel_id}",
         {
             'type': 'send_panel_position',
             'data': {
@@ -161,7 +150,7 @@ def save_panel_position(payload, user_id, panel_id):
                 'actual_elevation': obj.actual_elevation,
                 'mode': obj.mode,
                 'tracking_efficiency': obj.tracking_efficiency,
-                'timestamp': obj.timestamp.isoformat(),
+                'timestamp': obj.timestamp.isoformat()
             }
         }
     )
@@ -169,9 +158,6 @@ def save_panel_position(payload, user_id, panel_id):
     return {"success": True}
 
 
-# =========================
-# LOCATION
-# =========================
 def save_location(payload, user_id, panel_id):
     data = parse_payload(payload)
     user = get_user(user_id)
@@ -200,7 +186,7 @@ def save_location(payload, user_id, panel_id):
 
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
-        'dashboard',
+        f"dashboard_panel_{panel_id}",
         {
             'type': 'send_location',
             'data': {

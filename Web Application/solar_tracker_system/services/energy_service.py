@@ -1,45 +1,39 @@
 import math
-from django.utils import timezone
-from solar_tracker_system.models import (
-    DashboardData,
-    PanelPosition,
-    DailyData
-)
-from datetime import timedelta
+
 
 class EnergyService:
 
     @staticmethod
     def calculate_power(voltage, current):
-        return round(voltage * current, 2)
+        return round(voltage* current, 2)
 
     @staticmethod
-    def calculate_energy(panel):
-        today = timezone.localdate()
-        power_data = DashboardData.objects.filter(
-                panel=panel,
-                timestamp__date=today
-            ).order_by("timestamp")
+    def calculate_energy(dashboard_day):
+        energy = 0
 
-        energy_wh = 0.0
+        dashboard_points = dashboard_day.order_by("timestamp")
 
-        if power_data.exists():
-            for i in range(1, len(power_data)):
-                prev = power_data[i - 1]
-                curr = power_data[i]
-                power = prev.power
-                delta_t = (
-                    curr.timestamp - prev.timestamp
-                ).total_seconds() / 3600
-                energy_wh += power * delta_t
+        for i in range(1, len(dashboard_points)):
+            prev = dashboard_points[i - 1]
+            curr = dashboard_points[i]
 
-        return round(energy_wh, 2)
+            delta_seconds = (
+                curr.timestamp - prev.timestamp
+            ).total_seconds()
+
+            if delta_seconds > 300:
+                continue
+
+            power = float(prev.power or 0)
+
+            energy += power * (delta_seconds / 3600)  # Wh
+
+        return round(energy, 2)
 
     @staticmethod
-    def tracking_efficiency(azimuth_t, elevation_t, azimuth_r, elevation_r):
+    def calculate_tracking_efficiency(azimuth_t, elevation_t, azimuth_r, elevation_r):
         phi_t = math.radians(azimuth_t)
         alpha_t = math.radians(elevation_t)
-
         phi_r = math.radians(azimuth_r)
         alpha_r = math.radians(elevation_r)
 
@@ -57,47 +51,4 @@ class EnergyService:
 
         efficiency = dot_product * 100
 
-        return max(0.0, round(efficiency, 2))
-
-
-    @staticmethod
-    def calculate_daily_summary(panel):
-        today = timezone.localdate()
-        power_data = DashboardData.objects.filter(
-                panel=panel,
-                timestamp__date=today
-            ).order_by("timestamp")
-
-        energy_wh = 0.0
-
-        if power_data.exists():
-            for i in range(1, len(power_data)):
-                prev = power_data[i - 1]
-                curr = power_data[i]
-                power = prev.power
-                delta_t = (
-                    curr.timestamp - prev.timestamp
-                ).total_seconds() / 3600
-                energy_wh += power * delta_t
-
-        tracking_data = PanelPosition.objects.filter(
-            panel=panel,
-            timestamp__date=today
-        )
-        avg_efficiency = 0
-
-        if tracking_data.exists():
-            total = sum(
-                item.tracking_efficiency
-                for item in tracking_data
-            )
-            avg_efficiency = (
-                total / tracking_data.count()
-            )
-
-        DailyData.objects.create(
-            panel=panel,
-            date=today,
-            energy_generated=round(energy_wh, 2),
-            avg_tracking_efficiency=round(avg_efficiency, 2)
-        )
+        return max(0.0, round(efficiency), 2)

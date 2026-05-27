@@ -3,14 +3,12 @@ from solar_tracker_system.models import (
     SolarPanel,
     DashboardData,
     PanelPosition,
-    Location,
-    DailyData
+    Location
 )
 
 
 # SOLAR PANEL SERIALIZER
-class SolarPanelSerializer(
-    serializers.ModelSerializer):
+class SolarPanelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SolarPanel
@@ -29,8 +27,7 @@ class SolarPanelSerializer(
 
 
 # DASHBOARD DATA SERIALIZER
-class DashboardDataSerializer(
-    serializers.ModelSerializer):
+class DashboardDataSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = DashboardData
@@ -51,8 +48,7 @@ class DashboardDataSerializer(
 
 
 # PANEL POSITION SERIALIZER
-class PanelPositionSerializer(
-    serializers.ModelSerializer):
+class PanelPositionSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = PanelPosition
@@ -76,8 +72,7 @@ class PanelPositionSerializer(
 
 
 # LOCATION SERIALIZER
-class LocationSerializer(
-    serializers.ModelSerializer):
+class LocationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Location
@@ -87,28 +82,6 @@ class LocationSerializer(
             'panel',
             'latitude',
             'longitude',
-            'timestamp'
-        ]
-
-        read_only_fields = [
-            'id',
-            'timestamp'
-        ]
-
-
-# DAILY DATA SERIALIZER
-class DailyDataSerializer(
-    serializers.ModelSerializer):
-    
-    class Meta:
-        model = DailyData
-
-        fields = [
-            'id',
-            'panel',
-            'date',
-            'energy_generated',
-            'avg_tracking_efficiency',
             'timestamp'
         ]
 

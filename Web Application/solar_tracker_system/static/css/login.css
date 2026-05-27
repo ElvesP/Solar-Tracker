@@ -65,7 +65,6 @@
     z-index: 4;
     width: 100%;
     max-width: 420px;
-    position: relative;
     padding: 5px;
     margin: 10px;
     border-radius: 10px;
@@ -83,16 +82,14 @@
 
 .auth-box {
     display: block;
-    width: 90%;
+    width: 100%;
     padding: 20px;
-    margin: 20px;
     max-width: 400px;
     color: var(--accent);
 }
 
 .auth-box h2 {
     text-align: center;
-    
 }
 
 .auth-box label {
@@ -231,9 +228,72 @@
 
 .form-errors,
 .errorlist {
-    color: #ff0000;
+    color: #ffffff;
     font-size: 13px;
     margin-top: 5px;
     list-style: none;
     padding-left: 0;
+}
+
+.toast {
+    position: fixed;
+    margin: auto;
+    max-width: 400px;
+    top: 10px;
+    background: #22c55e;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    transition: 0.3s;
+    z-index: 9999;
+}
+
+.hidden {
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+}
+
+.error {
+    position: fixed;
+    margin: auto;
+    top: 10px;
+    background: #ff1111;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    transition: 0.3s;
+    z-index: 9999;
+}
+
+.toast.show {
+    opacity: 1;
+    margin: auto;
+    transform: translateY(0);
+}
+
+@media screen and (max-width: 768px) {
+
+    .auth-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .auth-left {
+        opacity: 0;
+        transform: translateY(-10px);
+        height: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .auth-right {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
 }
