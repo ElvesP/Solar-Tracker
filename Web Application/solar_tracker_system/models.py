@@ -1,4 +1,5 @@
 import uuid
+from decimal import Decimal
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
@@ -23,21 +24,13 @@ class BaseModel(models.Model):
 
 # SOLAR PANEL
 class SolarPanel(BaseModel):
-    STATUS_CHOICES = [
-        ('online', 'Online'),
-        ('offline', 'Offline'),
-    ]
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='solar_panels'
     )
     name = models.CharField(max_length=100)
-    status = models.CharField(
-        max_length=10,
-        choices=STATUS_CHOICES,
-        default='offline'
-    )
+    last_seen = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Solar Panel'
@@ -61,6 +54,7 @@ class DashboardData(BaseModel):
     power = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
+        get_latest_by = 'timestamp' 
         verbose_name = 'Dashboard Data'
         verbose_name_plural = 'Dashboard Data'
         ordering = ['-timestamp']
@@ -74,10 +68,6 @@ class DashboardData(BaseModel):
 
 # PANEL POSITION
 class PanelPosition(BaseModel):
-    MODE_CHOICES = [
-        ('automatic', 'Automatic'),
-        ('manual', 'Manual'),
-    ]
     panel = models.ForeignKey(
         SolarPanel,
         on_delete=models.CASCADE,
@@ -94,16 +84,44 @@ class PanelPosition(BaseModel):
         max_digits=8, decimal_places=2)
     tracking_efficiency = models.DecimalField(
         max_digits=5, decimal_places=2)
-    mode = models.CharField(
-        max_length=20, choices=MODE_CHOICES, default='automatic')
 
     class Meta:
+        get_latest_by = 'timestamp'
         verbose_name = 'Panel Position'
         verbose_name_plural = 'Panel Positions'
         ordering = ['-timestamp']
 
     def __str__(self):
-        return f"{self.panel.name} - {self.mode}"
+        return f"{self.panel.name} - {self.timestamp}"
+
+
+#REMOTE CONTROL
+class RemoteControl(BaseModel):
+    MODE_CHOICES = [
+        ('automatic', 'Automatic'),
+        ('manual', 'Manual'),
+    ]
+    panel = models.ForeignKey(
+        SolarPanel,
+        on_delete=models.CASCADE,
+        related_name='remote_controls',
+        db_index=True
+    )
+    manual_azimuth = models.DecimalField(
+        max_digits=8, decimal_places=2)
+    manual_elevation = models.DecimalField(
+        max_digits=8, decimal_places=2)
+    mode = models.CharField(
+        max_length=20, choices=MODE_CHOICES, default='automatic')
+
+    class Meta:
+        get_latest_by = 'timestamp'
+        verbose_name = 'Remote Control'
+        verbose_name_plural = 'Remote Controls'
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.panel.name} - {self.timestamp}"
 
 
 # LOCATION

@@ -1,4 +1,7 @@
 import json
+from datetime import timedelta
+from decimal import Decimal
+from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import get_user_model
 from solar_tracker_system.models import (
@@ -43,13 +46,12 @@ def validate_access(user_id, panel):
     return str(panel.user_id) == str(user_id)
 
 
-def save_dashboard_data(payload, user_id, panel_id):
-    data = parse_payload(payload)
+def save_dashboard_data(data, user_id, panel_id):
     user = get_user(user_id)
     panel = get_panel(panel_id)
 
     if not data:
-        return {"error": "Invalid JSON"}
+        return {"error": "Invalid data"}
 
     if not user:
         return {"error": "User not found"}
@@ -88,7 +90,6 @@ def save_dashboard_data(payload, user_id, panel_id):
                 'current': obj.current,
                 'luminosity': obj.luminosity,
                 'power': obj.power,
-                'energy': EnergyService.calculate_energy(panel),
                 'timestamp': obj.timestamp.isoformat()
             }
         }
@@ -97,13 +98,12 @@ def save_dashboard_data(payload, user_id, panel_id):
     return {"success": True}
 
 
-def save_panel_position(payload, user_id, panel_id):
-    data = parse_payload(payload)
+def save_panel_position(data, user_id, panel_id):
     user = get_user(user_id)
     panel = get_panel(panel_id)
 
     if not data:
-        return {"error": "Invalid JSON"}
+        return {"error": "Invalid data"}
 
     if not user:
         return {"error": "User not found"}
@@ -118,8 +118,7 @@ def save_panel_position(payload, user_id, panel_id):
         'theoretical_azimuth',
         'actual_azimuth',
         'theoretical_elevation',
-        'actual_elevation',
-        'mode'
+        'actual_elevation'
     ]
 
     if not all(field in data for field in required_fields):
@@ -134,9 +133,9 @@ def save_panel_position(payload, user_id, panel_id):
         tracking_efficiency=EnergyService.calculate_tracking_efficiency(
             data['theoretical_azimuth'], data['theoretical_elevation'],
             data['actual_azimuth'], data['actual_elevation']
-        ),
-        mode=data['mode']
+        )
     )
+
 
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
@@ -148,7 +147,6 @@ def save_panel_position(payload, user_id, panel_id):
                 'actual_azimuth': obj.actual_azimuth,
                 'theoretical_elevation': obj.theoretical_elevation,
                 'actual_elevation': obj.actual_elevation,
-                'mode': obj.mode,
                 'tracking_efficiency': obj.tracking_efficiency,
                 'timestamp': obj.timestamp.isoformat()
             }
@@ -158,13 +156,12 @@ def save_panel_position(payload, user_id, panel_id):
     return {"success": True}
 
 
-def save_location(payload, user_id, panel_id):
-    data = parse_payload(payload)
+def save_location(data, user_id, panel_id):
     user = get_user(user_id)
     panel = get_panel(panel_id)
     
     if not data:
-        return {"error": "Invalid JSON"}
+        return {"error": "Invalid data"}
 
     if not user:
         return {"error": "User not found"}
@@ -177,24 +174,43 @@ def save_location(payload, user_id, panel_id):
 
     if 'latitude' not in data or 'longitude' not in data:
         return {"error": "Missing coordinates"}
+    
+    last_position = Location.objects.filter(
+        panel=panel
+    ).order_by('-timestamp').first()
 
-    obj = Location.objects.create(
-        panel=panel,
-        latitude=data['latitude'],
-        longitude=data['longitude']
-    )
+    if last_position:
+        save_locate = Decimal(last_position.latitude) != Decimal(data['latitude']) or Decimal(last_position.longitude) != Decimal(data['longitude'])
+    else:
+        save_locate = True
 
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        f"dashboard_panel_{panel_id}",
-        {
-            'type': 'send_location',
-            'data': {
-                'latitude': obj.latitude,
-                'longitude': obj.longitude,
-                'timestamp': obj.timestamp.isoformat(),
+    if save_locate:
+        obj = Location.objects.create(
+            panel=panel,
+            latitude=data['latitude'],
+            longitude=data['longitude']
+        )
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"dashboard_panel_{panel_id}",
+            {
+                'type': 'send_location',
+                'data': {
+                    'latitude': obj.latitude,
+                    'longitude': obj.longitude,
+                    'timestamp': obj.timestamp.isoformat(),
+                }
             }
-        }
-    )
+        )
 
     return {"success": True}
+
+
+def send_solar_control(user_id, panel_id):
+    data = {
+        "action": "MOVE",
+        "mode": "automatic",
+        "azimuth": 120,
+        "elevation": 35,
+    }

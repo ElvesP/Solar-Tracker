@@ -1,0 +1,80 @@
+@import url('./theme.css');
+
+
+.confirm-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: var(--core);
+}
+
+.confirm-card {
+    width: 100%;
+    max-width: 520px;
+    background: var(--card1);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    backdrop-filter: blur(12px);
+}
+
+.title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: var(--text);
+    letter-spacing: -0.5px;
+}
+
+.text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--muted);
+    margin-bottom: 20px;
+}
+
+.text a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.text a:hover {
+    text-decoration: underline;
+}
+
+.text.error {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.08);
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.confirm-form {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-confirm {
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.btn-confirm:active {
+    transform: scale(0.98);
+}

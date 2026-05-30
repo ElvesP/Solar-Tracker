@@ -1,13 +1,17 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from solar_tracker_system.models import (
     SolarPanel,
     DashboardData,
     PanelPosition,
+    RemoteControl,
     Location
 )
 from solar_tracker_system.services.energy_service import EnergyService
@@ -15,6 +19,7 @@ from .serializers import (
     SolarPanelSerializer,
     DashboardDataSerializer,
     PanelPositionSerializer,
+    RemoteControlSerializer,
     LocationSerializer
 )
 
@@ -50,11 +55,55 @@ class DashboardDataViewSet(viewsets.ModelViewSet):
         panel = self.request.query_params.get('panel')
         date = self.request.query_params.get('date')
 
-        if panel and date:
+        if panel:
             queryset = queryset.filter(
-                panel_id=panel, timestamp__date=date)
+                panel_id=panel)
+            
+        if date:
+            queryset = queryset.filter(
+                timestamp__date=date)
 
         return queryset
+
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(
+            self.get_queryset()
+        )
+        response = []
+        previous = None
+
+        for obj in queryset:
+            if previous:
+                gap = (
+                    obj.timestamp -
+                    previous.timestamp
+                )
+
+                if gap.total_seconds() > 300:
+                    response.append({
+                        "id": obj.id,
+                        "voltage": None,
+                        "current": None,
+                        "power": None,
+                        "luminosity": None,
+                        "timestamp": (
+                            previous.timestamp +
+                            timedelta(minutes=1)
+                        ).isoformat(),
+                    })
+
+            response.append({
+                "id": obj.id,
+                "voltage": obj.voltage,
+                "current": obj.current,
+                "luminosity": obj.luminosity,
+                "power": obj.power,
+                "timestamp": obj.timestamp.isoformat(),
+            })
+            previous = obj
+
+        return Response(response)
 
 
 # PANEL POSITION VIEWSET
@@ -69,12 +118,138 @@ class PanelPositionViewSet(viewsets.ModelViewSet):
         panel = self.request.query_params.get('panel')
         date = self.request.query_params.get('date')
 
-        if panel and date:
+        if panel:
             queryset = queryset.filter(
-                panel_id=panel, timestamp__date=date)
+                panel_id=panel)
+            
+        if date:
+            queryset = queryset.filter(
+                timestamp__date=date)
+
+        return queryset
+    
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(
+            self.get_queryset()
+        )
+        response = []
+        previous = None
+
+        for obj in queryset:
+            if previous:
+                gap = (
+                    obj.timestamp -
+                    previous.timestamp
+                )
+
+                if gap.total_seconds() > 300:
+                    response.append({
+                        "id": obj.id,
+                        "theoretical_azimuth": None,
+                        "actual_azimuth": None,
+                        "theoretical_elevation": None,
+                        "actual_elevation": None,
+                        "tracking_efficiency": None,
+                        "timestamp": (
+                            previous.timestamp +
+                            timedelta(minutes=1)
+                        ).isoformat()
+                    })
+
+            # dado real
+            response.append({
+                "id": obj.id,
+                "theoretical_azimuth": obj.theoretical_azimuth,
+                "actual_azimuth": obj.actual_azimuth,
+                "theoretical_elevation": obj.theoretical_elevation,
+                "actual_elevation": obj.actual_elevation,
+                "tracking_efficiency": obj.tracking_efficiency,
+                "timestamp": obj.timestamp.isoformat()
+            })
+
+            previous = obj
+
+        return Response(response)
+        
+
+# REMOTE CONTROL VIEWSET
+class RemoteControlViewSet(viewsets.ModelViewSet):
+    serializer_class = RemoteControlSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = RemoteControl.objects.filter(
+            panel__user=self.request.user
+        ).order_by('timestamp')
+        panel = self.request.query_params.get('panel')
+
+        if panel:
+            queryset = queryset.filter(
+                panel_id=panel)
 
         return queryset
 
+
+    def perform_create(self, serializer):
+        panel_id = self.request.data.get('panel')
+        mode = self.request.data.get('mode')
+
+        panel = get_object_or_404(
+            SolarPanel,
+            id=panel_id,
+            user=self.request.user
+        )
+
+        last_position = RemoteControl.objects.filter(
+            panel=panel
+        ).order_by('-timestamp').first()
+
+        default_values = {
+            "manual_azimuth": 0.0,
+            "manual_elevation": 0.0,
+            "mode": "initial",
+        }
+
+        if last_position:
+            defaults = {
+                "manual_azimuth": last_position.manual_azimuth,
+                "manual_elevation": last_position.manual_elevation,
+                "mode": last_position.mode,
+            }
+        else:
+            defaults = default_values
+
+        if mode == "manual":
+            manual_az = self.request.data.get('manual_azimuth')
+            manual_el = self.request.data.get('manual_elevation')
+
+            save_decision = defaults["mode"] != mode or defaults["manual_azimuth"] != Decimal(manual_az) or defaults["manual_elevation"] != Decimal(manual_el)
+            if save_decision:
+                serializer.save(
+                    panel=panel,
+                    manual_azimuth=manual_az,
+                    manual_elevation=manual_el,
+                    mode=mode
+                )
+            else:
+                raise ValidationError("Dados anteriores iguais.")
+
+        elif mode == "automatic":
+            if defaults["mode"] != mode:
+                serializer.save(
+                    panel=panel,
+                    manual_azimuth=Decimal(0.0),
+                    manual_elevation=Decimal(0.0),
+                    mode=mode
+                )
+            else:
+                raise ValidationError("Dados anteriores iguais.")
+
+        else:
+            raise ValidationError("Modo inválido. Use 'manual' ou 'automatic'.")
+
+    
 
 # LOCATION VIEWSET
 class LocationViewSet(viewsets.ModelViewSet):
@@ -88,9 +263,13 @@ class LocationViewSet(viewsets.ModelViewSet):
         panel = self.request.query_params.get('panel')
         date = self.request.query_params.get('date')
 
-        if panel and date:
+        if panel:
             queryset = queryset.filter(
-                panel_id=panel, timestamp__date=date)
+                panel_id=panel)
+            
+        if date:
+            queryset = queryset.filter(
+                timestamp__date=date)
 
         return queryset
 

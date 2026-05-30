@@ -103,7 +103,7 @@ function renderSelectedGraph(dashboardData, positionData) {
         });
 
         dataset = dashboardData.map(item =>
-            Number(item[config.field])
+            item[config.field]
         );
     } else if (graphType === 'efficiency') {
         labels = positionData.map(item => {
@@ -117,7 +117,7 @@ function renderSelectedGraph(dashboardData, positionData) {
         });
 
         dataset = positionData.map(item =>
-            Number(item[config.field])
+            item[config.field]
         );
     }
 
@@ -139,7 +139,8 @@ function renderSelectedGraph(dashboardData, positionData) {
                         fill: true,
                         tension: 0.3,
                         borderWidth: 2,
-                        pointRadius: 2
+                        pointRadius: 2,
+                        spanGaps: false
                     }]
                 },
                 options: {
@@ -201,6 +202,7 @@ function renderSelectedGraph(dashboardData, positionData) {
         chart.data.datasets[0].label = config.label;
         chart.data.datasets[0].borderColor = config.borderColor;
         chart.data.datasets[0].backgroundColor = config.backgroundColor;
+        chart.data.datasets[0].spanGaps = false;
         chart.options.scales.x.ticks.color = textColor;
         chart.options.scales.y.ticks.color = textColor;
         chart.options.scales.x.grid.color = gridColor;
@@ -222,16 +224,16 @@ function renderSelectedGraph(dashboardData, positionData) {
     });
 
     const actualAzimuth = positionData.map(item =>
-        Number(item.actual_azimuth)
+        item.actual_azimuth
     );
     const theoreticalAzimuth = positionData.map(item =>
-        Number(item.theoretical_azimuth)
+        item.theoretical_azimuth
     );
     const actualElevation = positionData.map(item =>
-        Number(item.actual_elevation)
+        item.actual_elevation
     );
     const theoreticalElevation = positionData.map(item =>
-        Number(item.theoretical_elevation)
+        item.theoretical_elevation
     );
 
     if (!window.solarAngleChartInstance) {
@@ -250,28 +252,32 @@ function renderSelectedGraph(dashboardData, positionData) {
                             data: actualAzimuth,
                             borderColor: '#07bdf8',
                             backgroundColor: 'rgba(56,189,248,0.15)',
-                            tension: 0.3
+                            tension: 0.3,
+                            spanGaps: false
                         },
                         {
                             label: 'Azimute Teórico (°)',
                             data: theoreticalAzimuth,
                             borderColor: '#eea5e9',
                             backgroundColor: 'rgba(14,165,233,0.15)',
-                            tension: 0.3
+                            tension: 0.3,
+                            spanGaps: false
                         },
                         {
                             label: 'Elevação Real (°)',
                             data: actualElevation,
                             borderColor: '#10b981',
                             backgroundColor: 'rgba(16,185,129,0.15)',
-                            tension: 0.3
+                            tension: 0.3,
+                            spanGaps: false
                         },
                         {
                             label: 'Elevação Teórica (°)',
                             data: theoreticalElevation,
                             borderColor: '#ffc55e',
                             backgroundColor: 'rgba(34,197,94,0.15)',
-                            tension: 0.3
+                            tension: 0.3,
+                            spanGaps: false
                         }
                     ]
                 },
@@ -330,10 +336,14 @@ function renderSelectedGraph(dashboardData, positionData) {
         const chart = window.solarAngleChartInstance;
 
         chart.data.labels = solarLabels;
+        chart.data.datasets[0].spanGaps = false;
         chart.data.datasets[0].data = actualAzimuth;
         chart.data.datasets[1].data = theoreticalAzimuth;
+        chart.data.datasets[1].spanGaps = false;
         chart.data.datasets[2].data = actualElevation;
+        chart.data.datasets[2].spanGaps = false;
         chart.data.datasets[3].data = theoreticalElevation;
+        chart.data.datasets[3].spanGaps = false;
         chart.options.scales.x.ticks.color = textColor;
         chart.options.scales.y.ticks.color = textColor;
         chart.options.scales.x.grid.color = gridColor;
@@ -346,6 +356,11 @@ function renderSelectedGraph(dashboardData, positionData) {
 
 async function renderData() {
     const selectedPanelID = getSelectedPanelID();
+
+    if (selectedPanelID === null) {
+        return;
+    }
+    
     const selectedDate = 
         document.getElementById("date-monitoring").value;
     const { 
@@ -375,9 +390,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('date-monitoring').value =
         formattedDate;
 
-    setTimeout(() => {
-        renderData();
-    }, 5000);
+    document.getElementById("nav-monitoring").addEventListener(
+        "click", 
+        async () => {
+            renderData();
+        }
+    );
 
     document.getElementById("data-submit-btn1").addEventListener(
         "click", 

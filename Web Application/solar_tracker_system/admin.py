@@ -3,6 +3,7 @@ from .models import (
     SolarPanel,
     DashboardData,
     PanelPosition,
+    RemoteControl,
     Location
 )
 
@@ -17,7 +18,7 @@ class SolarPanelAdmin(admin.ModelAdmin):
         'id',
         'name',
         'user',
-        'status',
+        'last_seen',
         'timestamp'
     )
 
@@ -27,7 +28,7 @@ class SolarPanelAdmin(admin.ModelAdmin):
     )
 
     list_filter = (
-        'status',
+        'last_seen',
         'timestamp'
     )
 
@@ -73,6 +74,31 @@ class PanelPositionAdmin(admin.ModelAdmin):
         'actual_elevation',
         'theoretical_elevation',
         'tracking_efficiency',
+        'timestamp'
+    )
+
+    search_fields = (
+        'panel__name',
+    )
+
+    list_filter = (
+        'panel',
+        'timestamp'
+    )
+
+    ordering = ('-timestamp',)
+
+
+# =========================
+# PANEL POSITION ADMIN
+# =========================
+@admin.register(RemoteControl)
+class RemoteControlAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'panel',
+        'manual_azimuth',
+        'manual_elevation',
         'mode',
         'timestamp'
     )

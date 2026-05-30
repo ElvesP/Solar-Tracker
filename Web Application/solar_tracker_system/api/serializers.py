@@ -3,6 +3,7 @@ from solar_tracker_system.models import (
     SolarPanel,
     DashboardData,
     PanelPosition,
+    RemoteControl,
     Location
 )
 
@@ -16,7 +17,7 @@ class SolarPanelSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'name',
-            'status',
+            'last_seen',
             'timestamp'
         ]
 
@@ -61,9 +62,30 @@ class PanelPositionSerializer(serializers.ModelSerializer):
             'theoretical_elevation',
             'actual_elevation',
             'tracking_efficiency',
+            'timestamp'
+        ]
+
+        read_only_fields = [
+            'id',
+            'timestamp'
+        ]
+
+
+# REMOTE CONTROLE SERIALIZER
+class RemoteControlSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RemoteControl
+
+        fields = [
+            'id',
+            'panel',
+            'manual_azimuth',
+            'manual_elevation',
             'mode',
             'timestamp'
         ]
+
 
         read_only_fields = [
             'id',

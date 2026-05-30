@@ -38,7 +38,6 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// LOAD PANELS
 async function loadPanels() {
     try {
         const res = await fetch("/api/solar-panels/");
@@ -51,8 +50,6 @@ async function loadPanels() {
     }
 }
 
-
-// RENDER SELECT
 function renderPanelSelector() {
     const selector = document.getElementById("controlar-selecter");
 
@@ -75,13 +72,10 @@ function renderPanelSelector() {
     }
 }
 
-
-// PANEL CHANGE
 function handlePanelChange(event) {
     selectedPanelId = event.target.value;
     updateSolarInfo();
 }
-
 
 function formatTimestamp(timestamp) {
     const data = new Date(timestamp);
@@ -99,8 +93,22 @@ function formatTimestamp(timestamp) {
     }`;
 }
 
+function getPanelStatus(panel){
+    if(!panel.last_seen) {
+        return "Offline";
+    }
 
-// UPDATE SOLAR INFO
+    const now = new Date();
+    const lastSeen = new Date(panel.last_seen);
+    const isOnline = (now - lastSeen)/1000/60 < 2;
+
+    if (isOnline) {
+        return "Online";
+    } else {
+        return "Offline";
+    }
+}
+
 function updateSolarInfo() {
     const selectedPanel = panels.find(
         panel => panel.id == selectedPanelId
@@ -123,15 +131,13 @@ function updateSolarInfo() {
     document.getElementById("panel-name").textContent =
         selectedPanel.name;
     document.getElementById("panel-status").textContent =
-        selectedPanel.status;
+        getPanelStatus(selectedPanel);
     document.getElementById("panel-id").textContent =
         selectedPanel.id;
     document.getElementById("panel-date-joined").textContent =
         formatTimestamp(selectedPanel.timestamp);
 }
 
-
-// ADD PANEL
 async function addPanel() {
     const name = prompt("Nome do novo painel:");
 
@@ -146,8 +152,7 @@ async function addPanel() {
                 "X-CSRFToken": getCookie("csrftoken")
             },
             body: JSON.stringify({
-                name: name,
-                status: "offline"
+                name: name
             })
         });
 
@@ -159,7 +164,6 @@ async function addPanel() {
     }
 }
 
-// RENAME PANEL
 async function renamePanel() {
     if (!selectedPanelId) {
         alert("Seleciona um painel primeiro");
@@ -196,7 +200,6 @@ async function renamePanel() {
     }
 }
 
-// REMOVE PANEL
 async function removePanel() {
     if (!selectedPanelId) {
         alert("Seleciona um painel primeiro");
@@ -224,8 +227,6 @@ async function removePanel() {
     }
 }
 
-
-// DELETE ACCOUNT
 async function deleteAccount() {
     const confirmDelete = confirm(
         "ATENÇÃO: Isto vai apagar a tua conta permanentemente. Continuar?"

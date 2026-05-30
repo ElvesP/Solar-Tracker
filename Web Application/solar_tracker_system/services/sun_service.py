@@ -12,48 +12,50 @@ class SunService:
 
     @classmethod
     def get_sun_times(cls):
-
         url = (
-            "https://api.sunrise-sunset.org/json"
-            f"?lat={cls.LATITUDE}"
-            f"&lng={cls.LONGITUDE}"
-            "&formatted=0"
-        )
+                "https://api.sunrise-sunset.org/json"
+                f"?lat={cls.LATITUDE}"
+                f"&lng={cls.LONGITUDE}"
+                "&formatted=0"
+            )
+         
+        try:
+            response = requests.get(url)
+            data =response.json()["results"]
+            sunrise_utc = datetime.fromisoformat(
+                data["sunrise"].replace("Z", "+00:00")
+            )
+            sunset_utc = datetime.fromisoformat(
+                data["sunset"].replace("Z", "+00:00")
+            )
 
-        response = requests.get(url)
+            tz = ZoneInfo(cls.TIMEZONE)
 
-        data = response.json()["results"]
+            sunrise_local = sunrise_utc.astimezone(tz)
+            sunset_local = sunset_utc.astimezone(tz)
 
-        sunrise_utc = datetime.fromisoformat(
-            data["sunrise"].replace("Z", "+00:00")
-        )
-
-        sunset_utc = datetime.fromisoformat(
-            data["sunset"].replace("Z", "+00:00")
-        )
-
-        # Converter para hora local
-        tz = ZoneInfo(cls.TIMEZONE)
-
-        sunrise_local = sunrise_utc.astimezone(tz)
-        sunset_local = sunset_utc.astimezone(tz)
-
-        return {
-            "sunrise": sunrise_local,
-            "sunset": sunset_local
-        }
+            return {
+                "sunrise": sunrise_local,
+                "sunset": sunset_local
+            }
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Erro ao obter dados solares: {e}")
+            return None
 
     @classmethod
     def is_daytime(cls):
+        try:
+            sun_times = cls.get_sun_times()
 
-        sun_times = cls.get_sun_times()
+            now = datetime.now(
+                ZoneInfo(cls.TIMEZONE)
+            )
 
-        now = datetime.now(
-            ZoneInfo(cls.TIMEZONE)
-        )
-
-        return (
-            sun_times["sunrise"]
-            <= now
-            <= sun_times["sunset"]
-        )
+            return (
+                sun_times["sunrise"]
+                <= now
+                <= sun_times["sunset"]
+            )
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Erro ao obter dados solares: {e}")
+            return False

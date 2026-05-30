@@ -4,6 +4,7 @@ from .views import (
     SolarPanelViewSet,
     DashboardDataViewSet,
     PanelPositionViewSet,
+    RemoteControlViewSet,
     LocationViewSet,
     DailyDataViewSet,
     DeleteMyUserView
@@ -30,6 +31,13 @@ router.register(
     r'panel-positions',
     PanelPositionViewSet,
     basename='panel-position'
+)
+
+# REMOTE CONTROL ROUTES
+router.register(
+    r'remote-controls',
+    RemoteControlViewSet,
+    basename='remote-control'
 )
 
 # LOCATION ROUTES

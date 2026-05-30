@@ -100,24 +100,80 @@ canvas {
     overflow: hidden;
 }
 
-@media(max-width:900px){
-
-    body{
-        padding:18px;
-    }
-
-    .chart-container{
-        height:320px;
-    }
-
-    .card-header{
-        flex-direction:column;
-        align-items:flex-start;
-    }
-}
-
 body.dark .select-modern{
     background: transparent;
     border: 1px solid #374151;
     color: var(--text);
+}
+
+
+/* Smartphones grandes */
+@media (max-width: 768px) {
+
+    .page-title {
+        font-size: 1.6rem;
+    }
+
+    .header {
+        gap: 12px;
+    }
+
+    .date-range {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .ds-item {
+        width: 100%;
+        flex: 1;
+        min-width: 140px;
+    }
+
+    .card-header {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .card-title {
+        font-size: 1.05rem;
+    }
+
+    .controls {
+        width: 100%;
+    }
+
+    .chart-container {
+        height: 300px;
+    }
+}
+
+/* Smartphones pequenos */
+@media (max-width: 480px) {
+
+    .page-title {
+        font-size: 1.3rem;
+    }
+
+    .monitor-grid {
+        gap: 16px;
+    }
+
+    .card {
+        padding: 14px;
+    }
+
+    .chart-container {
+        height: 240px;
+    }
+
+    select {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+
+    .data-submit {
+        font-size: 11px;
+    }
 }

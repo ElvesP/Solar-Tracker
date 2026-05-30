@@ -21,40 +21,28 @@ client.loop_start()
 # SIMULATION LOOP
 # =========================
 while True:
-    payload1 = {
-        #data
-        "voltage": round(random.uniform(16, 22), 2),
-        "current": round(random.uniform(1, 5), 2),
-        "luminosity": random.randint(100, 1000)
-    }
-
-    payload2 = {
-        # position
-        "theoretical_azimuth": round(random.uniform(99, 150), 1),
-        "actual_azimuth": round(random.uniform(99, 150), 1),
-        "theoretical_elevation": round(random.uniform(35, 90), 1),
-        "actual_elevation": round(random.uniform(35, 90), 1),
-        "mode": "automatic"
-    }
-
-    payload3 = {
-         # GPS
-        "latitude": round(random.uniform(-25.96, -25.95), 6),
-        "longitude": round(random.uniform(32.57, 32.58), 6)
+    payload = {
+        "data": {
+            "voltage": round(random.uniform(16, 22), 2),
+            "current": round(random.uniform(1, 5), 2),
+            "luminosity": random.randint(100, 1000)
+        },
+        "position": {
+            "theoretical_azimuth": round(random.uniform(99, 150), 1),
+            "actual_azimuth": round(random.uniform(99, 150), 1),
+            "theoretical_elevation": round(random.uniform(35, 90), 1),
+            "actual_elevation": round(random.uniform(35, 90), 1),
+        },
+        "location": {
+            "latitude": -25.969200,
+            "longitude": 32.573200
+        }
     }
 
     # Publish
     client.publish(
-        "solar/1/2f651e64-2d02-490b-b4cc-0cb27ae28c8a/data",
-        json.dumps(payload1)
-    )
-    client.publish(
-        "solar/1/2f651e64-2d02-490b-b4cc-0cb27ae28c8a/position",
-        json.dumps(payload2)
-    )
-    client.publish(
-        "solar/1/2f651e64-2d02-490b-b4cc-0cb27ae28c8a/location",
-        json.dumps(payload3)
+        "solar/a3e58b4c-844b-43ea-a46c-897dc36414aa/decfe0ec-3d71-4486-9f1a-15873081d0d8/dashboard",
+        json.dumps(payload)
     )
 
     print("📤 Sent:")

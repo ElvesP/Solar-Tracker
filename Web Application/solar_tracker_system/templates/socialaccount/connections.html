@@ -20,49 +20,39 @@
     {% if form.accounts %}
         <p class="subtitle">
             {% blocktrans %}
-            You can sign in to your account using any of the following third-party accounts:
+            Você pode entrar na sua conta usando qualquer uma das seguintes contas de terceiros:
             {% endblocktrans %}
         </p>
 
         <form method="post" action="{% url 'socialaccount_connections' %}" class="connections-form">
             {% csrf_token %}
-
             <!-- Lista de contas -->
             <div class="connections-list">
                 {% for acc in form.fields.account.choices %}
                     {% with account=acc.0.instance.get_provider_account %}
-
                     <label class="connection-card">
-
                         <input type="radio"
                                name="account"
                                value="{{ account.account.pk }}">
-
                         <div class="connection-info">
                             <span class="provider-name">
                                 {{ account }}
                             </span>
-
                             <span class="badge provider">
                                 {{ account.get_brand.name }}
                             </span>
                         </div>
-
                     </label>
-
                     {% endwith %}
                 {% endfor %}
             </div>
-
             <!-- ação -->
             <div class="actions">
-                <button type="submit" class="btn danger">
+                <button type="submit" class="btn delete danger">
                     {% trans "Remove" %}
                 </button>
             </div>
-
         </form>
-
     {% else %}
         <p class="empty-text">
             {% trans 'You currently have no third-party accounts connected to this account.' %}
@@ -71,8 +61,6 @@
 
     <!-- adicionar conta -->
     <h2 class="section-title">{% trans 'Add a Third-Party Account' %}</h2>
-    
-
     <div class="social">
         <a href="{% provider_login_url 'google' %}" class="btn-social">
             <i class="fa-brands fa-google"></i> Google

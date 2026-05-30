@@ -12,8 +12,20 @@
     <div class="sys-mode" id="modeBadge"><span id="modeIcon">🤖</span><span id="modeText">AUTO</span></div>
   </div>
   <div class="tb-actions">
+    <button class="noti-btn no" id="notificationBtn">🔔</button>
     <button class="icon-btn" id="settingsBtn" onclick="toggleSettings()">⚙️</button>
   </div>
+</div>
+
+<!-- NOTIFICATIONS PANEL -->
+<div class="noti-dropdown" id="notiDropdown">
+  <div class="noti-header">
+    <span>Notificações</span>
+    <button id="clearNotiBtn" class="clear-btn">
+      Limpar tudo
+    </button>
+  </div>
+  <div id="notiList"></div>
 </div>
 
 <!-- PAINEL DE DEFINIÇÕES  -->
@@ -30,7 +42,7 @@
     </div>
     <div class="sp-header">
       <span>Tema</span>
-    </div>
+    </div> 
     <div class="sp-content">
       <button class="sp-item" id="themeBtn" onclick="toggleTheme()">🌓 Alterar Tema</button>
     </div>

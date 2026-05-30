@@ -62,7 +62,7 @@ function renderReportChart(data) {
 
     const configMap = {
         energy: {
-            label: "Energia (kWh)",
+            label: "Energia (Wh)",
             field: "energy",
             borderColor: "#f59e0b",
             backgroundColor: "rgba(245,158,11,0.55)",
@@ -76,7 +76,7 @@ function renderReportChart(data) {
             title: "LUMINOSIDADE MÉDIA"
         },
         tracking_efficiency: {
-            label: "Eficiência Média (%)",
+            label: "Eficiência de Rastreamento Média (%)",
             field: "tracking_efficiency",
             borderColor: "#10b981",
             backgroundColor: "rgba(16,185,129,0.35)",
@@ -251,6 +251,10 @@ async function renderReports() {
     const selectedPanelID =
         getSelectedPanelID();
 
+    if (selectedPanelID === null) {
+        return;
+    }
+
     const selectedDate =
         document.getElementById("date-report").value;
 
@@ -278,9 +282,13 @@ document.addEventListener(
         document.getElementById("date-report").value =
             formattedDate;
 
-        setTimeout(async () => {
-            await renderReports();
-        }, 5000);
+        document.getElementById("nav-reports")
+            .addEventListener(
+                "click",
+                async () => {
+                    await renderReports();
+                }
+            );
 
         document.getElementById("data-submit-btn2")
             .addEventListener(

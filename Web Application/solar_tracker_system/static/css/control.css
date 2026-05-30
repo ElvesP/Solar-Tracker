@@ -18,27 +18,6 @@
     letter-spacing: 2px;
 }
 
-.status-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 8px var(--green), 0 0 16px var(--green);
-    animation: pulse 2s ease-in-out infinite;
-}
-
-.status-dot .off {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--red);
-    box-shadow: 0 0 8px var(--red), 0 0 16px var(--red);
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-}
-
 .btn-container {
     padding: 10px;
     border-radius: 10px;
@@ -227,6 +206,7 @@
 }
 
 input[type="range"] {
+    appearance: none;
     -webkit-appearance: none;
     flex: 1;
     height: 4px;
@@ -333,4 +313,116 @@ input[type="range"]::-moz-range-thumb {
 canvas#antenaCanvas {
     width: 100%;
     height: 100%;
+}
+
+
+/* Smartphones grandes */
+@media (max-width: 1000px) {
+    .ctrl-g {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
+/* Smartphones pequenos */
+@media (max-width: 620px) {
+        .ptitle {
+        font-size: 20px;
+    }
+
+    .mode-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+
+    .btn-container {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .reading {
+        min-width: unset;
+        width: 100%;
+    }
+
+    .ctrl-g {
+        gap: 12px;
+    }
+
+    .joy-btn,
+    .joy-center {
+        width: 38px;
+        height: 38px;
+        font-size: 14px;
+    }
+
+    .slider-side {
+        width: 28px;
+        height: 28px;
+    }
+
+    .calibrate-btn {
+        font-size: 11px;
+        letter-spacing: 2px;
+    }
+
+    .ctrl-g {
+        grid-template-columns: 1fr;
+    }
+
+    .mode-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .controls-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .joystick-wrap {
+        align-self: center;
+    }
+
+    .sliders-wrap {
+        width: 100%;
+    }
+
+    .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .readings {
+        flex-wrap: wrap;
+    }
+
+    .mode-card {
+        padding: 16px;
+    }
+
+    .controls-row {
+        gap: 18px;
+    }
+
+    .sliders-wrap {
+        gap: 14px;
+    }
+
+    .slider-group {
+        padding: 12px 14px;
+    }
+
+    .panel-title {
+        font-size: 10px;
+        letter-spacing: 2px;
+    }
+
+    .side-card-title {
+        font-size: 9px;
+    }
 }

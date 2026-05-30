@@ -115,3 +115,69 @@
 .insights li {
   margin-bottom: 10px;
 }
+
+
+/* Smartphones grandes */
+@media (max-width: 860px) {
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .chart-header {
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .choices-container {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chart-container {
+        height: 300px;
+    }
+
+    .insights {
+        align-items: flex-start;
+    }
+}
+
+/* Smartphones pequenos */
+@media (max-width: 480px) {
+
+    .header h1 {
+        font-size: 1.4rem;
+    }
+
+    .chart-container {
+        height: 240px;
+    }
+
+    .chart-card {
+        padding: 14px;
+    }
+
+    .subtitle {
+        font-size: 11px;
+    }
+
+    .total h2 {
+        font-size: 1.4rem;
+    }
+
+    .insights h3 {
+        font-size: 1rem;
+    }
+
+    .insights ul {
+        padding-left: 12px;
+    }
+
+    .insights li {
+        font-size: 13px;
+    }
+}

@@ -1,3 +1,7 @@
+let backendAz = 0.0;
+let backendEl = 0.0;
+let currentPanelId = null;
+let notifications = [];
 let panels = [];
 let selectedPanelID = null;
 let socket= null;
@@ -25,6 +29,227 @@ const elevationEfficiencyBar = document.getElementById("elevation-efficiency-bar
 const circEl = document.getElementById("elevation-circle");
 const statusBadge = document.getElementById("statusBadge");
 
+const btn = document.getElementById("notificationBtn");
+const clearBtn = document.getElementById("clearNotiBtn");
+const dropdown = document.getElementById("notiDropdown");
+const notiList = document.getElementById("notiList");
+
+//Control settings
+const title = document.getElementById('headerTitle');
+const modeBadge = document.getElementById("modeBadge");
+const modeIcon = document.getElementById("modeIcon");
+const modeText = document.getElementById("modeText");
+
+async function getLocation(latitude, longitude) {
+    const url = 
+    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`;
+    
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        return data.display_name || "Localização desconhecida";
+    }    catch (error) {
+        addNotification(`Erro ao carregar dados da localização: ${erroe}`, "error");
+        return "Localização desconhecida";
+    }
+}
+
+async function getPanelStatus(selectedPanelID){
+    try {
+        const res = await fetch(`/api/solar-panels/${selectedPanelID}`);
+        const response = await fetch(`/api/remote-controls/?panel=${selectedPanelID}`);
+        const paneles = await res.json();
+        const panelMode = await response.json();
+
+        if (panelMode.length>0) {
+            const modal = panelMode[panelMode.length-1].mode;
+            updateOperationMode(modal); 
+            window.stateMode = modal;
+        } else {
+            const modal = "automatic"
+            updateOperationMode(modal);
+        }
+
+        if(!paneles.last_seen) {
+            statusBadge.innerText = "OFFLINE";
+            statusBadge.classList.remove("on");
+
+            return;
+        }
+ 
+
+        const now = new Date();
+        const lastSeen = new Date(paneles.last_seen);
+        const isOnline = (now - lastSeen)/1000/60 < 2;
+
+        if (isOnline) {
+            statusBadge.innerText = "ONLINE";
+            statusBadge.classList.add("on");
+        } else {
+            statusBadge.innerText = "OFFLINE";
+            statusBadge.classList.remove("on");
+        }
+    } catch (error) {
+        addNotification(`Erro ao carregar painel: ${error}`, "error");
+    }
+}
+
+async function getSolarEvent(latitude, longitude) {
+    try {
+        const url =
+        `https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&formatted=0`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const sunrise = new Date(data.results.sunrise);
+        const sunset = new Date(data.results.sunset);
+        const now = new Date();
+        let message;
+
+        if (now >= sunrise && now < sunset) {
+            message = `Pôr do sol às ${sunset.toLocaleTimeString()}`;
+        } else {
+            message = `Nascer do sol às ${sunrise.toLocaleTimeString()}`;
+        }
+
+        return  message || "Localização desconhecida";
+    } catch (error) {
+        addNotification(`Erro ao carregar painéis: ${error}`, "error");
+        return "Localização desconhecida"
+    }
+}
+
+async function loadPanels() {
+    try {
+        const res = await fetch("/api/solar-panels/");
+        panels = await res.json();
+
+        renderPanelSelector();
+        updatePanelName();
+
+        if (selectedPanelID) {
+            initializeWebSocket(selectedPanelID);
+            getPanelStatus(selectedPanelID);
+        }
+    } catch (error) {
+        addNotification(`Erro ao carregar painéis: ${error}`, "error");
+    }
+}
+
+function addNotification(message, type = "info") {
+    const notification = {
+        id: Date.now() + Math.random(),
+        message,
+        type,
+        time: new Date().toLocaleTimeString()
+    };
+
+    notifications.unshift(notification);
+    render();
+}
+
+function deleteNotification(id) {
+    const element = document.querySelector(
+        `[data-id="${id}"]`
+    );
+
+    if (!element) return;
+    element.classList.add("deleting");
+
+    setTimeout(() => {
+        notifications =
+            notifications.filter(n => n.id !== id);
+        render();
+    }, 250);
+}
+
+function render() {
+    notiList.innerHTML = "";
+    notifications.forEach(n => {
+        const item = document.createElement("div");
+        item.className = "noti-item";
+        item.dataset.id = n.id;
+        item.textContent =
+            `[${n.time}] ${n.message}`;
+        item.classList.add(n.type);
+        item.addEventListener("click", () => {
+            deleteNotification(n.id);
+        });
+        addSwipeToDelete(item, n.id);
+        notiList.appendChild(item);
+    });
+
+    updateBadge();
+}
+
+function addSwipeToDelete(element, id) {
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+
+    element.addEventListener("touchstart", (e) => {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+    });
+    element.addEventListener("touchmove", (e) => {
+        if (!isDragging) return;
+        currentX = e.touches[0].clientX;
+        const diff = currentX - startX;
+
+        if (diff > 0) {
+            element.style.transform =
+                `translateX(${diff}px)`;
+        }
+    });
+    element.addEventListener("touchend", () => {
+
+        isDragging = false;
+
+        const diff = currentX - startX;
+
+        if (diff > 80) {
+
+            deleteNotification(id);
+
+        } else {
+
+            element.style.transform =
+                "translateX(0)";
+        }
+    });
+}
+
+function updateBadge() {
+    const count = notifications.length;
+    btn.setAttribute("data-count", count);
+
+    if (count === 0) {
+        btn.classList.add("no");
+    } else {
+        btn.classList.remove("no");
+    }
+}
+
+function updateOperationMode(mode) {
+    if(mode === "manual"){
+        title.textContent = 'Sistema em Modo Manual'
+        modeIcon.innerText = "🕹️";
+        modeText.innerText = "MANUAL";
+        modeBadge.style.color = "#f59e0b";
+    }else if (mode === "automatic"){
+        title.textContent = 'Sistema em Modo Automático'
+        modeIcon.innerText = "🤖";
+        modeText.innerText = "AUTO";
+        modeBadge.style.color = "#60a5fa";
+    }
+}
+
+function clearAllNotifications() {
+    notifications = [];
+    render();
+    updateBadge();
+}
+
 function showNoConectionData() {
     voltageElement.innerHTML = "--<span class='u'>V</span>";
     currentElement.innerHTML = "--<span class='u'>mA</span>";
@@ -47,41 +272,6 @@ function showNoConectionData() {
     updateCircle(circEl, 180);
 }
 
-async function getLocation(latitude, longitude) {
-    const url = 
-    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`;
-    
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        return data.display_name || "Localização desconhecida";
-    }    catch (error) {
-        console.error("Error fetching location data:", error);
-
-        return "Localização desconhecida";
-    }
-}
-
-async function getSolarEvent(latitude, longitude) {
-    const url =
-    `https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&formatted=0`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const sunrise = new Date(data.results.sunrise);
-    const sunset = new Date(data.results.sunset);
-    const now = new Date();
-    let message;
-
-    if (now >= sunrise && now < sunset) {
-        message = `Pôr do sol às ${sunset.toLocaleTimeString()}`;
-    } else {
-        message = `Nascer do sol às ${sunrise.toLocaleTimeString()}`;
-    }
-
-    return  message || "Localização desconhecida";
-}
-
 function updateCircle(circle, value) {
     circle.setAttribute("stroke-dashoffset", `${-389.56 * (1 - value / 360)}`);
 }
@@ -94,9 +284,6 @@ function calculateTrackingEfficiency(actual, theoretical) {
 }
 
 function updateDashboard(data) {
-    console.log("📡 Dashboard data:", data);
-
-    //Electrical parameters
     voltageElement.innerHTML =
         `${Number(data.voltage).toFixed(2)}<span class="u">V</span>`;
     currentElement.innerHTML =
@@ -108,8 +295,6 @@ function updateDashboard(data) {
 }
 
 function updatePosition(data) {
-    console.log("📡 Position data:", data);
-
     efficiencyElement.innerHTML =
         `${Number(data.tracking_efficiency).toFixed(2)}<span class="u">%</span>`;
 
@@ -141,12 +326,12 @@ function updatePosition(data) {
         `${calculateTrackingEfficiency(data.actual_elevation, data.theoretical_elevation)}` + "%";
 
     updateCircle(circEl, data.actual_elevation);
+
+    backendAz = Number(data.theoretical_azimuth).toFixed(1);
+    backendEl = Number(data.theoretical_elevation).toFixed(1);
 }
 
 function updateLocation(data) {
-    console.log("📡 Location data:", data);
-
-    //Location parameters
     getLocation(data.latitude, data.longitude).then((location) => {
         if (location) {
             locationElement.innerText = location;
@@ -160,70 +345,76 @@ function updateLocation(data) {
     });
 }
 
+function onPanelChange(newPanelId) {
+    backendAz = 0.0;
+    backendEl = 0.0;
+    initializeWebSocket(newPanelId);
+    getPanelStatus(newPanelId);
+}
+
 function initializeWebSocket(panelId) {
-    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const protocol = 
+        window.location.protocol === "https:" ? "wss" : "ws";
+
+    if (socket && currentPanelId === panelId) {
+        return;
+    }
+
+    if (socket) {
+        socket.close();
+        socket = null;
+    }
+
+    currentPanelId = panelId;
+
+    const selectedPanelName = 
+        document.getElementById("sb-panel").querySelector(`option[value="${panelId}"]`).textContent;
+    
     socket = new WebSocket(
         `${protocol}://${window.location.host}/ws/dashboard/${panelId}/`
     );
 
     // SOCKET EVENTS
     socket.onopen = () => {
-        console.log("✅ WebSocket connected");
-        statusBadge.innerText = "ONLINE";
-        statusBadge.classList.add("on");
+        addNotification(`WebSocket conectado (Painel ${selectedPanelName})`, "success");
     };
 
     socket.onmessage = (event) => {        
         try {
+            addNotification("Microcontrolador conectado via MQTT", "system");
             const response = JSON.parse(event.data);
             const data = response.data;
 
-            if (response.panel === selectedPanelID) {
-                if (response.type === "dashboard_data") {
-                    updateDashboard(data);
-                } else if (response.type === "panel_position") {
-                    updatePosition(data);
-                } else if (response.type === "location") {
-                    updateLocation(data);         
-                } else {
-                    console.warn("⚠️ Unknown data type:", response.type);
-                }
+            if (response.type === "dashboard_data") {
+                updateDashboard(data);
+            } else if (response.type === "panel_position") {
+                updatePosition(data);
+            } else if (response.type === "location") {
+                updateLocation(data);         
             } else {
-                showNoConectionData();
+                addNotification(`Tipo de dado desconhecido: ${response.type}`, "error");
             }
         } catch (error) {
-            console.error("❌ Error processing WebSocket data:", error);
+            addNotification(`Erro ao processar os dados do WebSocket: ${error}`, "error");
         }
     };
 
     socket.onerror = (error) => {
-        console.error("❌ WebSocket error:", error);
+        addNotification(`Erro no WebSocket: ${error}`, "error");
     };
 
     socket.onclose = () => {
-        console.warn("⚠️ WebSocket disconnected");
-        statusBadge.innerText = "OFFLINE";
-        statusBadge.classList.remove("on");
+        addNotification(`WebSocket disconectado`, "system");
         showNoConectionData();
-        setTimeout(() => initializeWebSocket(selectedPanelID), 5000);
+
+        socket = null;
+
+        setTimeout(() => {
+            if (currentPanelId === panelId) {
+                initializeWebSocket(panelId);
+            }
+        }, 5000);
     };
-}
-
-async function loadPanels() {
-    try {
-        const res = await fetch("/api/solar-panels/");
-        panels = await res.json();
-
-        renderPanelSelector();
-        updatePanelName();
-
-        if (selectedPanelID) {
-            initializeWebSocket(selectedPanelID);
-        }
-
-    } catch (error) {
-        console.error("Erro ao carregar painéis:", error);
-    }
 }
 
 function renderPanelSelector() {
@@ -244,13 +435,14 @@ function renderPanelSelector() {
 
     if (panels.length > 0) {
         selectedPanelID = panels[0].id;
-        selector.value = selectedPanelID;
+        selector.value = selectedPanelID
     }
 }
 
 function handlePanelChange(event) {
     selectedPanelID = event.target.value;
     updatePanelName();
+    onPanelChange(selectedPanelID)
 }
 
 function updatePanelName() {
@@ -260,7 +452,6 @@ function updatePanelName() {
 
     if (!selectedPanel) {
         document.getElementById("panel-name").textContent = "-";
-
         return;
     }
 
@@ -274,4 +465,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("sb-panel")?.addEventListener(
         "change", handlePanelChange);
+    
+    if (selectedPanelID) {
+        setInterval(() => {
+            getPanelStatus(selectedPanelID);
+        }, 30000);
+    }
+
+    clearBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        clearAllNotifications();
+    });
+
+    btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle("open");
+    });
+
+    document.addEventListener("click", () => {
+        dropdown.classList.remove("open");
+    });
+
+    dropdown.addEventListener("click", (e) => {
+        e.stopPropagation();
+    });
 });
+
+window.addNotification = addNotification;
+window.getPanelStatus = getPanelStatus;
+window.backendAz = backendAz;
+window.backendEl = backendEl;

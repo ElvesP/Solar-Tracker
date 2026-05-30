@@ -1,8 +1,8 @@
 class DecisionEngine:
 
     LIGHT_THRESHOLD = 100
-
-    DIFFERENCE_THRESHOLD = 5
+    EZ_DIFFERENCE_THRESHOLD = 5
+    EL_DIFFERENCE_THRESHOLD = 2
 
 
     @staticmethod
@@ -11,7 +11,7 @@ class DecisionEngine:
 
 
     @staticmethod
-    def check_movement(
+    def check_az_movement(
         theoretical_azimuth,
         real_azimuth
     ):
@@ -20,27 +20,40 @@ class DecisionEngine:
             theoretical_azimuth - real_azimuth
         )
 
-        return difference > DecisionEngine.DIFFERENCE_THRESHOLD
+        return difference > DecisionEngine.AZ_DIFFERENCE_THRESHOLD
+    
+
+    @staticmethod
+    def check_el_movement(
+        theoretical_elevation,
+        real_elevation
+    ):
+
+        difference = abs(
+            theoretical_elevation - real_elevation
+        )
+
+        return difference > DecisionEngine.EL_DIFFERENCE_THRESHOLD
 
 
     @staticmethod
     def decide(
         light_intensity,
-        elevation,
         theoretical_azimuth,
         real_azimuth,
-        mode
+        theoretical_elevation,
+        real_elevation
     ):
-
-        if mode == 'manual':
-            return 'manual_mode'
 
         if DecisionEngine.check_low_light(light_intensity):
             return 'standby'
 
-        if DecisionEngine.check_movement(
+        if DecisionEngine.check_az_movement(
             theoretical_azimuth,
             real_azimuth
+        ) or DecisionEngine.check_el_movement(
+            theoretical_elevation,
+            real_elevation
         ):
             return 'move_panel'
 
