@@ -80,8 +80,8 @@ class RemoteControlSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'panel',
-            'manual_azimuth',
-            'manual_elevation',
+            'azimuth',
+            'elevation',
             'mode',
             'timestamp'
         ]
@@ -104,6 +104,8 @@ class LocationSerializer(serializers.ModelSerializer):
             'panel',
             'latitude',
             'longitude',
+            'sunrise',
+            'sunset',
             'timestamp'
         ]
 

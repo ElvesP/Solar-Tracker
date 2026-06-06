@@ -26,6 +26,8 @@ class DashboardConsumer(AsyncWebsocketConsumer):
 
 
     async def send_dashboard_data(self, event):
+        if self.channel_name is None:
+            return
         await self.send(
             text_data=json.dumps({
                 "panel": str(self.panel_id),
@@ -36,6 +38,8 @@ class DashboardConsumer(AsyncWebsocketConsumer):
 
 
     async def send_panel_position(self, event):
+        if self.channel_name is None:
+            return
         await self.send(
             text_data=json.dumps({
                 "panel": str(self.panel_id),
@@ -46,6 +50,8 @@ class DashboardConsumer(AsyncWebsocketConsumer):
 
 
     async def send_location(self, event):
+        if self.channel_name is None:
+            return
         await self.send(
             text_data=json.dumps({
                 "panel": str(self.panel_id),

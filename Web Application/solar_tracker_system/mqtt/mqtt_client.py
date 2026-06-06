@@ -5,22 +5,22 @@ import time
 from dotenv import load_dotenv
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from solar_tracker_system.models import SolarPanel
+from solar_tracker_system.models import (
+    SolarPanel,
+    Location
+)
 from solar_tracker_system.mqtt.topics import MQTT_TOPICS
 from solar_tracker_system.services.sun_service import SunService
 from .handlers import (
     save_dashboard_data,
-    save_panel_position,
-    save_location
+    save_panel_position
 )
-
 
 
 # Load environment variables
 load_dotenv()
 BROKER = os.getenv('MQTT_BROKER')
 PORT = int(os.getenv('MQTT_PORT', 1883))
-client = mqtt.Client()
 
 User = get_user_model()
 
@@ -32,7 +32,7 @@ def parse_payload(payload):
         return None
 
 
-def publish(topic, payload):
+def publish(client, topic, payload):
     client.publish(topic, payload)
 
 
@@ -92,22 +92,31 @@ def on_message(client, userdata, msg):
     panel.last_seen = timezone.now()
     panel.save(update_fields=["last_seen"])
 
-    if SunService.is_daytime():
+    if data_type == "info":
+        data = parse_payload(payload)
+        SunService.update_if_needed(panel_id, data)
+
+        sun_times = SunService.get_sun_times(panel_id)
+        position = Location.objects.filter(
+            panel=panel_id).order_by('-timestamp').first()
+
+        publish(client, f"solar/{panel_id}/sunservice", json.dumps({
+            "latitude": float(position.latitude),
+            "longitude": float(position.longitude),
+            "sunrise": sun_times["sunrise"].isoformat(),
+            "sunset": sun_times["sunset"].isoformat()
+        }))
+
+    if SunService.is_daytime(panel_id):
         if data_type == "dashboard":
             datas = parse_payload(payload)
             for key, value in datas.items():
                 if key == "data":
                     save_dashboard_data(value, user_id=user_id, panel_id=panel_id)
                 elif key == "position":
-                    save_panel_position(value, user_id=user_id, panel_id=panel_id)
-                elif key == "location":
-                    save_location(value, user_id=user_id, panel_id=panel_id)
+                    save_panel_position(client, value, user_id=user_id, panel_id=panel_id)
                 else:
                     print(f"⚠️ Unknown type: {data_type}")
-        elif data_type == "info":
-            publish(f"solar/{panel}/sunservice", json.dumps(
-                SunService.get_sun_times()
-            ))
     else:
         print(f"❌ It's Night - data ignored")
 
@@ -126,7 +135,6 @@ def start():
     client.on_message = on_message
     client.on_disconnect = on_disconnect
 
-    # 🔁 auto reconnect inteligente
     client.reconnect_delay_set(min_delay=1, max_delay=60)
 
     try:

@@ -104,6 +104,45 @@ body.dark .topbar {
     cursor: pointer;
 }
 
+.sys-ws {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+#wsText {
+    color: #f44336;
+}
+
+/* WEBSOCKET STATES */
+.ws {
+  font-size: 18px;
+  display: inline-block;
+}
+
+.ws.connected {
+  color: #4caf50;
+}
+
+.ws.disconnected {
+  color: #f44336;
+}
+
+.ws.reconnecting {
+  color: #facc15;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .tb-actions { 
     display: flex; 
     gap: 10px; 
@@ -360,7 +399,7 @@ button.sp-item {
     box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
-@media (max-width: 560px) {
+@media (max-width: 630px) {
     .brand {
         display: none;
     } 

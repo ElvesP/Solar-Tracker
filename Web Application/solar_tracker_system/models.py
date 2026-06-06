@@ -107,10 +107,10 @@ class RemoteControl(BaseModel):
         related_name='remote_controls',
         db_index=True
     )
-    manual_azimuth = models.DecimalField(
-        max_digits=8, decimal_places=2)
-    manual_elevation = models.DecimalField(
-        max_digits=8, decimal_places=2)
+    azimuth = models.DecimalField(
+        max_digits=8, decimal_places=2, null=True, blank=True)
+    elevation = models.DecimalField(
+        max_digits=8, decimal_places=2, null=True, blank=True)
     mode = models.CharField(
         max_length=20, choices=MODE_CHOICES, default='automatic')
 
@@ -134,8 +134,11 @@ class Location(BaseModel):
     )
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    sunrise = models.DateTimeField(null=True, blank=True)
+    sunset = models.DateTimeField(null=True, blank=True)
 
     class Meta:
+        get_latest_by = 'timestamp'
         verbose_name = 'Location'
         verbose_name_plural = 'Locations'
         ordering = ['-timestamp']

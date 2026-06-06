@@ -97,8 +97,8 @@ class RemoteControlAdmin(admin.ModelAdmin):
 
     list_display = (
         'panel',
-        'manual_azimuth',
-        'manual_elevation',
+        'azimuth',
+        'elevation',
         'mode',
         'timestamp'
     )
@@ -125,6 +125,8 @@ class LocationAdmin(admin.ModelAdmin):
         'panel',
         'latitude',
         'longitude',
+        'sunrise',
+        'sunset',
         'timestamp'
     )
 

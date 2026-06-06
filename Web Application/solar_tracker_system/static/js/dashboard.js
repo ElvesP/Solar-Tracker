@@ -1,10 +1,15 @@
-let backendAz = 0.0;
-let backendEl = 0.0;
+window.backendAz = 0.0;
+window.backendEl = 0.0;
 let currentPanelId = null;
+let latitude = null;
+let longitude = null;
 let notifications = [];
 let panels = [];
 let selectedPanelID = null;
-let socket= null;
+let socket = null;
+let reconnectTimer = null;
+let checkConnectionInterval = null;
+let shouldReconnect = true;
 
 // DOM ELEMENTS (DASHBOARD ELEMENTS)
 const dataType = ["dashboard_data", "panel_position", "location"];
@@ -41,6 +46,10 @@ const modeIcon = document.getElementById("modeIcon");
 const modeText = document.getElementById("modeText");
 
 async function getLocation(latitude, longitude) {
+    if (!latitude || !longitude) {
+        return "--"
+    }
+
     const url = 
     `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`;
     
@@ -50,7 +59,7 @@ async function getLocation(latitude, longitude) {
 
         return data.display_name || "Localização desconhecida";
     }    catch (error) {
-        addNotification(`Erro ao carregar dados da localização: ${erroe}`, "error");
+        addNotification(`Erro ao carregar dados da localização: ${error}`, "error");
         return "Localização desconhecida";
     }
 }
@@ -65,7 +74,6 @@ async function getPanelStatus(selectedPanelID){
         if (panelMode.length>0) {
             const modal = panelMode[panelMode.length-1].mode;
             updateOperationMode(modal); 
-            window.stateMode = modal;
         } else {
             const modal = "automatic"
             updateOperationMode(modal);
@@ -77,7 +85,6 @@ async function getPanelStatus(selectedPanelID){
 
             return;
         }
- 
 
         const now = new Date();
         const lastSeen = new Date(paneles.last_seen);
@@ -95,27 +102,31 @@ async function getPanelStatus(selectedPanelID){
     }
 }
 
-async function getSolarEvent(latitude, longitude) {
+async function getSolarEvent(selectedPanelID) {
     try {
-        const url =
-        `https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&formatted=0`;
-        const res = await fetch(url);
+        const res = await fetch(`/api/locations/?panel=${selectedPanelID}`);
         const data = await res.json();
-        const sunrise = new Date(data.results.sunrise);
-        const sunset = new Date(data.results.sunset);
+        if (!(data.length>0)) {
+            return "--";
+        }
+        latitude = data[0].latitude;
+        longitude = data[0].longitude;
+        const sunrise = new Date(data[0].sunrise);
+        const sunset = new Date(data[0].sunset);
         const now = new Date();
         let message;
-
-        if (now >= sunrise && now < sunset) {
+        if (now < sunrise) {
+            message = `Nascer do sol às ${sunrise.toLocaleTimeString()}`;
+        } else if (now >= sunrise && now < sunset) {
             message = `Pôr do sol às ${sunset.toLocaleTimeString()}`;
         } else {
-            message = `Nascer do sol às ${sunrise.toLocaleTimeString()}`;
+            //message = `Nascer do sol às ${sunrise.toLocaleTimeString()}`;
         }
 
-        return  message || "Localização desconhecida";
+        return  message || "--";
     } catch (error) {
-        addNotification(`Erro ao carregar painéis: ${error}`, "error");
-        return "Localização desconhecida"
+        addNotification(`Erro ao carregar localização: ${error}`, "error");
+        return "--";
     }
 }
 
@@ -130,10 +141,16 @@ async function loadPanels() {
         if (selectedPanelID) {
             initializeWebSocket(selectedPanelID);
             getPanelStatus(selectedPanelID);
+            updateLocation(selectedPanelID);
         }
     } catch (error) {
         addNotification(`Erro ao carregar painéis: ${error}`, "error");
     }
+}
+
+async function updateLocation(selectedPanelID) {
+    solarEventElement.innerText = await getSolarEvent(selectedPanelID);
+    locationElement.innerText = await getLocation(latitude, longitude);
 }
 
 function addNotification(message, type = "info") {
@@ -146,40 +163,6 @@ function addNotification(message, type = "info") {
 
     notifications.unshift(notification);
     render();
-}
-
-function deleteNotification(id) {
-    const element = document.querySelector(
-        `[data-id="${id}"]`
-    );
-
-    if (!element) return;
-    element.classList.add("deleting");
-
-    setTimeout(() => {
-        notifications =
-            notifications.filter(n => n.id !== id);
-        render();
-    }, 250);
-}
-
-function render() {
-    notiList.innerHTML = "";
-    notifications.forEach(n => {
-        const item = document.createElement("div");
-        item.className = "noti-item";
-        item.dataset.id = n.id;
-        item.textContent =
-            `[${n.time}] ${n.message}`;
-        item.classList.add(n.type);
-        item.addEventListener("click", () => {
-            deleteNotification(n.id);
-        });
-        addSwipeToDelete(item, n.id);
-        notiList.appendChild(item);
-    });
-
-    updateBadge();
 }
 
 function addSwipeToDelete(element, id) {
@@ -219,29 +202,11 @@ function addSwipeToDelete(element, id) {
     });
 }
 
-function updateBadge() {
-    const count = notifications.length;
-    btn.setAttribute("data-count", count);
-
-    if (count === 0) {
-        btn.classList.add("no");
-    } else {
-        btn.classList.remove("no");
-    }
-}
-
-function updateOperationMode(mode) {
-    if(mode === "manual"){
-        title.textContent = 'Sistema em Modo Manual'
-        modeIcon.innerText = "🕹️";
-        modeText.innerText = "MANUAL";
-        modeBadge.style.color = "#f59e0b";
-    }else if (mode === "automatic"){
-        title.textContent = 'Sistema em Modo Automático'
-        modeIcon.innerText = "🤖";
-        modeText.innerText = "AUTO";
-        modeBadge.style.color = "#60a5fa";
-    }
+function calculateTrackingEfficiency(actual, theoretical) {
+    const difference = Math.abs(actual - theoretical);
+    const efficiency = Math.max(0,  Math.cos(difference * Math.PI / 180) * 100);
+    
+    return efficiency.toFixed(2);
 }
 
 function clearAllNotifications() {
@@ -250,120 +215,60 @@ function clearAllNotifications() {
     updateBadge();
 }
 
-function showNoConectionData() {
-    voltageElement.innerHTML = "--<span class='u'>V</span>";
-    currentElement.innerHTML = "--<span class='u'>mA</span>";
-    luminosityElement.innerHTML = "--<span class='u'>Lux</span>";
-    powerElement.innerHTML = "--<span class='u'>W</span>";
-    efficiencyElement.innerHTML = "--<span class='u'>%</span>";
-    locationElement.innerHTML = "--";
-    solarEventElement.innerHTML = "--";
-    actualAzimuthElement.innerHTML = "--";
-    theoreticalAzimuthElement.innerHTML = "--";
-    azimuthDifferenceElement.innerHTML = "--";
-    azimuthEfficiencyElement.innerHTML = "--";
-    azimuthEfficiencyBar.style.width = "0%";
-    updateCircle(cirAz, 180);
-    actualElevationElement.innerHTML = "--";
-    theoreticalElevationElement.innerHTML = "--";
-    elevationDifferenceElement.innerHTML = "--";
-    elevationEfficiencyElement.innerHTML = "--";
-    elevationEfficiencyBar.style.width = "0%";
-    updateCircle(circEl, 180);
-}
+function closeSocket() {
+    shouldReconnect = false;
 
-function updateCircle(circle, value) {
-    circle.setAttribute("stroke-dashoffset", `${-389.56 * (1 - value / 360)}`);
-}
+    setWS("disconnected");
+    showNoConectionData();
 
-function calculateTrackingEfficiency(actual, theoretical) {
-    const difference = Math.abs(actual - theoretical);
-    const efficiency = Math.max(0,  Math.cos(difference * Math.PI / 180) * 100);
-    
-    return efficiency.toFixed(2);
-}
-
-function updateDashboard(data) {
-    voltageElement.innerHTML =
-        `${Number(data.voltage).toFixed(2)}<span class="u">V</span>`;
-    currentElement.innerHTML =
-        `${Number(data.current).toFixed(2)}<span class="u">mA</span>`;
-    luminosityElement.innerHTML =
-        `${Number(data.luminosity).toFixed(0)}<span class="u">Lux</span>`;
-    powerElement.innerHTML =
-        `${Number(data.power).toFixed(2)}<span class="u">W</span>`
-}
-
-function updatePosition(data) {
-    efficiencyElement.innerHTML =
-        `${Number(data.tracking_efficiency).toFixed(2)}<span class="u">%</span>`;
-
-    // Azimuth container
-    actualAzimuthElement.innerText =
-        `${Number(data.actual_azimuth).toFixed(2)}` + "°";
-    theoreticalAzimuthElement.innerText =
-        `${Number(data.theoretical_azimuth).toFixed(2)}` + "°";
-    azimuthDifferenceElement.innerText =
-        `${(Number(data.actual_azimuth) - Number(data.theoretical_azimuth)).toFixed(2)}`;
-    azimuthEfficiencyElement.innerText = 
-        `${calculateTrackingEfficiency(data.actual_azimuth, data.theoretical_azimuth)}` + "%";
-    azimuthEfficiencyBar.style.width = 
-        `${calculateTrackingEfficiency(data.actual_azimuth, data.theoretical_azimuth)}` + "%";
-
-    updateCircle(cirAz, data.actual_azimuth);
-
-
-    // Elevation container
-    actualElevationElement.innerText =
-        `${Number(data.actual_elevation).toFixed(2)}` + "°";
-    theoreticalElevationElement.innerText =
-        `${Number(data.theoretical_elevation).toFixed(2)}` + "°";
-    elevationDifferenceElement.innerText = 
-        `${(Number(data.actual_elevation) - Number(data.theoretical_elevation)).toFixed(2)}`;
-    elevationEfficiencyElement.innerText = 
-        `${calculateTrackingEfficiency(data.actual_elevation, data.theoretical_elevation)}` + "%";
-    document.getElementById("elevation-efficiency-bar").style.width =
-        `${calculateTrackingEfficiency(data.actual_elevation, data.theoretical_elevation)}` + "%";
-
-    updateCircle(circEl, data.actual_elevation);
-
-    backendAz = Number(data.theoretical_azimuth).toFixed(1);
-    backendEl = Number(data.theoretical_elevation).toFixed(1);
-}
-
-function updateLocation(data) {
-    getLocation(data.latitude, data.longitude).then((location) => {
-        if (location) {
-            locationElement.innerText = location;
-        }
-    });
-    
-    getSolarEvent(data.latitude, data.longitude).then((event) => {
-        if (event) {
-            solarEventElement.innerText = event;
-        }
-    });
-}
-
-function onPanelChange(newPanelId) {
-    backendAz = 0.0;
-    backendEl = 0.0;
-    initializeWebSocket(newPanelId);
-    getPanelStatus(newPanelId);
-}
-
-function initializeWebSocket(panelId) {
-    const protocol = 
-        window.location.protocol === "https:" ? "wss" : "ws";
-
-    if (socket && currentPanelId === panelId) {
-        return;
+    if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+        reconnectTimer = null;
     }
 
     if (socket) {
+        socket.onclose = null;
         socket.close();
         socket = null;
     }
+}
+
+function deleteNotification(id) {
+    const element = document.querySelector(
+        `[data-id="${id}"]`
+    );
+
+    if (!element) return;
+    element.classList.add("deleting");
+
+    setTimeout(() => {
+        notifications =
+            notifications.filter(n => n.id !== id);
+        render();
+    }, 250);
+}
+
+function handlePanelChange(event) {
+    selectedPanelID = event.target.value;
+    updatePanelName();
+    onPanelChange(selectedPanelID);
+}
+
+function initializeWebSocket(panelId) {
+    if (!shouldReconnect) return;
+    
+    if (socket && currentPanelId === panelId) {
+        return;
+    }
+    
+    if (socket) {
+        socket.onclose = null;
+        socket.close();
+        socket = null;
+    }
+
+    const protocol = 
+        window.location.protocol === "https:" ? "wss" : "ws";
 
     currentPanelId = panelId;
 
@@ -376,12 +281,12 @@ function initializeWebSocket(panelId) {
 
     // SOCKET EVENTS
     socket.onopen = () => {
-        addNotification(`WebSocket conectado (Painel ${selectedPanelName})`, "success");
+        setWS("connected");
+        updateLocation(panelId);
     };
 
     socket.onmessage = (event) => {        
         try {
-            addNotification("Microcontrolador conectado via MQTT", "system");
             const response = JSON.parse(event.data);
             const data = response.data;
 
@@ -390,7 +295,7 @@ function initializeWebSocket(panelId) {
             } else if (response.type === "panel_position") {
                 updatePosition(data);
             } else if (response.type === "location") {
-                updateLocation(data);         
+                updateLocation(selectedPanelID); 
             } else {
                 addNotification(`Tipo de dado desconhecido: ${response.type}`, "error");
             }
@@ -400,21 +305,73 @@ function initializeWebSocket(panelId) {
     };
 
     socket.onerror = (error) => {
-        addNotification(`Erro no WebSocket: ${error}`, "error");
+        setWS("disconnected");
     };
 
     socket.onclose = () => {
-        addNotification(`WebSocket disconectado`, "system");
+        if (!shouldReconnect) return;
+
+        setWS("reconnecting");
         showNoConectionData();
 
         socket = null;
 
-        setTimeout(() => {
+        if (reconnectTimer) {
+            clearTimeout(reconnectTimer);
+        }
+
+        reconnectTimer = setTimeout(() => {
+            if (!shouldReconnect) return;
+            
+            setWS("disconnected");
+
             if (currentPanelId === panelId) {
                 initializeWebSocket(panelId);
             }
         }, 5000);
     };
+}
+
+function onPanelChange(newPanelId) {
+    latitude = null;
+    longitude = null;
+    const model = "automatic";
+    window.backendAz = 0.0;
+    window.backendEl = 0.0;
+    statusBadge.innerText = "OFFLINE";
+    statusBadge.classList.remove("on");
+    
+    closeSocket();
+
+    shouldReconnect = true;
+
+    showNoConectionData();
+    updateOperationMode(model);
+    updateLocation(newPanelId);
+    getPanelStatus(newPanelId);
+    initializeWebSocket(newPanelId);
+    checkConnectionInterval = setInterval(() => {
+        getPanelStatus(newPanelId);
+    }, 60000);
+}
+
+function render() {
+    notiList.innerHTML = "";
+    notifications.forEach(n => {
+        const item = document.createElement("div");
+        item.className = "noti-item";
+        item.dataset.id = n.id;
+        item.textContent =
+            `[${n.time}] ${n.message}`;
+        item.classList.add(n.type);
+        item.addEventListener("click", () => {
+            deleteNotification(n.id);
+        });
+        addSwipeToDelete(item, n.id);
+        notiList.appendChild(item);
+    });
+
+    updateBadge();
 }
 
 function renderPanelSelector() {
@@ -439,10 +396,92 @@ function renderPanelSelector() {
     }
 }
 
-function handlePanelChange(event) {
-    selectedPanelID = event.target.value;
-    updatePanelName();
-    onPanelChange(selectedPanelID)
+function setWS(state) {
+  const icon = document.getElementById("wsIcon");
+  const text = document.getElementById("wsText");
+
+  if (state === "connected") {
+    icon.textContent = "⇄";
+    icon.className = "ws connected";
+    text.textContent = "WS ON";
+    text.style.color = "#4caf50";
+  }
+
+  if (state === "disconnected") {
+    icon.textContent = "⊘";
+    icon.className = "ws disconnected";
+    text.textContent = "WS OFF";
+    text.style.color = "#f44336";
+  }
+
+  if (state === "reconnecting") {
+    icon.textContent = "↻";
+    icon.className = "ws reconnecting";
+    text.textContent = "WS SYNC";
+    text.style.color = "#facc15";
+  }
+}
+
+function showNoConectionData() {
+    voltageElement.innerHTML = "--<span class='u'>V</span>";
+    currentElement.innerHTML = "--<span class='u'>mA</span>";
+    luminosityElement.innerHTML = "--<span class='u'>Lux</span>";
+    powerElement.innerHTML = "--<span class='u'>W</span>";
+    efficiencyElement.innerHTML = "--<span class='u'>%</span>";
+    locationElement.innerHTML = "--";
+    solarEventElement.innerHTML = "--";
+    actualAzimuthElement.innerHTML = "--";
+    theoreticalAzimuthElement.innerHTML = "--";
+    azimuthDifferenceElement.innerHTML = "--";
+    azimuthEfficiencyElement.innerHTML = "--";
+    azimuthEfficiencyBar.style.width = "0%";
+    updateCircle(cirAz, 180);
+    actualElevationElement.innerHTML = "--";
+    theoreticalElevationElement.innerHTML = "--";
+    elevationDifferenceElement.innerHTML = "--";
+    elevationEfficiencyElement.innerHTML = "--";
+    elevationEfficiencyBar.style.width = "0%";
+    updateCircle(circEl, 180);
+}
+
+function updateBadge() {
+    const count = notifications.length;
+    btn.setAttribute("data-count", count);
+
+    if (count === 0) {
+        btn.classList.add("no");
+    } else {
+        btn.classList.remove("no");
+    }
+}
+
+function updateCircle(circle, value) {
+    circle.setAttribute("stroke-dashoffset", `${-389.56 * (1 - value / 360)}`);
+}
+
+function updateDashboard(data) {
+    voltageElement.innerHTML =
+        `${Number(data.voltage).toFixed(2)}<span class="u">V</span>`;
+    currentElement.innerHTML =
+        `${Number(data.current).toFixed(2)}<span class="u">A</span>`;
+    luminosityElement.innerHTML =
+        `${Number(data.luminosity).toFixed(0)}<span class="u">Lux</span>`;
+    powerElement.innerHTML =
+        `${Number(data.power).toFixed(2)}<span class="u">W</span>`
+}
+
+function updateOperationMode(mode) {
+    if(mode === "manual"){
+        title.textContent = 'Sistema em Modo Manual'
+        modeIcon.innerText = "🕹️";
+        modeText.innerText = "MANUAL";
+        modeBadge.style.color = "#f59e0b";
+    }else if (mode === "automatic"){
+        title.textContent = 'Sistema em Modo Automático'
+        modeIcon.innerText = "🤖";
+        modeText.innerText = "AUTO";
+        modeBadge.style.color = "#60a5fa";
+    }
 }
 
 function updatePanelName() {
@@ -459,18 +498,57 @@ function updatePanelName() {
       selectedPanel.name;
 }
 
+function updatePosition(data) {
+    efficiencyElement.innerHTML =
+        `${Number(data.tracking_efficiency).toFixed(2)}<span class="u">%</span>`;
+
+    // Azimuth container
+    actualAzimuthElement.innerText =
+        `${Number(data.actual_azimuth).toFixed(2)}` + "°";
+    theoreticalAzimuthElement.innerText =
+        `${Number(data.theoretical_azimuth).toFixed(2)}` + "°";
+    azimuthDifferenceElement.innerText =
+        `${(Number(data.actual_azimuth) - Number(data.theoretical_azimuth)).toFixed(2)}`;
+    azimuthEfficiencyElement.innerText = 
+        `${calculateTrackingEfficiency(data.actual_azimuth, data.theoretical_azimuth)}` + "%";
+    azimuthEfficiencyBar.style.width = 
+        `${calculateTrackingEfficiency(data.actual_azimuth, data.theoretical_azimuth)}` + "%";
+
+    circAz.setAttribute("transform", `rotate(90 80 80)`);
+    updateCircle(cirAz, data.actual_azimuth);
+
+
+    // Elevation container
+    actualElevationElement.innerText =
+        `${Number(data.actual_elevation).toFixed(2)}` + "°";
+    theoreticalElevationElement.innerText =
+        `${Number(data.theoretical_elevation).toFixed(2)}` + "°";
+    elevationDifferenceElement.innerText = 
+        `${(Number(data.actual_elevation) - Number(data.theoretical_elevation)).toFixed(2)}`;
+    elevationEfficiencyElement.innerText = 
+        `${calculateTrackingEfficiency(data.actual_elevation, data.theoretical_elevation)}` + "%";
+    document.getElementById("elevation-efficiency-bar").style.width =
+        `${calculateTrackingEfficiency(data.actual_elevation, data.theoretical_elevation)}` + "%";
+
+    updateCircle(circEl, data.actual_elevation);
+
+    window.backendAz = Number(data.theoretical_azimuth).toFixed(1);
+    window.backendEl = Number(data.theoretical_elevation).toFixed(1);
+    console.log(`Updated backendAz to ${window.backendAz} and backendEl to ${window.backendEl}`);
+}
+
 // INIT
 document.addEventListener("DOMContentLoaded", () => {
     loadPanels();
 
     document.getElementById("sb-panel")?.addEventListener(
         "change", handlePanelChange);
+
     
-    if (selectedPanelID) {
-        setInterval(() => {
-            getPanelStatus(selectedPanelID);
-        }, 30000);
-    }
+    checkConnectionInterval = setInterval(() => {
+        if (!selectedPanelID) return;
+        getPanelStatus(selectedPanelID);
+    }, 60000);
 
     clearBtn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -491,7 +569,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+window.addEventListener("beforeunload", () => {
+    shouldReconnect = false;
+
+    closeSocket();
+});
 window.addNotification = addNotification;
 window.getPanelStatus = getPanelStatus;
-window.backendAz = backendAz;
-window.backendEl = backendEl;

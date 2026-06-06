@@ -1,13 +1,17 @@
+from decimal import Decimal
+
+
 class DecisionEngine:
 
-    LIGHT_THRESHOLD = 100
-    EZ_DIFFERENCE_THRESHOLD = 5
+    LIGHT_THRESHOLD_MIN = 1000
+    LIGHT_THRESHOLD_MAX = 5000
+    AZ_DIFFERENCE_THRESHOLD = 5
     EL_DIFFERENCE_THRESHOLD = 2
 
 
     @staticmethod
     def check_low_light(light_intensity):
-        return light_intensity < DecisionEngine.LIGHT_THRESHOLD
+        return DecisionEngine.LIGHT_THRESHOLD_MIN < light_intensity < DecisionEngine.LIGHT_THRESHOLD_MAX
 
 
     @staticmethod
@@ -17,7 +21,7 @@ class DecisionEngine:
     ):
 
         difference = abs(
-            theoretical_azimuth - real_azimuth
+            Decimal(str(theoretical_azimuth)) - Decimal(str(real_azimuth))
         )
 
         return difference > DecisionEngine.AZ_DIFFERENCE_THRESHOLD
@@ -30,7 +34,7 @@ class DecisionEngine:
     ):
 
         difference = abs(
-            theoretical_elevation - real_elevation
+            Decimal(str(theoretical_elevation)) - Decimal(str(real_elevation))
         )
 
         return difference > DecisionEngine.EL_DIFFERENCE_THRESHOLD

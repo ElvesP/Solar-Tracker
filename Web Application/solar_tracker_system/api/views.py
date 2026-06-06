@@ -206,30 +206,28 @@ class RemoteControlViewSet(viewsets.ModelViewSet):
         ).order_by('-timestamp').first()
 
         default_values = {
-            "manual_azimuth": 0.0,
-            "manual_elevation": 0.0,
             "mode": "initial",
         }
 
         if last_position:
             defaults = {
-                "manual_azimuth": last_position.manual_azimuth,
-                "manual_elevation": last_position.manual_elevation,
+                "azimuth": last_position.azimuth,
+                "elevation": last_position.elevation,
                 "mode": last_position.mode,
             }
         else:
             defaults = default_values
 
         if mode == "manual":
-            manual_az = self.request.data.get('manual_azimuth')
-            manual_el = self.request.data.get('manual_elevation')
+            manual_az = self.request.data.get('azimuth')
+            manual_el = self.request.data.get('elevation')
 
-            save_decision = defaults["mode"] != mode or defaults["manual_azimuth"] != Decimal(manual_az) or defaults["manual_elevation"] != Decimal(manual_el)
+            save_decision = defaults["mode"] != mode or defaults["azimuth"] != Decimal(manual_az) or defaults["elevation"] != Decimal(manual_el)
             if save_decision:
                 serializer.save(
                     panel=panel,
-                    manual_azimuth=manual_az,
-                    manual_elevation=manual_el,
+                    azimuth=manual_az,
+                    elevation=manual_el,
                     mode=mode
                 )
             else:
@@ -239,8 +237,6 @@ class RemoteControlViewSet(viewsets.ModelViewSet):
             if defaults["mode"] != mode:
                 serializer.save(
                     panel=panel,
-                    manual_azimuth=Decimal(0.0),
-                    manual_elevation=Decimal(0.0),
                     mode=mode
                 )
             else:
@@ -248,7 +244,6 @@ class RemoteControlViewSet(viewsets.ModelViewSet):
 
         else:
             raise ValidationError("Modo inválido. Use 'manual' ou 'automatic'.")
-
     
 
 # LOCATION VIEWSET
@@ -259,17 +254,12 @@ class LocationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Location.objects.filter(
             panel__user=self.request.user
-        ).order_by('timestamp')
+        ).order_by('-timestamp')
         panel = self.request.query_params.get('panel')
-        date = self.request.query_params.get('date')
 
         if panel:
             queryset = queryset.filter(
                 panel_id=panel)
-            
-        if date:
-            queryset = queryset.filter(
-                timestamp__date=date)
 
         return queryset
 
@@ -410,6 +400,7 @@ class DailyDataViewSet(APIView):
         return Response(results)
 
 
+#DELETE USER VIEW
 class DeleteMyUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

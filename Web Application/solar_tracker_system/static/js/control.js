@@ -1,6 +1,5 @@
-let notifications = [];
 let state = {
-  az: 145.2,
+  az: 45.2,
   el: 42.8,
   mode: 'auto',
   moving: null,
@@ -26,7 +25,7 @@ async function createPanelPosition(data) {
       throw new Error(
         data.non_field_errors?.[0] ||
         data.detail ||
-        "Erro: dados anteriores iguais aos dados enviados"
+        "Dados enviados iguais aos dados anteriores ou erro desconhecido"
       );
     }
 
@@ -45,10 +44,10 @@ async function sendPanelPosition() {
     const panelId = getSelectedPanelID();
     const panelData = {
       panel: panelId, 
-      manual_azimuth: 0.0,
-      manual_elevation: 0.0,
       mode: "automatic"
     };
+
+    if (!panelId) return;
 
     await createPanelPosition(panelData);
 
@@ -58,10 +57,12 @@ async function sendPanelPosition() {
     const panelId = getSelectedPanelID();
     const panelData = {
       panel: panelId,
-      manual_azimuth: manual_az,
-      manual_elevation: manual_el,
+      azimuth: manual_az,
+      elevation: manual_el,
       mode: "manual"
     };
+
+    if (!panelId) return;
 
     await createPanelPosition(panelData);
 
@@ -96,7 +97,7 @@ function getSelectedPanelID() {
         document.getElementById("sb-panel").value === undefined ||
         document.getElementById("sb-panel").value === ""
     ) {
-        console.warn("⚠️ Seletor de painel não encontrado. Retornando null.");
+        addNotification("Seletor de painel não encontrado. Adicione um painel.", "error");
         return null;
     }
     return document.getElementById("sb-panel").value;
@@ -117,8 +118,8 @@ function setMode(m) {
 }
 
 function updateReadings() {
-  document.getElementById('readAz').textContent = `AZIMUTE: ${state.az.toFixed(1)}°`;
-  document.getElementById('readEl').textContent = `ELEVAÇÃO: ${state.el.toFixed(1)}°`;
+  document.getElementById('readAz').textContent = `AZIMUTE: ${Number(state.az).toFixed(1)}°`;
+  document.getElementById('readEl').textContent = `ELEVAÇÃO: ${Number(state.el).toFixed(1)}°`;
   document.getElementById('sliderAz').value = state.az;
   document.getElementById('sliderEl').value = state.el;
   draw3D();
@@ -142,7 +143,7 @@ function nudge(axis, delta) {
   if (state.mode !== 'manual') return;
 
   if (axis === 'az') {
-    state.az = Math.max(0, Math.min(180, state.az + delta));
+    state.az = Math.max(-90, Math.min(90, state.az + delta));
   } else {
     state.el = Math.max(0, Math.min(90, state.el + delta));
   }
@@ -156,8 +157,8 @@ function startMove(dir) {
   if (state.moveInterval) return;
   state.moveInterval = setInterval(() => {
     const step = 0.1;
-    if (dir === 'left')  state.az = Math.max(0, state.az - step);
-    if (dir === 'right') state.az = Math.min(180, state.az + step);
+    if (dir === 'left')  state.az = Math.max(-90, state.az - step);
+    if (dir === 'right') state.az = Math.min(90, state.az + step);
     if (dir === 'up')    state.el = Math.min(90, state.el + step);
     if (dir === 'down')  state.el = Math.max(0, state.el - step);
     updateReadings();
@@ -173,7 +174,7 @@ function stopMove() {
 function centerAxes() {
   if (state.mode !== 'manual') return;
 
-  state.az = 90;
+  state.az = 0;
   state.el = 45;
   updateReadings();
 }
@@ -227,17 +228,6 @@ function render() {
   draw3D();
 }
 
-function updateBackendAngles(az, el) {
-  window.backendAz = az;
-  window.backendEl = el;
-
-  if (state.mode === 'auto') {
-    state.az = az;
-    state.el = el;
-    render();
-  }
-}
-
 // ── 3D CANVAS DRAW ──
 const canvas = document.getElementById('antenaCanvas');
 const ctx = canvas.getContext('2d');
@@ -258,7 +248,7 @@ function draw3D() {
   ctx.clearRect(0, 0, W, H);
 
   const cx = W / 2, cy = H / 2 + 20;
-  const azRad = -state.az * Math.PI / 180;;
+  const azRad = (state.az-90) * Math.PI / 180;;
   const elRad = state.el * Math.PI / 180;
 
   // Grid
@@ -352,15 +342,14 @@ function draw3D() {
   ctx.fillStyle = textColor;
   ctx.fillText('N', cx - 4, cy - 100);
   ctx.fillText('S', cx - 3, cy + 38);
-  ctx.fillText('E', cx + 86, cy + 4);
-  ctx.fillText('O', cx - 100, cy + 4);
+  ctx.fillText('O', cx + 86, cy + 4);
+  ctx.fillText('E', cx - 100, cy + 4);
 }
 
 function autoTick() {
-  state.mode = window.stateMode;
   if (state.mode === 'auto' && !state.moving) {
-    state.az = window.backendAz;
-    state.el = window.backendEl;
+    state.az = Number(window.backendAz).toFixed(1);
+    state.el = Number(window.backendEl).toFixed(1);
 
     render();
   }
