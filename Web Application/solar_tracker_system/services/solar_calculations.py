@@ -58,8 +58,8 @@ class SolarCalculator:
         )
 
         return math.degrees(elevation)
-
-
+    
+    
     @staticmethod
     def calculate_azimuth( 
         latitude, 
@@ -69,29 +69,24 @@ class SolarCalculator:
     ): 
         latitude_rad = math.radians(latitude) 
         declination_rad = math.radians(declination) 
-        elevation_rad = math.radians(elevation) 
+        elevation_rad = math.radians(elevation)
+        hour_angle_rad = math.radians(hour_angle)
         
-        azimuth = math.acos( 
-            ( 
-                math.sin(declination_rad) 
-                - 
-                math.sin(elevation_rad) * math.sin(latitude_rad) 
-            ) 
-            / 
-            ( 
-                math.cos(elevation_rad) * math.cos(latitude_rad) 
-            ) 
-        ) 
-        
-        azimuth = math.degrees(azimuth)
-        
-        if hour_angle > 0: 
-            azimuth = 180 - azimuth 
-            
-            return azimuth
-        
-        if hour_angle < 0:
-            return azimuth
+        azimuth = math.atan2(
+            math.sin(hour_angle_rad),
+            (
+                math.cos(hour_angle_rad) * math.sin(latitude_rad)
+                -
+                math.tan(declination_rad) * math.cos(latitude_rad)
+            )
+        )
+
+        azimuth = (
+            math.degrees(azimuth)
+            + 180
+        ) % 360
+
+        return azimuth
 
 
     @staticmethod
@@ -120,15 +115,18 @@ class SolarCalculator:
 
 
     @staticmethod
-    def calculate_solar_noon(longitude):
-        now = datetime.utcnow()
-        day_number = SolarCalculator.day_of_year(now)
+    def calculate_solar_time(day_number, longitude, time = 12):
         B = math.radians((360/365)*(day_number - 81))
         LC = (float(longitude) - 30)/15
-        ET = 9.87*math.sin(2*B) - 7.53*math.cos(B) - 1.5*math.sin(B)
-        solar_noon = 12 - LC - ET/60
+        ET = 229.18 * ( 
+                    0.000075 + 0.001868 * math.cos(B) - 
+                    0.032077 * math.sin(B) - 
+                    0.014615 * math.cos(2*B) +
+                    0.04089 * math.sin(2*B)
+                )
+        solar_time = time - LC - ET/60
         
-        return solar_noon
+        return solar_time
 
 
     @staticmethod
@@ -145,8 +143,11 @@ class SolarCalculator:
             now,
             longitude
         )
+        solar_hour = SolarCalculator.calculate_solar_time(
+            day_number, longitude, decimal_hour
+        )
         solar_hour_angle = SolarCalculator.hour_angle(
-            decimal_hour
+            solar_hour
         )
         elevation = SolarCalculator.calculate_elevation(
             latitude,
@@ -160,10 +161,12 @@ class SolarCalculator:
             solar_hour_angle
         )
 
+        """
         azimuth = azimuth - 180
 
         if azimuth > 90:
             azimuth = azimuth - 180
+        """
 
         return {
             'azimuth': round(azimuth, 2),

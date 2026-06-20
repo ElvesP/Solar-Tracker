@@ -90,16 +90,16 @@ class SunService:
     def calculate(cls, latitude, longitude):
         tz = ZoneInfo(cls.TIMEZONE)
         now = datetime.now(tz)
-        n = now.timetuple().tm_yday
-        declination = SolarCalculator.solar_declination(n)
-        solar_altitude = -0.833
+        day_number = SolarCalculator.day_of_year(now)
+        declination = SolarCalculator.solar_declination(day_number)
+        solar_altitude = -0.8333
 
         latitude_rad = radians(latitude)
         declination_rad = radians(declination)
         altitude_rad = radians(solar_altitude)
 
         h0 = SolarCalculator.calculate_sunrise_sunset(altitude_rad, latitude_rad, declination_rad)
-        solar_noon = SolarCalculator.calculate_solar_noon(longitude)
+        solar_noon = SolarCalculator.calculate_solar_time(day_number, longitude)
 
         daylight_offset = h0 / 15
 

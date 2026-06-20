@@ -7,6 +7,7 @@ class EnergyService:
     def calculate_power(voltage, current):
         return round(voltage* current, 2)
 
+
     @staticmethod
     def calculate_energy(dashboard_day):
         energy = 0
@@ -29,6 +30,7 @@ class EnergyService:
             energy += power * (delta_seconds / 3600)  # Wh
 
         return round(energy, 2)
+
 
     @staticmethod
     def calculate_tracking_efficiency(azimuth_t, elevation_t, azimuth_r, elevation_r):
