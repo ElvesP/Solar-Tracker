@@ -1,6 +1,7 @@
 // Alternar a barra lateral
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('sidebar').classList.toggle('toggled');
 }
 
 // Alternar painel de configurações

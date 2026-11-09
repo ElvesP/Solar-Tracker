@@ -105,3 +105,10 @@
 .badge.warn::before{
     background:var(--accent)
 }
+
+
+@media (max-width: 1300px) {
+    .main {
+        margin-left: 70px;
+    }
+}

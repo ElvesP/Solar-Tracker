@@ -12,7 +12,11 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "10.120.126.27"
+]
 
 
 # Application definition
@@ -29,9 +33,6 @@ INSTALLED_APPS = [
     'solar_tracker_system',
     'allauth',
     'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.github',
-    'allauth.socialaccount.providers.google',
 ]
 
 SITE_ID = 1
@@ -53,24 +54,6 @@ ASGI_APPLICATION = 'web_application.asgi.application'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer'
-    }
-}
-
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'EMAIL_AUTHENTICATION': True,
-        "SCOPE": [
-            "profile",
-            "email",
-        ],
-    },
-
-    'github': {
-        'SCOPE': [
-            'user',
-            'repo',
-            'read:org',
-        ],
     }
 }
 
@@ -152,9 +135,9 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 LOGIN_REDIRECT_URL = '/home/'
 ACCOUNT_LOGIN_METHODS = {"email", "username"}
-ACCOUNT_LOGIN_ON_SIGNUP = False
+ACCOUNT_LOGIN_ON_SIGNUP = True
 ACCOUNT_SIGNUP_REDIRECT_URL = '/accounts/login/'
-SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_LOGIN_ON_GET = False
 ACCOUNT_PASSWORD_RESET_BY_CODE_ENABLED = True
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = False

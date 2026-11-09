@@ -1,25 +1,25 @@
 @import url('./theme.css');
 
-.body {
+body {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: var(--min-height);
     width: var(--width);
-    background: var(--core);
     color: var(--accent);
     font-family: var(--font-family);
     transition: background 0.3s, color 0.3s;
 }
 
 .email-container {
+    max-width: 500px;
+    flex-direction: column;
     background: var(--bg);
-    padding: 40px;
+    padding: 30px;
     margin: auto;
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    font-family: var(--font-family);
     font-size: 14px;
     color: var(--accent);
     border: 1px solid #e5e7eb

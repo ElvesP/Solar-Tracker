@@ -4,6 +4,7 @@ let currentPanelId = null;
 let latitude = null;
 let longitude = null;
 let notifications = [];
+let onMessageTimer = null;
 let panels = [];
 let selectedPanelID = null;
 let socket = null;
@@ -16,6 +17,7 @@ const dataType = ["dashboard_data", "panel_position", "location"];
 const voltageElement = document.getElementById("voltage");
 const currentElement = document.getElementById("current");
 const luminosityElement = document.getElementById("luminosity");
+const temperatureElement = document.getElementById("temperature");
 const powerElement = document.getElementById("power");
 const efficiencyElement = document.getElementById("trackingEfficiency");
 const locationElement = document.getElementById("location");
@@ -25,7 +27,7 @@ const theoreticalAzimuthElement = document.getElementById("theoretical-azimuth")
 const azimuthDifferenceElement = document.getElementById("azimuth-difference");
 const azimuthEfficiencyElement = document.getElementById("azimuth-efficiency");
 const azimuthEfficiencyBar = document.getElementById("azimuth-efficiency-bar");
-const cirAz = document.getElementById("azimuth-circle");
+const circAz = document.getElementById("azimuth-circle");
 const theoreticalElevationElement = document.getElementById("theoretical-elevation");
 const actualElevationElement = document.getElementById("actual-elevation");
 const elevationDifferenceElement = document.getElementById("elevation-difference");
@@ -120,7 +122,7 @@ async function getSolarEvent(selectedPanelID) {
         } else if (now >= sunrise && now < sunset) {
             message = `Pôr do sol às ${sunset.toLocaleTimeString()}`;
         } else {
-            //message = `Nascer do sol às ${sunrise.toLocaleTimeString()}`;
+            message = `Durante o dia - Nascer: ${sunrise.toLocaleTimeString()}, Pôr: ${sunset.toLocaleTimeString()}`;
         }
 
         return  message || "--";
@@ -287,6 +289,18 @@ function initializeWebSocket(panelId) {
 
     socket.onmessage = (event) => {        
         try {
+            statusBadge.innerText = "ONLINE";
+            statusBadge.classList.add("on");
+
+            if (onMessageTimer) {
+                clearTimeout(onMessageTimer);
+            }
+
+            onMessageTimer = setTimeout(() => {
+                statusBadge.innerText = "OFFLINE";
+                statusBadge.classList.remove("on");
+            }, 180000);
+
             const response = JSON.parse(event.data);
             const data = response.data;
 
@@ -322,9 +336,7 @@ function initializeWebSocket(panelId) {
 
         reconnectTimer = setTimeout(() => {
             if (!shouldReconnect) return;
-            
             setWS("disconnected");
-
             if (currentPanelId === panelId) {
                 initializeWebSocket(panelId);
             }
@@ -350,9 +362,6 @@ function onPanelChange(newPanelId) {
     updateLocation(newPanelId);
     getPanelStatus(newPanelId);
     initializeWebSocket(newPanelId);
-    checkConnectionInterval = setInterval(() => {
-        getPanelStatus(newPanelId);
-    }, 60000);
 }
 
 function render() {
@@ -426,6 +435,7 @@ function showNoConectionData() {
     voltageElement.innerHTML = "--<span class='u'>V</span>";
     currentElement.innerHTML = "--<span class='u'>mA</span>";
     luminosityElement.innerHTML = "--<span class='u'>Lux</span>";
+    temperatureElement.innerHTML = "--<span class='u'>°C</span>";
     powerElement.innerHTML = "--<span class='u'>W</span>";
     efficiencyElement.innerHTML = "--<span class='u'>%</span>";
     locationElement.innerHTML = "--";
@@ -435,7 +445,7 @@ function showNoConectionData() {
     azimuthDifferenceElement.innerHTML = "--";
     azimuthEfficiencyElement.innerHTML = "--";
     azimuthEfficiencyBar.style.width = "0%";
-    updateCircle(cirAz, 180);
+    updateCircle(circAz, 180);
     actualElevationElement.innerHTML = "--";
     theoreticalElevationElement.innerHTML = "--";
     elevationDifferenceElement.innerHTML = "--";
@@ -465,7 +475,9 @@ function updateDashboard(data) {
     currentElement.innerHTML =
         `${Number(data.current).toFixed(2)}<span class="u">A</span>`;
     luminosityElement.innerHTML =
-        `${Number(data.luminosity).toFixed(0)}<span class="u">Lux</span>`;
+        `${Number(data.luminosity).toFixed(2)}<span class="u">Lux</span>`;
+    temperatureElement.innerHTML =
+        `${Number(data.temperature).toFixed(2)}<span class="u">°C</span>`;
     powerElement.innerHTML =
         `${Number(data.power).toFixed(2)}<span class="u">W</span>`
 }
@@ -515,7 +527,7 @@ function updatePosition(data) {
         `${calculateTrackingEfficiency(data.actual_azimuth, data.theoretical_azimuth)}` + "%";
 
     circAz.setAttribute("transform", `rotate(90 80 80)`);
-    updateCircle(cirAz, data.actual_azimuth);
+    updateCircle(circAz, data.actual_azimuth);
 
 
     // Elevation container
@@ -530,6 +542,7 @@ function updatePosition(data) {
     document.getElementById("elevation-efficiency-bar").style.width =
         `${calculateTrackingEfficiency(data.actual_elevation, data.theoretical_elevation)}` + "%";
 
+    circEl.setAttribute("transform", `rotate(90 80 80)`);
     updateCircle(circEl, data.actual_elevation);
 
     window.backendAz = Number(data.theoretical_azimuth).toFixed(1);
@@ -541,14 +554,8 @@ function updatePosition(data) {
 document.addEventListener("DOMContentLoaded", () => {
     loadPanels();
 
-    document.getElementById("sb-panel")?.addEventListener(
+    document.getElementById("sb-panel").addEventListener(
         "change", handlePanelChange);
-
-    
-    checkConnectionInterval = setInterval(() => {
-        if (!selectedPanelID) return;
-        getPanelStatus(selectedPanelID);
-    }, 60000);
 
     clearBtn.addEventListener("click", (e) => {
         e.stopPropagation();

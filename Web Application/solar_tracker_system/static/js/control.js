@@ -358,9 +358,3 @@ function autoTick() {
 // ── INIT ──
 render()
 setInterval(autoTick, 150);
-document.getElementById("themeBtn").addEventListener(
-  "click",
-  () => {
-    render();
-  }
-)

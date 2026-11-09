@@ -4,7 +4,7 @@
 <!-- BARRA SUPERIOR -->
 <div class="topbar" id="topbar">
   <div class="tb-sys">
-    <button class="btn" onclick="toggleSidebar()">☰</button>
+    <button class="btn" onclick="toggleSidebar()" id="top-btn">☰</button>
     <div class="brand">☀️ SolarTracker IoT</div>
   </div>
   <div class="tb-info">
@@ -39,14 +39,13 @@
       <a class="sp-item" href="{% url 'profile' %}">👤 Perfil</a>
       <a class="sp-item" href="{% url 'account_change_password' %}">🔒 Alterar senha</a>
       <a class="sp-item" href="{% url 'account_email' %}">📧 Adicionar email</a>
-      <a class="sp-item" href="{% url 'socialaccount_connections' %}">🔗 Contas conectadas</a>
     </div>
-    <div class="sp-header">
+    <!--<div class="sp-header">
       <span>Tema</span>
     </div> 
     <div class="sp-content">
       <button class="sp-item" id="themeBtn" onclick="toggleTheme()">🌓 Alterar Tema</button>
-    </div>
+    </div>-->
     <div class="sp-footer">
       <div class="sp-logout">
         <a href="{% url 'account_logout' %}">⏻ Logout</a>

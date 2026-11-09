@@ -51,6 +51,7 @@ class DashboardData(BaseModel):
     voltage = models.DecimalField(max_digits=10, decimal_places=2)
     current = models.DecimalField(max_digits=10, decimal_places=2)
     luminosity = models.DecimalField(max_digits=10, decimal_places=2)
+    temperature = models.DecimalField(max_digits=10, decimal_places=2)
     power = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:

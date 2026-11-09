@@ -10,7 +10,7 @@
     align-items: center; 
     justify-content: space-between; 
     padding: 0 18px; 
-    background: rgba(255,255,255,0.7); 
+    background: var(--tbbg);
     backdrop-filter: blur(12px); 
     border-bottom: 1px solid var(--border); 
     transition: all .3s ease; 
@@ -18,7 +18,7 @@
 }
 
 body.dark .topbar { 
-    background: rgba(17,24,39,0.7); 
+    background: var(--tbbg);
 }
 
 .topbar.scrolled { 
@@ -79,20 +79,23 @@ body.dark .topbar {
     height: 10px;
     border-radius: 50%;
     background: var(--red);
-    animation: pulse 2s infinite
+    animation: pulsered 2s infinite
 } 
 
-@keyframes pulse{ 0%, 100%{ box-shadow: 0 0 0 2px #bbf7d0} 50%{ box-shadow: 0 0 0 4px #86efac}}
+@keyframes pulsered{ 0%, 100%{ box-shadow: 0 0 0 2px #ef4444} 
+                50%{ box-shadow: 0 0 0 4px #fca5a5}}
 
 .sys-offline.on {
     color: var(--green);
-    font-size: 12px;
-    font-weight: 500;
 }
 
 .sys-offline.on::before {
     background: var(--green);
+    animation: pulsegreen 2s infinite
 }
+
+@keyframes pulsegreen{ 0%, 100%{ box-shadow: 0 0 0 2px #bbf7d0} 
+                50%{ box-shadow: 0 0 0 4px #86efac}}
 
 .sys-mode {
     display: flex;
@@ -223,7 +226,8 @@ body.dark .topbar {
     box-shadow: 0 20px 40px rgba(0,0,0,0.12); 
     opacity: 0; 
     transform: translateY(-10px); 
-    overflow: hidden; z-index: 1000;
+    overflow-y: auto; 
+    z-index: 1000;
     transition: all .25s ease; 
 }
 
@@ -302,18 +306,19 @@ body.dark .topbar {
     flex-direction: column; 
     position: fixed; 
     top: 56px; 
-    right: -320px; 
-    width: 300px; 
+    right: -250px; 
+    width: 230px; 
     height: calc(100% - 56px); 
-    background: rgba(255,255,255,0.5); 
+    background: var(--spbg);
     backdrop-filter: blur(16px); 
     border-left: 1px solid var(--border); 
     transition: right .3s ease; 
-    z-index: 100; 
+    z-index: 200;
+    overflow-y: auto; 
 }
 
 body.dark .settings-panel {
-    background: rgba(17,24,39,0.5);
+    background: var(--spbg);
 }
 
 .settings-panel.open { 

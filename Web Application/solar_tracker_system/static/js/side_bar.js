@@ -7,3 +7,16 @@ function navigate(p) {
   });
   window.scrollTo(0,0);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  sidebar = document.getElementById("sidebar");
+
+  sidebar.addEventListener("mouseenter", () => {
+    sidebar.classList.remove("collapsed");
+  });
+  sidebar.addEventListener("mouseleave", () => {
+    if (sidebar.classList.contains("toggled")) {
+      sidebar.classList.add("collapsed");
+    }
+  });
+});

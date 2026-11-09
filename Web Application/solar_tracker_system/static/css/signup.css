@@ -13,6 +13,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: calc(100% - 32px);
     max-width: var(--max-width);
     padding: 25px;
     margin: auto;
@@ -21,13 +22,13 @@ body {
     font-family: var(--font-family);
     font-size: 14px;
     background: var(--bg);
-    color: var(--card);
-    border: 1px solid #e5e7eb
+    color: var(--accent);
+    border: var(--lgborder);
 }
 
 .body.dark .container {
     background: rgba(17,24,39,0.7); 
-    border: 1px solid #374151;
+    border: var(--lgborder);
 }
 
 .container h2 {
@@ -44,13 +45,13 @@ label {
     margin-top: 10px;
 }
 
-input {
+.container input {
     width: 100%;
     padding: 10px;
     margin-top: 5px;
-    color: var(--text);
-    background: #f9fafb;
-    border: 1px solid #d1d5db;
+    color: var(--accent);
+    background: var(--inpbg);
+    border: var(--lgborder);
     border-radius: 8px;
     transition: 0.2s;
 }

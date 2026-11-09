@@ -38,6 +38,7 @@ class DashboardDataSerializer(serializers.ModelSerializer):
             'voltage',
             'current',
             'luminosity',
+            'temperature',
             'power',
             'timestamp'
         ]

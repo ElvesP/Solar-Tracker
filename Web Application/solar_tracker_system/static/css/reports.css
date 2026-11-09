@@ -1,5 +1,4 @@
-@import './theme.css';
-
+@import url('./theme.css');
 
 .header {
     display: flex;

@@ -1,174 +1,79 @@
-import math
+import pandas as pd
+import pvlib
+
 from datetime import datetime
-from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 
 class SolarCalculator:
+    TIMEZONE = "Africa/Maputo"
 
-    @staticmethod
-    def day_of_year(date):
-        return date.timetuple().tm_yday
+    @classmethod
+    def calculate_solar_position(cls, latitude, longitude, date_time=None):
 
+        tz = ZoneInfo(cls.TIMEZONE)
 
-    @staticmethod
-    def solar_declination(day_number):
-        declination = math.asin(
-            - math.sin(math.radians(23.45)) * math.cos(
-                math.radians(
-                    (360 / 365.25) * (10 + day_number)
-                )
-            )
-        )
-        return math.degrees(declination)
+        if date_time is None:
+            date_time = datetime.now(tz)
+        elif date_time.tzinfo is None:
+            date_time = date_time.replace(tzinfo=tz)
+        else:
+            date_time = date_time.astimezone(tz)
 
+        times = pd.DatetimeIndex([date_time])
 
-    @staticmethod
-    def solar_time(local_time, longitude):
-        return (
-            Decimal(str(local_time.hour))
-            + Decimal(str(local_time.minute)) / 60
-            + Decimal(str(local_time.second)) / 3600
-            + Decimal(str(longitude)) / 15
+        solar_position = pvlib.solarposition.get_solarposition(
+            time=times,
+            latitude=float(latitude),
+            longitude=float(longitude),
+            altitude=0,
+            method="nrel_numpy"
         )
 
-
-    @staticmethod
-    def hour_angle(decimal_hour):
-
-        return 15 * (decimal_hour - 12)
-
-
-    @staticmethod
-    def calculate_elevation(
-        latitude,
-        declination,
-        hour_angle
-    ):
-        latitude_rad = math.radians(latitude)
-        declination_rad = math.radians(declination)
-        hour_angle_rad = math.radians(hour_angle)
-
-        elevation = math.asin(
-            math.sin(latitude_rad) * math.sin(declination_rad)
-            +
-            math.cos(latitude_rad)
-            * math.cos(declination_rad)
-            * math.cos(hour_angle_rad)
-        )
-
-        return math.degrees(elevation)
-    
-    
-    @staticmethod
-    def calculate_azimuth( 
-        latitude, 
-        declination, 
-        elevation, 
-        hour_angle 
-    ): 
-        latitude_rad = math.radians(latitude) 
-        declination_rad = math.radians(declination) 
-        elevation_rad = math.radians(elevation)
-        hour_angle_rad = math.radians(hour_angle)
-        
-        azimuth = math.atan2(
-            math.sin(hour_angle_rad),
-            (
-                math.cos(hour_angle_rad) * math.sin(latitude_rad)
-                -
-                math.tan(declination_rad) * math.cos(latitude_rad)
-            )
-        )
-
-        azimuth = (
-            math.degrees(azimuth)
-            + 180
-        ) % 360
-
-        return azimuth
-
-
-    @staticmethod
-    def calculate_sunrise_sunset(
-        altitude_rad, 
-        latitude_rad, 
-        declination_rad
-    ):
-        cos_h0 = (
-            (
-                math.sin(altitude_rad)
-                - math.sin(latitude_rad) * math.sin(declination_rad)
-            )
-            /
-            (
-                math.cos(latitude_rad)
-                * math.cos(declination_rad)
-            )
-        )
-
-        cos_h0 = max(-1.0, min(1.0, cos_h0))
-
-        h0 = math.degrees(math.acos(cos_h0))
-
-        return h0
-
-
-    @staticmethod
-    def calculate_solar_time(day_number, longitude, time = 12):
-        B = math.radians((360/365)*(day_number - 81))
-        LC = (float(longitude) - 30)/15
-        ET = 229.18 * ( 
-                    0.000075 + 0.001868 * math.cos(B) - 
-                    0.032077 * math.sin(B) - 
-                    0.014615 * math.cos(2*B) +
-                    0.04089 * math.sin(2*B)
-                )
-        solar_time = time - LC - ET/60
-        
-        return solar_time
-
-
-    @staticmethod
-    def calculate_solar_position(
-        latitude,
-        longitude
-    ):
-        now = datetime.utcnow()
-        day_number = SolarCalculator.day_of_year(now)
-        declination = SolarCalculator.solar_declination(
-            day_number
-        )
-        decimal_hour = SolarCalculator.solar_time(
-            now,
-            longitude
-        )
-        solar_hour = SolarCalculator.calculate_solar_time(
-            day_number, longitude, decimal_hour
-        )
-        solar_hour_angle = SolarCalculator.hour_angle(
-            solar_hour
-        )
-        elevation = SolarCalculator.calculate_elevation(
-            latitude,
-            declination,
-            solar_hour_angle
-        )
-        azimuth = SolarCalculator.calculate_azimuth(
-            latitude,
-            declination,
-            elevation,
-            solar_hour_angle
-        )
-
-        """
-        azimuth = azimuth - 180
-
-        if azimuth > 90:
-            azimuth = azimuth - 180
-        """
+        result = solar_position.iloc[0]
 
         return {
-            'azimuth': round(azimuth, 2),
-            'elevation': round(elevation, 2)
+            "azimuth": round(float(result["azimuth"]), 2),
+            "elevation": round(float(result["elevation"]), 2),
+            "apparent_elevation": round(
+                float(result["apparent_elevation"]), 2
+            )
+        }
+
+    @classmethod
+    def calculate_sunrise_sunset(
+        cls, latitude, longitude, date=None
+    ):
+
+        tz = ZoneInfo(cls.TIMEZONE)
+
+        if date is None:
+            date = datetime.now(tz).date()
+
+        midnight = datetime.combine(
+            date,
+            datetime.min.time(),
+            tzinfo=tz
+        )
+
+        times = pd.DatetimeIndex([midnight])
+
+        solar_events = (
+            pvlib.solarposition.sun_rise_set_transit_spa(
+                times=times,
+                latitude=float(latitude),
+                longitude=float(longitude)
+            )
+        )
+
+        result = solar_events.iloc[0]
+
+        sunrise = result["sunrise"]
+        sunset = result["sunset"]
+        solar_noon = result["transit"]
+
+        return {
+            "sunrise": sunrise.to_pydatetime(),
+            "sunset": sunset.to_pydatetime(),
+            "solar_noon": solar_noon.to_pydatetime()
         }

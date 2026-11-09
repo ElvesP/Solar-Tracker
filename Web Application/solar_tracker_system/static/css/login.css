@@ -13,12 +13,6 @@
     font-size: 14px;
 }
 
-.body.dark .auth-container {
-    background: rgba(17,24,39,0.7);
-    border: 1px solid var(--border);
-    display: flex;
-}
-
 /* LEFT */
 .auth-left {
     flex: 1;
@@ -27,7 +21,7 @@
     border-radius: 10px;
     position: relative;
     padding: 5px;
-    color: white;
+    color: var(--text);
     background: url('https://stksolar.com.br/blog/wp-content/uploads/2025/11/energia-fotovoltaica.webp') no-repeat center;
     background-size: cover;
     overflow: hidden;
@@ -72,12 +66,12 @@
     align-items: center;
     justify-content: center;
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: var(--lgborder);
 }
 
 .body.dark .auth-right {
-    background: rgba(17,24,39,0.7);
-    border: 1px solid var(--border);
+    background: var(--bg);
+    border: var(--lgborder);
 }
 
 .auth-box {
@@ -102,10 +96,11 @@
     width: 100%;
     padding: 10px;
     margin-top: 5px;
-    background: #f9fafb;
-    border: 1px solid #d1d5db;
+    background: var(--inpbg);
+    border: var(--lgborder);
     border-radius: 8px;
     transition: 0.2s;
+    color: var(--accent);
 }
 
 .auth-box input:hover {
@@ -138,7 +133,6 @@
     justify-content: space-between;
     align-items: center;
     margin-top: 5px;
-    gap: 40px;
 }
 
 .options label {
@@ -275,7 +269,6 @@
 }
 
 @media screen and (max-width: 768px) {
-
     .auth-container {
         display: flex;
         flex-direction: column;
@@ -284,14 +277,17 @@
     }
 
     .auth-left {
+        display: none;
         opacity: 0;
         transform: translateY(-10px);
-        height: 0;
         overflow: hidden;
         pointer-events: none;
     }
 
     .auth-right {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 100%;
         padding: 10px;
         margin-bottom: 20px;

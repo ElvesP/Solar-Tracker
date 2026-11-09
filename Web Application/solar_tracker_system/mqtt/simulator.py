@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-BROKER = 'localhost'
+BROKER = '10.153.200.27'
 PORT = int(os.getenv('MQTT_PORT', 1883))
 PANEL = "decfe0ec-3d71-4486-9f1a-15873081d0d8"
 USER = "a3e58b4c-844b-43ea-a46c-897dc36414aa"

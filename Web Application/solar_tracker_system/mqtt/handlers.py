@@ -1,6 +1,4 @@
 import json
-import paho.mqtt.client as mqtt
-from decimal import Decimal
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import get_user_model
 from solar_tracker_system.models import (
@@ -15,6 +13,7 @@ from solar_tracker_system.services.solar_calculations import SolarCalculator
 from solar_tracker_system.services.decision_engine import DecisionEngine
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+
 
 
 User = get_user_model()
@@ -48,10 +47,6 @@ def validate_access(user_id, panel):
     return str(panel.user_id) == str(user_id)
 
 
-def publish(client, topic, payload):
-    client.publish(topic, payload)
-
-
 def save_dashboard_data(data, user_id, panel_id):
     user = get_user(user_id)
     panel = get_panel(panel_id)
@@ -68,7 +63,8 @@ def save_dashboard_data(data, user_id, panel_id):
     required_fields = [
         'voltage', 
         'current', 
-        'luminosity'
+        'luminosity',
+        'temperature'
     ]
 
     if not all(field in data for field in required_fields):
@@ -79,6 +75,7 @@ def save_dashboard_data(data, user_id, panel_id):
         voltage=data['voltage'],
         current=data['current'],
         luminosity=data['luminosity'],
+        temperature=data['temperature'],
         power=EnergyService.calculate_power(
             data['voltage'], data['current'])
     )
@@ -92,6 +89,7 @@ def save_dashboard_data(data, user_id, panel_id):
                 'voltage': obj.voltage,
                 'current': obj.current,
                 'luminosity': obj.luminosity,
+                'temperature': obj.temperature,
                 'power': obj.power,
                 'timestamp': obj.timestamp.isoformat()
             }
@@ -158,19 +156,27 @@ def save_panel_position(client, data, user_id, panel_id):
         )
 
         if decision == "standby":
-            publish(client, f"solar/{panel_id}/control", json.dumps({
-                "action": "standby",
-                "mode": "automatic",
-                "azimuth": None,
-                "elevation": 90
-            }))
+            client.publish(
+                f"solar/{panel_id}/control", 
+                json.dumps({
+                    "action": "standby",
+                    "mode": "automatic",
+                    "azimuth": None,
+                    "elevation": 90
+                }),
+                qos=0
+            )
         if decision == "move_panel":
-            publish(client, f"solar/{panel_id}/control", json.dumps({
-                "action": "move_panel",
-                "mode": "automatic",
-                "azimuth": obj.theoretical_azimuth,
-                "elevation": obj.theoretical_elevation
-            }))
+            client.publish(
+                f"solar/{panel_id}/control", 
+                json.dumps({
+                    "action": "move_panel",
+                    "mode": "automatic",
+                    "azimuth": obj.theoretical_azimuth,
+                    "elevation": obj.theoretical_elevation
+                }),
+                qos=0
+            )
     if control_mode.mode == "manual":
         decision = DecisionEngine.decide(
             light.luminosity, 
@@ -179,20 +185,17 @@ def save_panel_position(client, data, user_id, panel_id):
             control_mode.elevation,
             obj.actual_elevation,
         )
-        if decision == "standby":
-            publish(client, f"solar/{panel_id}/control", json.dumps({
-                "action": "move_panel",
-                "mode": control_mode.mode,
-                "azimuth": float(control_mode.azimuth),
-                "elevation": float(control_mode.elevation)
-            }))
-        if decision == "move_panel":
-            publish(client, f"solar/{panel_id}/control", json.dumps({
-                "action": "move_panel",
-                "mode": control_mode.mode,
-                "azimuth": float(control_mode.azimuth),
-                "elevation": float(control_mode.elevation)
-            }))
+        if decision == "standby" or decision == "move_panel":
+            client.publish(
+                f"solar/{panel_id}/control", 
+                json.dumps({
+                    "action": "move_panel",
+                    "mode": control_mode.mode,
+                    "azimuth": float(control_mode.azimuth),
+                    "elevation": float(control_mode.elevation)
+                }),
+                qos=0
+            )
 
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(

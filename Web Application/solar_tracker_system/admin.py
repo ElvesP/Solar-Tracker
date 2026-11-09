@@ -46,6 +46,7 @@ class DashboardDataAdmin(admin.ModelAdmin):
         'voltage',
         'current',
         'luminosity',
+        'temperature',
         'power',
         'timestamp'
     )

@@ -6,6 +6,7 @@
     --core: radial-gradient(circle at top right, #ffb347, transparent),
               linear-gradient(135deg, #1e3c72, #2a5298);
     --bg: #f5f7fb;
+    --bgv: rgb(255, 200, 255, 0.5);
     --card: #ffffff;
     --card1: #d3d3d3;
     --card2: #808080;
@@ -16,27 +17,16 @@
     --accent: #111;
     --green: #22c55e;
     --red: #ef4444;
-    --sidebar-w: 260px;
+    --sidebar-w: 200px;
     --a: #3b82f6;
     --hover: rgba(0,0,0,0.05);
     --info: #eee;
+    --inpbg: #f9fafb;
     --chart: #2563eb;
-}
-
-body.dark {
-    --bg: rgba(17,24,39,0.7);
-    --card: #111827;
-    --card1: rgba(17,24,39,0.7);
-    --card2: rgba(17,24,39,0.08);
-    --card3: rgba(17,24,39,0.99);
-    --text: #f5f5f5;
-    --muted: rgba(255,255,255,0.6);
-    --border: rgba(255,255,255,0.08);
-    --accent: #fff;
-    --a: #3b82f6;
-    --hover: rgba(255,255,255,0.05);
-    --info: rgba(255,255,255,.03);
-    --chart: #3b82f6;
+    --tbbg: rgba(255,255,255,0.7); 
+    --sbbg: rgba(255,255,255,0.6); 
+    --stbg: rgba(255,255,255,0.5);
+    --lgborder: 1px solid #374151;
 }
 
 *{ 
@@ -55,3 +45,26 @@ body {
     transition: background .3s ease, color .3s ease; 
 }
 
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: rgba(17,24,39,0.7);
+        --bgv: rgba(17,24,39,0.7);
+        --card: #111827;
+        --card1: rgba(17,24,39,0.7);
+        --card2: rgba(17,24,39,0.08);
+        --card3: rgba(17,24,39,0.99);
+        --text: #f5f5f5;
+        --muted: rgba(255,255,255,0.6);
+        --border: rgba(255,255,255,0.08);
+        --accent: #fff;
+        --a: #3b82f6;
+        --hover: rgba(255,255,255,0.05);
+        --info: rgba(255,255,255,.03);
+        --inpbg: #111827;
+        --chart: #3b82f6;
+        --tbbg: rgba(17,24,39,0.7); 
+        --sbbg: rgba(17,24,39,0.6); 
+        --spbg: rgba(17,24,39,0.5);
+        --lgborder: 1px solid #e5e7eb;
+    }
+}

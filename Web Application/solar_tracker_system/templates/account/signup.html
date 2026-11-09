@@ -1,6 +1,5 @@
 {% load i18n %}
 {% load allauth account %}
-{% load socialaccount %}
 
 {% block content %}
 {% block extra_head %}
@@ -9,6 +8,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="color-scheme" content="light dark">
         <title>SolarTracker IoT</title>
         <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -37,7 +37,7 @@
     </script>
     {% endif %}
 
-    <h2>{% trans "Criar Conta" %}</h2>
+    <h2>{% trans "CRIAR CONTA" %}</h2>
 
     {% if not SOCIALACCOUNT_ONLY %}
 
@@ -46,7 +46,7 @@
         <form method="post" action="{{ action_url }}">
             {% csrf_token %}
 
-            <label>Nome de usuário</label>
+            <label>Nome de utilizador</label>
             {{ form.username }}          
 
             <label>Email (Opcional)</label>
@@ -81,19 +81,6 @@
     <div class="form-errors">
         <p>{{ form.non_field_errors }}</p>
     </div>
-    {% endif %}
-
-    {% if SOCIALACCOUNT_ENABLED %}
-        <div class="divider">OU CONTINUE COM</div>
-
-        <div class="social">
-            <a href="{% provider_login_url 'google' %}" class="btn-social">
-                <i class="fa-brands fa-google"></i> Google
-            </a>
-            <a href="{% provider_login_url 'github' %}" class="btn-social">
-                <i class="fa-brands fa-github"></i> GitHub
-            </a>
-        </div>
     {% endif %}
 </div>
 <script src="{% static 'js/theme.js' %}"></script>

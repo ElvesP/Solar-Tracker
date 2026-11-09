@@ -14,6 +14,7 @@ from solar_tracker_system.models import (
     RemoteControl,
     Location
 )
+from solar_tracker_system.mqtt.mqtt_client import publish_control
 from solar_tracker_system.services.energy_service import EnergyService
 from .serializers import (
     SolarPanelSerializer,
@@ -22,6 +23,7 @@ from .serializers import (
     RemoteControlSerializer,
     LocationSerializer
 )
+
 
 
 # SOLAR PANEL VIEWSET
@@ -82,11 +84,13 @@ class DashboardDataViewSet(viewsets.ModelViewSet):
 
                 if gap.total_seconds() > 300:
                     response.append({
-                        "id": obj.id,
+                        "id": None,
+                        "is_gap": True,
                         "voltage": None,
                         "current": None,
-                        "power": None,
                         "luminosity": None,
+                        "temperature": None,
+                        "power": None,
                         "timestamp": (
                             previous.timestamp +
                             timedelta(minutes=1)
@@ -95,11 +99,13 @@ class DashboardDataViewSet(viewsets.ModelViewSet):
 
             response.append({
                 "id": obj.id,
+                "is_gap": False,
                 "voltage": obj.voltage,
                 "current": obj.current,
                 "luminosity": obj.luminosity,
+                "temperature": obj.temperature,
                 "power": obj.power,
-                "timestamp": obj.timestamp.isoformat(),
+                "timestamp": obj.timestamp.isoformat()
             })
             previous = obj
 
@@ -145,7 +151,8 @@ class PanelPositionViewSet(viewsets.ModelViewSet):
 
                 if gap.total_seconds() > 300:
                     response.append({
-                        "id": obj.id,
+                        "id": None,
+                        "is_gap": True,
                         "theoretical_azimuth": None,
                         "actual_azimuth": None,
                         "theoretical_elevation": None,
@@ -160,6 +167,7 @@ class PanelPositionViewSet(viewsets.ModelViewSet):
             # dado real
             response.append({
                 "id": obj.id,
+                "is_gap": False,
                 "theoretical_azimuth": obj.theoretical_azimuth,
                 "actual_azimuth": obj.actual_azimuth,
                 "theoretical_elevation": obj.theoretical_elevation,
@@ -224,12 +232,21 @@ class RemoteControlViewSet(viewsets.ModelViewSet):
 
             save_decision = defaults["mode"] != mode or defaults["azimuth"] != Decimal(manual_az) or defaults["elevation"] != Decimal(manual_el)
             if save_decision:
-                serializer.save(
+                obj = serializer.save(
                     panel=panel,
                     azimuth=manual_az,
                     elevation=manual_el,
                     mode=mode
                 )
+
+                data = {
+                    "action": "move_panel",
+                    "mode": obj.mode,
+                    "azimuth": float(obj.azimuth),
+                    "elevation": float(obj.elevation)
+                }
+                
+                publish_control(obj.panel.id, data)
             else:
                 raise ValidationError("Dados anteriores iguais.")
 

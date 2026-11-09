@@ -5,6 +5,7 @@ function getSelectedPanelID() {
 
     if (!selector || !selector.value) {
         console.warn("⚠️ Painel não selecionado.");
+        addNotification("Seletor de painel não encontrado. Adicione pelo menos um painel no Perfil.", "error");
         return null;
     }
 
@@ -297,15 +298,6 @@ document.addEventListener(
                     await renderReports();
                 }
             );
-
-        document.getElementById("themeBtn").addEventListener(
-            "click",
-            () => {
-                if (!reportData) return;
-
-                renderReportChart(reportData)
-            }
-        )
 
         document.getElementById("rangeSelectData")
             .addEventListener(

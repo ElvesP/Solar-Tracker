@@ -252,3 +252,5 @@ async function deleteAccount() {
         console.error(error);
     }
 }
+
+window.useSystemTheme;

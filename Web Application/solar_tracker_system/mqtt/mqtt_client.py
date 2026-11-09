@@ -17,12 +17,13 @@ from .handlers import (
 )
 
 
+
 # Load environment variables
 load_dotenv()
 BROKER = os.getenv('MQTT_BROKER')
 PORT = int(os.getenv('MQTT_PORT', 1883))
-
 User = get_user_model()
+client = mqtt.Client()
 
 
 def parse_payload(payload):
@@ -32,8 +33,10 @@ def parse_payload(payload):
         return None
 
 
-def publish(client, topic, payload):
-    client.publish(topic, payload)
+def publish_control(panel_id, data):
+    topic = f"solar/{panel_id}/control"
+    payload = json.dumps(data)
+    client.publish(topic, payload, qos=0)
 
 
 def validate_mqtt_context(user_id, panel_id):
@@ -96,19 +99,22 @@ def on_message(client, userdata, msg):
         data = parse_payload(payload)
         SunService.update_if_needed(panel_id, data)
 
-        sun_times = SunService.get_sun_times(panel_id)
-        position = Location.objects.filter(
+        sun_times = Location.objects.filter(
             panel=panel_id).order_by('-timestamp').first()
 
-        publish(client, f"solar/{panel_id}/sunservice", json.dumps({
-            "latitude": float(position.latitude),
-            "longitude": float(position.longitude),
-            "sunrise": sun_times["sunrise"].isoformat(),
-            "sunset": sun_times["sunset"].isoformat()
-        }))
+        client.publish(
+            f"solar/{panel_id}/sunservice", 
+            json.dumps({
+                 "latitude": float(sun_times.latitude),
+                "longitude": float(sun_times.longitude),
+                "sunrise": timezone.localtime(sun_times.sunrise).isoformat(),
+                "sunset": timezone.localtime(sun_times.sunset).isoformat()
+            }),
+            qos=0
+        )
 
-    if SunService.is_daytime(panel_id):
-        if data_type == "dashboard":
+    if data_type == "dashboard":
+        if SunService.is_daytime(panel_id):
             datas = parse_payload(payload)
             for key, value in datas.items():
                 if key == "data":
@@ -117,8 +123,8 @@ def on_message(client, userdata, msg):
                     save_panel_position(client, value, user_id=user_id, panel_id=panel_id)
                 else:
                     print(f"⚠️ Unknown type: {data_type}")
-    else:
-        print(f"❌ It's Night - data ignored")
+        else:
+            print(f"❌ It's Night - data ignored")
 
 
 def on_disconnect(client, userdata, rc):
@@ -130,17 +136,14 @@ def start():
     if not BROKER:
         raise ValueError("MQTT_BROKER not defined")
 
-    client = mqtt.Client()
     client.on_connect = on_connect
     client.on_message = on_message
     client.on_disconnect = on_disconnect
-
     client.reconnect_delay_set(min_delay=1, max_delay=60)
 
     try:
         print(f"🚀 Connecting to {BROKER}:{PORT}")
         client.connect(BROKER, PORT, 60)
-
         client.loop_start()
 
         while True:
