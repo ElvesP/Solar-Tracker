@@ -1,4 +1,5 @@
 let reportData = null;
+let sendData = true;
 
 function getSelectedPanelID() {
     const selector = document.getElementById("sb-panel");
@@ -75,6 +76,13 @@ function renderReportChart(data) {
             borderColor: "#facc15",
             backgroundColor: "rgba(250,204,21,0.65)",
             title: "LUMINOSIDADE MÉDIA"
+        },
+        avg_temperature: {
+            label: "Temperatura Média (°C)",
+            field: "avg_temperature",
+            borderColor: "#ff0015",
+            backgroundColor: "rgba(255,94,21,0.65)",
+            title: "TEMPERATURA MÉDIA"
         },
         tracking_efficiency: {
             label: "Eficiência de Rastreamento Média (%)",
@@ -210,6 +218,11 @@ function updateInsights(data) {
             "LUMINOSIDADE MÉDIA (DATA SELECCIONADA)";
         totalCard.innerText =
             `${Number(last.avg_luminosity || 0).toFixed(0)} Lux`;
+    } else if (rangeSelect.value === "avg_temperature") {
+        totalSubtitle.innerText =
+            "TEMPERATURA MÉDIA (DATA SELECCIONADA)";
+        totalCard.innerText =
+            `${Number(last.avg_temperature || 0).toFixed(0)} °C`;
     } else if (rangeSelect.value === "tracking_efficiency") {
         totalSubtitle.innerText =
             "EFICIÊNCIA MÉDIA (DATA SELECCIONADA)";
@@ -218,6 +231,7 @@ function updateInsights(data) {
     }
     let totalEnergy = 0;
     let totalAvgLuminosity = 0;
+    let totalAvgTemperature = 0;
     let totalAvgTrackingEfficiency = 0;
 
     data.forEach(item => {
@@ -226,6 +240,9 @@ function updateInsights(data) {
         };
         if(item.avg_luminosity) {
             totalAvgLuminosity += Number(item.avg_luminosity);
+        };
+        if(item.avg_temperature) {
+            totalAvgTemperature += Number(item.avg_temperature);
         };
         if(item.tracking_efficiency) {
             totalAvgTrackingEfficiency += Number(item.tracking_efficiency);
@@ -238,12 +255,16 @@ function updateInsights(data) {
             ${Number(totalEnergy || 0).toFixed(2)} Wh
         </li>
         <li>
-            Eficiência média
-            ${Number(totalAvgTrackingEfficiency/data.length || 0).toFixed(2)}%
-        </li>
-        <li>
             Luminosidade média
             ${Number(totalAvgLuminosity/data.length || 0).toFixed(0)} Lux
+        </li>
+        <li>
+            Temperatura média
+            ${Number(totalAvgTemperature/data.length || 0).toFixed(2)} °C
+        </li>
+        <li>
+            Eficiência média
+            ${Number(totalAvgTrackingEfficiency/data.length || 0).toFixed(2)}%
         </li>
     `;
 }
@@ -287,7 +308,10 @@ document.addEventListener(
             .addEventListener(
                 "click",
                 async () => {
-                    await renderReports();
+                    if (sendData) {
+                        sendData = false;
+                        await renderReports();
+                    }
                 }
             );
 
@@ -306,6 +330,14 @@ document.addEventListener(
                     if (!reportData) return;
 
                     renderReportChart(reportData);
+                }
+            );
+            
+        document.getElementById('sb-panel')
+            .addEventListener(
+                'change', 
+                async () => {
+                    await renderReports();
                 }
             );
     }

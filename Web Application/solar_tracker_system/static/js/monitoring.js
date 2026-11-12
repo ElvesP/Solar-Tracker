@@ -1,5 +1,6 @@
 let dashboardData = null;
 let positionData = null;
+let sendData = true;
 
 
 async function getMonitoringData(panelId, selectedDate) {
@@ -557,14 +558,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById("nav-monitoring").addEventListener(
         "click", 
         async () => {
-            renderData();
+            if (sendData){
+                await renderData();
+                sendData = false;
+            } 
         }
     );
 
     document.getElementById("data-submit-btn1").addEventListener(
         "click", 
         async () => {
-            renderData();
+            await renderData();
         }
     );
 
@@ -573,7 +577,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         async () => {
             if (!dashboardData && !positionData) return;
 
-            renderSelectedGraph(dashboardData, positionData);
+            await renderSelectedGraph(dashboardData, positionData);
+        }
+    );
+
+    document.getElementById('sb-panel').addEventListener(
+        'change', 
+        async () => {
+            await renderData();
         }
     );
 });

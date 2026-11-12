@@ -342,16 +342,20 @@ class DailyDataViewSet(APIView):
                     )
                 energy = EnergyService.calculate_energy(dashboard_day)
                 avg_luminosity = dashboard_day.aggregate(
-                        avg=Avg('luminosity')
-                    )['avg'] or 0
+                    avg=Avg('luminosity')
+                )['avg'] or 0
+                avg_temperature = dashboard_day.aggregate(
+                    avg=Avg('temperature')
+                )['avg'] or 0
                 tracking_efficiency = position_day.aggregate(
-                        avg=Avg('tracking_efficiency')
-                    )['avg'] or 0
+                    avg=Avg('tracking_efficiency')
+                )['avg'] or 0
 
                 results.append({
                     "date": current_day,
                     "energy": round(float(energy), 2),
                     "avg_luminosity": round(float(avg_luminosity), 2),
+                    "avg_temperature": round(float(avg_temperature), 2),
                     "tracking_efficiency":
                         round(float(tracking_efficiency), 2)
                 })
@@ -370,17 +374,20 @@ class DailyDataViewSet(APIView):
                     )
                 energy = EnergyService.calculate_energy(dashboard_day)
                 avg_luminosity = dashboard_day.aggregate(
-                        avg=Avg('luminosity')
-                    )['avg'] or 0
-
+                    avg=Avg('luminosity')
+                )['avg'] or 0
+                avg_temperature = dashboard_day.aggregate(
+                    avg=Avg('temperature')
+                )['avg'] or 0
                 tracking_efficiency = position_day.aggregate(
-                        avg=Avg('tracking_efficiency')
-                    )['avg'] or 0
+                    avg=Avg('tracking_efficiency')
+                )['avg'] or 0
 
                 results.append({
                     "date": current_day,
                     "energy": round(float(energy), 2),
                     "avg_luminosity": round(float(avg_luminosity), 2),
+                    "avg-temperature": round(float(avg_temperature), 2),
                     "tracking_efficiency":
                         round(float(tracking_efficiency), 2)
                 })
@@ -400,16 +407,20 @@ class DailyDataViewSet(APIView):
                     )
                 energy = EnergyService.calculate_energy(dashboard_month)
                 avg_luminosity = dashboard_month.aggregate(
-                        avg=Avg('luminosity')
-                    )['avg'] or 0
+                    avg=Avg('luminosity')
+                )['avg'] or 0
+                avg_temperature = dashboard_month.aggregate(
+                    avg=Avg('temperature')
+                )['avg'] or 0
                 tracking_efficiency = position_month.aggregate(
-                        avg=Avg('tracking_efficiency')
-                    )['avg'] or 0
+                    avg=Avg('tracking_efficiency')
+                )['avg'] or 0
 
                 results.append({
                     "date": f"{end_date.year}-{month:02d}",
                     "energy": round(float(energy), 2),
                     "avg_luminosity": round(float(avg_luminosity), 2),
+                    "avg_temperature": round(float(avg_temperature), 2),
                     "tracking_efficiency":
                         round(float(tracking_efficiency), 2)
                 })

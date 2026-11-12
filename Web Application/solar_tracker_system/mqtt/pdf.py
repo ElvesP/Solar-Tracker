@@ -1,30 +1,78 @@
-import fitz
-from pathlib import Path
 
-src = Path("D:/UEM/TL/TL_EP/anexo01.pdf")
-out = Path("D:/UEM/TL/TL_EP/anexo00.pdf")
+import pandas as pd
+import pvlib
 
-doc = fitz.open(src)
-pairs = [
-    [6, 7], [8, 9], [10, 11], [12, 13],
-    [14, 15], [16, 22], [23, 24], [25, 26]
-]
+# Coordenadas de Maputo
+latitude = -25.94255
+longitude = 32.540419
+altitude = 0
+fuso = "Africa/Maputo"
 
-# Use identical page cells throughout so the final pair (26 + 27)
-# has exactly the same layout and alignment as all preceding pairs.
-cell_w = max(page.rect.width for page in doc)
-cell_h = max(page.rect.height for page in doc)
+local = pvlib.location.Location(
+    latitude=latitude,
+    longitude=longitude,
+    tz=fuso,
+    altitude=altitude
+)
 
-result = fitz.open()
-for pair in pairs:
-    sheet = result.new_page(width=2 * cell_w, height=cell_h)
-    for column, page_index in enumerate(pair):
-        target = fitz.Rect(
-            column * cell_w, 0,
-            (column + 1) * cell_w, cell_h
-        )
-        sheet.show_pdf_page(target, doc, page_index, keep_proportion=True)
+# Datas de 1 a 7 de Novembro de 2026
+datas = pd.date_range(
+    "2026-11-01",
+    periods=7,
+    freq="D",
+    tz=fuso
+)
 
-result.save(out, garbage=4, deflate=True)
-print(f"PDF alinhado criado: {out}")
-print("Pares: 7+8, 9+10, 11+12, 13+14, 15+16, 17+23, 24+25, 26+27")
+# Calcular os eventos solares com NREL SPA
+eventos = local.get_sun_rise_set_transit(
+    datas,
+    method="spa"
+)
+
+resultados = []
+
+for data in datas:
+
+    # Eventos solares
+    nascer = eventos.loc[data, "sunrise"]
+    transito = eventos.loc[data, "transit"]
+    por_sol = eventos.loc[data, "sunset"]
+
+    # Criar instante de observação: 14:30
+    hora_observacao = data.replace(
+        hour=14,
+        minute=30,
+        second=0
+    )
+
+    # Calcular posição solar com NREL SPA
+    posicao = local.get_solarposition(
+        pd.DatetimeIndex([hora_observacao]),
+        method="nrel_numpy"
+    )
+
+    # Extrair azimute e elevação
+    azimute = posicao["azimuth"].iloc[0]
+    elevacao = posicao["apparent_elevation"].iloc[0]
+
+    resultados.append({
+        "Data": data.strftime("%d/%m/%Y"),
+        "Nascer do sol": nascer.strftime("%H:%M:%S"),
+        "Trânsito solar": transito.strftime("%H:%M:%S"),
+        "Pôr do sol": por_sol.strftime("%H:%M:%S"),
+        "Azimute 14:30 (°)": round(azimute, 4),
+        "Elevação 14:30 (°)": round(elevacao, 4)
+    })
+
+# Criar tabela
+tabela = pd.DataFrame(resultados)
+
+print("\nRESULTADOS DOS CÁLCULOS SOLARES\n")
+print(tabela.to_string(index=False))
+
+# Exportar resultados
+tabela.to_csv(
+    "eventos_solares_pvlib.csv",
+    index=False,
+    encoding="utf-8-sig"
+)
