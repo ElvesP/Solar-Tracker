@@ -1,6 +1,6 @@
 let dashboardData = null;
 let positionData = null;
-let sendData = true;
+//let sendData = true;
 
 
 async function getMonitoringData(panelId, selectedDate) {
@@ -91,7 +91,7 @@ function renderSelectedGraph(dashboardData, positionData) {
             source: "dashboard"
         },
         light: {
-            label: "Luminosidade (Lux)",
+            label: "Iluminância (Lux)",
             field: "luminosity",
             borderColor: "#facc15",
             backgroundColor: "rgba(250,204,21,0.15)",
@@ -278,6 +278,47 @@ function renderSelectedGraph(dashboardData, positionData) {
         };
     }
 
+    function createZoomOptions(timeInfo) {
+        return {
+            limits: {
+                x: {
+                    min: timeInfo.min,
+                    max: timeInfo.max
+                }
+            },
+
+            // Deslocar o gráfico com SHIFT + arrastar.
+            pan: {
+                enabled: true,
+                mode: "xy",
+                modifierKey: "shift"
+            },
+
+            zoom: {
+                // CTRL + roda do rato.
+                wheel: {
+                    enabled: true,
+                    modifierKey: "ctrl"
+                },
+
+                // Zoom por pinça no telemóvel.
+                pinch: {
+                    enabled: true
+                },
+
+                // Seleccionar uma região para ampliar.
+                drag: {
+                    enabled: true,
+                    borderColor: "#38bdf8",
+                    backgroundColor: "rgba(56,189,248,0.15)",
+                    borderWidth: 1
+                },
+
+                mode: "xy"
+            }
+        };
+    }
+
     function createTimeAxis(timeInfo) {
         return {
             type: "linear",
@@ -351,6 +392,8 @@ function renderSelectedGraph(dashboardData, positionData) {
         chart.options.scales.y.grid.color = gridColor;
         chart.options.plugins.legend.labels.color = textColor;
         chart.options.plugins.tooltip = createTooltipOptions();
+        chart.options.plugins.zoom.limits.x.min = timeInfo.min;
+        chart.options.plugins.zoom.limits.x.max = timeInfo.max;
     }
 
     const selectedItems = config.source === "dashboard"
@@ -374,7 +417,6 @@ function renderSelectedGraph(dashboardData, positionData) {
             electricalCanvas,
             {
                 type: "line",
-
                 data: {
                     datasets: [{
                         label: config.label,
@@ -388,16 +430,13 @@ function renderSelectedGraph(dashboardData, positionData) {
                         spanGaps: false
                     }]
                 },
-
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-
                     interaction: {
                         mode: "nearest",
                         intersect: false
                     },
-
                     plugins: {
                         legend: {
                             display: true,
@@ -405,10 +444,9 @@ function renderSelectedGraph(dashboardData, positionData) {
                                 color: textColor
                             }
                         },
-
-                        tooltip: createTooltipOptions()
+                        tooltip: createTooltipOptions(),
+                        zoom: createZoomOptions(timeData)
                     },
-
                     scales: {
                         x: createTimeAxis(timeData),
                         y: createYAxis()
@@ -426,7 +464,6 @@ function renderSelectedGraph(dashboardData, positionData) {
         chart.data.datasets[0].spanGaps = false;
 
         updateChartAppearance(chart, timeData);
-
         chart.update();
     }
 
@@ -446,7 +483,7 @@ function renderSelectedGraph(dashboardData, positionData) {
         {
             label: "Azimute Real (°)",
             data: solarTimeData.series[0],
-            borderColor: "#07bdf8",
+            borderColor: "#05c1ff",
             backgroundColor: "rgba(56,189,248,0.15)",
             tension: 0.3,
             pointRadius: 2,
@@ -455,7 +492,7 @@ function renderSelectedGraph(dashboardData, positionData) {
         {
             label: "Azimute Teórico (°)",
             data: solarTimeData.series[1],
-            borderColor: "#eea5e9",
+            borderColor: "#864b82",
             backgroundColor: "rgba(14,165,233,0.15)",
             tension: 0.3,
             pointRadius: 2,
@@ -494,32 +531,26 @@ function renderSelectedGraph(dashboardData, positionData) {
             solarCanvas,
             {
                 type: "line",
-
                 data: {
                     datasets: solarDatasets
                 },
-
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-
                     interaction: {
                         mode: "nearest",
                         intersect: false
                     },
-
                     plugins: {
                         legend: {
                             display: true,
-
                             labels: {
                                 color: textColor
                             }
                         },
-
-                        tooltip: createTooltipOptions()
+                        tooltip: createTooltipOptions(),
+                        zoom: createZoomOptions(solarTimeData)
                     },
-
                     scales: {
                         x: createTimeAxis(solarTimeData),
                         y: createYAxis()
@@ -540,7 +571,6 @@ function renderSelectedGraph(dashboardData, positionData) {
         });
 
         updateChartAppearance(chart, solarTimeData);
-
         chart.update();
     }
 }
@@ -555,7 +585,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('date-monitoring').value =
         formattedDate;
 
-    document.getElementById("nav-monitoring").addEventListener(
+    /*document.getElementById("nav-monitoring").addEventListener(
         "click", 
         async () => {
             if (sendData){
@@ -563,7 +593,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 sendData = false;
             } 
         }
-    );
+    );*/
 
     document.getElementById("data-submit-btn1").addEventListener(
         "click", 

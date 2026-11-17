@@ -1,5 +1,5 @@
 let reportData = null;
-let sendData = true;
+//let sendData = true;
 
 function getSelectedPanelID() {
     const selector = document.getElementById("sb-panel");
@@ -71,11 +71,11 @@ function renderReportChart(data) {
             title: "GERAÇÃO DE ENERGIA"
         },
         avg_luminosity: {
-            label: "Luminosidade Média (Lux)",
+            label: "Iluminância Média (Lux)",
             field: "avg_luminosity",
             borderColor: "#facc15",
             backgroundColor: "rgba(250,204,21,0.65)",
-            title: "LUMINOSIDADE MÉDIA"
+            title: "ILUMINÂNCIA MÉDIA"
         },
         avg_temperature: {
             label: "Temperatura Média (°C)",
@@ -215,7 +215,7 @@ function updateInsights(data) {
             `${Number(last.energy || 0).toFixed(2)} Wh`;
     } else if (rangeSelect.value === "avg_luminosity") {
         totalSubtitle.innerText =
-            "LUMINOSIDADE MÉDIA (DATA SELECCIONADA)";
+            "ILUMINÂNCIA MÉDIA (DATA SELECCIONADA)";
         totalCard.innerText =
             `${Number(last.avg_luminosity || 0).toFixed(0)} Lux`;
     } else if (rangeSelect.value === "avg_temperature") {
@@ -304,7 +304,7 @@ document.addEventListener(
         document.getElementById("date-report").value =
             formattedDate;
 
-        document.getElementById("nav-reports")
+        /*document.getElementById("nav-reports")
             .addEventListener(
                 "click",
                 async () => {
@@ -313,7 +313,7 @@ document.addEventListener(
                         await renderReports();
                     }
                 }
-            );
+            );*/
 
         document.getElementById("data-submit-btn2")
             .addEventListener(

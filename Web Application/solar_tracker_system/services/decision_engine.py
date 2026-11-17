@@ -5,7 +5,7 @@ class DecisionEngine:
 
     LIGHT_THRESHOLD_MIN = 1000
     LIGHT_THRESHOLD_MAX = 5000
-    AZ_DIFFERENCE_THRESHOLD = 2
+    AZ_DIFFERENCE_THRESHOLD = 1
     EL_DIFFERENCE_THRESHOLD = 1
 
 
@@ -48,6 +48,9 @@ class DecisionEngine:
         theoretical_elevation,
         real_elevation
     ):
+
+        if light_intensity < 1000:
+            return 'keep_position'
 
         if DecisionEngine.check_low_light(light_intensity):
             return 'standby'

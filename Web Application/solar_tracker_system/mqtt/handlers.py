@@ -190,7 +190,7 @@ def save_panel_position(client, data, user_id, panel_id):
                 f"solar/{panel_id}/control", 
                 json.dumps({
                     "action": "move_panel",
-                    "mode": control_mode.mode,
+                    "mode": "manual",
                     "azimuth": float(control_mode.azimuth),
                     "elevation": float(control_mode.elevation)
                 }),

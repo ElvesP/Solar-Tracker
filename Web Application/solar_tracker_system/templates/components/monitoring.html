@@ -2,6 +2,9 @@
 
 <link rel="stylesheet" href="{% static 'css/monitoring.css' %}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.2.0"></script>
+
 
 
 <div class="page" id="page-monitoring">
@@ -25,7 +28,7 @@
                     <select id="graphSelector">
                         <option value="voltage">Tensão</option>
                         <option value="current">Corrente</option>
-                        <option value="light">Luminosidade</option>
+                        <option value="light">Iluminância</option>
                         <option value="temperature">Temperatura</option>
                         <option value="power">Potência</option>
                         <option value="efficiency">Eficiência de rastreamento</option>

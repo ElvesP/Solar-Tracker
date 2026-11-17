@@ -348,7 +348,12 @@ function draw3D() {
 
 function autoTick() {
   if (state.mode === 'auto' && !state.moving) {
-    state.az = Number(window.backendAz).toFixed(1);
+    if (Number(window.backendAz).toFixed(1) > 180) {
+      state.az = Number(window.backendAz).toFixed(1) - 360.0;
+    } else {
+      state.az = Number(window.backendAz).toFixed(1);
+    }
+    
     state.el = Number(window.backendEl).toFixed(1);
 
     render();

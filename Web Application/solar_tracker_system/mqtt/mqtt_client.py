@@ -95,6 +95,15 @@ def on_message(client, userdata, msg):
     panel.last_seen = timezone.now()
     panel.save(update_fields=["last_seen"])
 
+    if data_type == "ping":
+        payload = msg.payload.decode()
+
+        client.publish(
+            f"solar/{panel_id}/pong",
+            payload,
+            qos=0
+        )
+
     if data_type == "info":
         data = parse_payload(payload)
         SunService.update_if_needed(panel_id, data)
