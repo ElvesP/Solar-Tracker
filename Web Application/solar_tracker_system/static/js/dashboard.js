@@ -11,6 +11,7 @@ let socket = null;
 let reconnectTimer = null;
 let checkConnectionInterval = null;
 let shouldReconnect = true;
+let retries = 0;
 
 // DOM ELEMENTS (DASHBOARD ELEMENTS)
 const dataType = ["dashboard_data", "panel_position", "location"];
@@ -283,6 +284,7 @@ function initializeWebSocket(panelId) {
 
     // SOCKET EVENTS
     socket.onopen = () => {
+        retries = 0;
         setWS("connected");
         updateLocation(panelId);
     };
@@ -323,6 +325,8 @@ function initializeWebSocket(panelId) {
     };
 
     socket.onclose = () => {
+        const delay = Math.min(1000 * 2 ** retries++, 30000);
+
         if (!shouldReconnect) return;
 
         setWS("reconnecting");
@@ -340,7 +344,7 @@ function initializeWebSocket(panelId) {
             if (currentPanelId === panelId) {
                 initializeWebSocket(panelId);
             }
-        }, 5000);
+        }, delay);
     };
 }
 

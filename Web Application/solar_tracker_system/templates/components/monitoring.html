@@ -1,10 +1,12 @@
 {% load static %}
 
 <link rel="stylesheet" href="{% static 'css/monitoring.css' %}">
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/nouislider@15.8.1/dist/nouislider.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.2.0"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/nouislider@15.8.1/dist/nouislider.min.js"></script>
 
 
 <div class="page" id="page-monitoring">
@@ -22,9 +24,7 @@
                 <div class="card-title">
                     Variáveis Eléctricas em Função do Tempo
                 </div>
-                <div id="data-selected-indicador"></div>
-            </div>
-            <div class="controls">
+                <div class="controls">
                     <select id="graphSelector">
                         <option value="voltage">Tensão</option>
                         <option value="current">Corrente</option>
@@ -34,6 +34,64 @@
                         <option value="efficiency">Eficiência de rastreamento</option>
                     </select>
                 </div>
+                <div id="data-selected-indicador"></div>
+            </div>
+            <details class="axis-panel">
+                <summary class="axis-panel__title">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+                        <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+                        <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/>
+                        <line x1="17" y1="16" x2="23" y2="16"/>
+                    </svg>
+                    Limites dos eixos
+                    <span class="axis-panel__chevron" aria-hidden="true"></span>
+                </summary>
+
+                <div class="axis-panel__body">
+                    <fieldset class="axis-group">
+                        <legend>Eixo X · Hora</legend>
+                        <div class="axis-pair">
+                            <label class="axis-field" for="electricalXMin">
+                                <span>Mínima</span>
+                                <input type="time" step="1" id="electricalXMin">
+                            </label>
+                            <span class="axis-sep" aria-hidden="true">→</span>
+                            <label class="axis-field" for="electricalXMax">
+                                <span>Máxima</span>
+                                <input type="time" step="1" id="electricalXMax">
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="axis-group">
+                        <legend>Eixo Y · Valor</legend>
+                        <div class="axis-pair">
+                            <label class="axis-field" for="electricalYMin">
+                                <span>Mínimo</span>
+                                <input type="number" step="any" id="electricalYMin"
+                                    placeholder="Auto">
+                            </label>
+                            <span class="axis-sep" aria-hidden="true">→</span>
+                            <label class="axis-field" for="electricalYMax">
+                                <span>Máximo</span>
+                                <input type="number" step="any" id="electricalYMax"
+                                    placeholder="Auto">
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <div class="axis-actions">
+                        <button type="button" id="applyElectricalLimits"
+                                class="axis-btn axis-btn--primary">Aplicar</button>
+                        <button type="button" id="resetElectricalLimits"
+                                class="axis-btn axis-btn--ghost">Auto</button>
+                    </div>
+                </div>
+            </details>
             <div class="chart-container">
                 <canvas id="electricalChart"></canvas>
             </div>
@@ -43,8 +101,76 @@
                 <div class="card-title">
                     Ângulos Solares em Função do Tempo
                 </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div style="min-width: 220px;">
+                        <select id="solarGraphType" class="form-select">
+                            <option value="angles">
+                                Ângulos solares
+                            </option>
+                            <option value="differences">
+                                Diferenças solares
+                            </option>
+                        </select>
+                    </div>
+                </div>
                 <div id="data-selected-indicador1"></div>
             </div>
+            <details class="axis-panel">
+                <summary class="axis-panel__title">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+                        <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+                        <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/>
+                        <line x1="17" y1="16" x2="23" y2="16"/>
+                    </svg>
+                    Limites dos eixos
+                    <span class="axis-panel__chevron" aria-hidden="true"></span>
+                </summary>
+
+                <div class="axis-panel__body">
+                    <fieldset class="axis-group">
+                        <legend>Eixo X · Hora</legend>
+                        <div class="axis-pair">
+                            <label class="axis-field" for="solarXMin">
+                                <span>Mínima</span>
+                                <input type="time" step="1" id="solarXMin">
+                            </label>
+                            <span class="axis-sep" aria-hidden="true">→</span>
+                            <label class="axis-field" for="solarXMax">
+                                <span>Máxima</span>
+                                <input type="time" step="1" id="solarXMax">
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="axis-group">
+                        <legend>Eixo Y · Graus (°)</legend>
+                        <div class="axis-pair">
+                            <label class="axis-field" for="solarYMin">
+                                <span>Mínimo</span>
+                                <input type="number" step="any" id="solarYMin"
+                                    placeholder="Auto">
+                            </label>
+                            <span class="axis-sep" aria-hidden="true">→</span>
+                            <label class="axis-field" for="solarYMax">
+                                <span>Máximo</span>
+                                <input type="number" step="any" id="solarYMax"
+                                    placeholder="Auto">
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <div class="axis-actions">
+                        <button type="button" id="applySolarLimits"
+                                class="axis-btn axis-btn--primary">Aplicar</button>
+                        <button type="button" id="resetSolarLimits"
+                                class="axis-btn axis-btn--ghost">Auto</button>
+                    </div>
+                </div>
+            </details>
             <div class="chart-container">
                 <canvas id="solarAngleChart"></canvas>
             </div>

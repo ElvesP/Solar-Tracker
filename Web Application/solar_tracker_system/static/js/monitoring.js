@@ -1,7 +1,42 @@
 let dashboardData = null;
 let positionData = null;
-//let sendData = true;
+const emptyLimits = () => ({ xMin: "", xMax: "", yMin: "", yMax: "" });
+const axisLimits = {
+    electrical: emptyLimits(),
+    solar: emptyLimits()
+};
 
+
+function timeToSeconds(value) {
+    if (!value) return null;
+    const [h, m, s = 0] = value.split(":").map(Number);
+    return h * 3600 + m * 60 + s;
+}
+
+function numberOrUndefined(value) {
+    if (value === "" || value === null || value === undefined) {
+        return undefined;
+    }
+    const n = Number(value);
+    return Number.isFinite(n) ? n : undefined;
+}
+
+function timeToTimestamp(value, baseTimestamp) {
+    if (!value || baseTimestamp === undefined) return undefined;
+    const [h, m, s = 0] = value.split(":").map(Number);
+    const date = new Date(baseTimestamp);
+    date.setHours(h, m, s, 0);
+    return date.getTime();
+}
+
+function resolveLimits(raw, baseTimestamp) {
+    return {
+        xMin: timeToTimestamp(raw.xMin, baseTimestamp),
+        xMax: timeToTimestamp(raw.xMax, baseTimestamp),
+        yMin: numberOrUndefined(raw.yMin),
+        yMax: numberOrUndefined(raw.yMax)
+    };
+}
 
 async function getMonitoringData(panelId, selectedDate) {
     try {
@@ -278,57 +313,100 @@ function renderSelectedGraph(dashboardData, positionData) {
         };
     }
 
-    function createZoomOptions(timeInfo) {
+    function getRange(timeInfo, limits) {
+        return {
+            min: limits.xMin ?? timeInfo.min,
+            max: limits.xMax ?? timeInfo.max
+        };
+    }
+
+    function createZoomOptions(timeInfo, limits) {
+        const { min, max } = getRange(timeInfo, limits);
+
         return {
             limits: {
                 x: {
-                    min: timeInfo.min,
-                    max: timeInfo.max
+                    min: Math.min(timeInfo.min ?? min, min ?? Infinity),
+                    max: Math.max(timeInfo.max ?? max, max ?? -Infinity)
                 }
             },
-
-            // Deslocar o gráfico com SHIFT + arrastar.
             pan: {
                 enabled: true,
                 mode: "xy",
                 modifierKey: "shift"
             },
-
             zoom: {
-                // CTRL + roda do rato.
-                wheel: {
-                    enabled: true,
-                    modifierKey: "ctrl"
-                },
-
-                // Zoom por pinça no telemóvel.
-                pinch: {
-                    enabled: true
-                },
-
-                // Seleccionar uma região para ampliar.
+                wheel: { enabled: true, modifierKey: "ctrl" },
+                pinch: { enabled: true },
                 drag: {
                     enabled: true,
+                    threshold: 5, 
                     borderColor: "#38bdf8",
                     backgroundColor: "rgba(56,189,248,0.15)",
                     borderWidth: 1
                 },
-
                 mode: "xy"
             }
         };
     }
 
-    function createTimeAxis(timeInfo) {
+    function createTimeAxis(timeInfo, limits) {
+        const { min, max } = getRange(timeInfo, limits);
+
+        const MIN_GAP_PX = 80; // espaço mínimo entre rótulos
+        const STEPS_S = [
+            1, 5, 15, 30, 60, 300, 900, 1800,
+            3600, 7200, 10800, 21600, 43200
+        ];
+
+        // Partilhado entre afterBuildTicks e callback
+        let edgeTicks = new Set();
+        let showSeconds = false;
+
         return {
             type: "linear",
-            min: timeInfo.min,
-            max: timeInfo.max,
+            min,
+            max,
 
             afterBuildTicks(axis) {
-                axis.ticks = timeInfo.ticks.map(value => ({
-                    value
-                }));
+                const lo = axis.min;
+                const hi = axis.max;
+
+                edgeTicks = new Set();
+
+                if (!Number.isFinite(lo) || !Number.isFinite(hi) || lo >= hi) {
+                    axis.ticks = [];
+                    return;
+                }
+
+                const width = axis.chart.width || 600;
+                const msPerPx = (hi - lo) / width;
+                const minGapMs = msPerPx * MIN_GAP_PX;
+
+                // Menor passo que cabe sem sobreposição
+                const stepS = STEPS_S.find(s => s * 1000 >= minGapMs)
+                    ?? STEPS_S[STEPS_S.length - 1];
+                const stepMs = stepS * 1000;
+                showSeconds = stepS < 60;
+
+                // Alinhar à hora local
+                const offsetMs =
+                    -new Date(lo).getTimezoneOffset() * 60000;
+                let t = Math.ceil((lo - offsetMs) / stepMs) * stepMs + offsetMs;
+
+                // Marcas intermédias, longe das extremidades
+                const values = [];
+                for (; t < hi; t += stepMs) {
+                    if (t - lo >= minGapMs && hi - t >= minGapMs) {
+                        values.push(t);
+                    }
+                }
+
+                // Extremidades (sempre visíveis)
+                edgeTicks.add(lo);
+                edgeTicks.add(hi);
+
+                axis.ticks = [lo, ...values, hi].map(value => ({ value }));
             },
 
             ticks: {
@@ -340,34 +418,39 @@ function renderSelectedGraph(dashboardData, positionData) {
                 callback(value) {
                     const timestamp = Number(value);
 
-                    if (timeInfo.fullTimeTicks.has(timestamp)) {
+                    if (edgeTicks.has(timestamp) || showSeconds) {
                         return formatFullTime(timestamp);
                     }
 
-                    if (timeInfo.hourlyTicks.has(timestamp)) {
-                        return formatHour(timestamp);
-                    }
-
-                    return "";
+                    return formatHour(timestamp);
                 }
             },
-
             grid: { color: gridColor }
         };
     }
 
-    function createYAxis() {
+    function createYAxis(limits, beginAtZero = true) {
         return {
-            beginAtZero: true,
-
-            ticks: {
-                color: textColor
-            },
-
-            grid: {
-                color: gridColor
-            }
+            beginAtZero,
+            min: limits.yMin,
+            max: limits.yMax,
+            ticks: { color: textColor },
+            grid: { color: gridColor }
         };
+    }
+
+    function updateChartAppearance(chart, timeInfo, limits, beginAtZero = true) {
+        const zoomLimits = createZoomOptions(timeInfo, limits).limits;
+
+        chart.options.scales.x = createTimeAxis(timeInfo, limits);
+        chart.options.scales.y.beginAtZero = beginAtZero;
+        chart.options.scales.y.min = limits.yMin;
+        chart.options.scales.y.max = limits.yMax;
+        chart.options.scales.y.ticks.color = textColor;
+        chart.options.scales.y.grid.color = gridColor;
+        chart.options.plugins.legend.labels.color = textColor;
+        chart.options.plugins.tooltip = createTooltipOptions();
+        chart.options.plugins.zoom.limits = zoomLimits;
     }
 
     function createTooltipOptions() {
@@ -386,22 +469,15 @@ function renderSelectedGraph(dashboardData, positionData) {
         };
     }
 
-    function updateChartAppearance(chart, timeInfo) {
-        chart.options.scales.x = createTimeAxis(timeInfo);
-        chart.options.scales.y.ticks.color = textColor;
-        chart.options.scales.y.grid.color = gridColor;
-        chart.options.plugins.legend.labels.color = textColor;
-        chart.options.plugins.tooltip = createTooltipOptions();
-        chart.options.plugins.zoom.limits.x.min = timeInfo.min;
-        chart.options.plugins.zoom.limits.x.max = timeInfo.max;
-    }
-
     const selectedItems = config.source === "dashboard"
         ? dashboardData
         : positionData;
     const timeData = prepareTimeData(
         selectedItems,
         [config.field]
+    );
+    const electricalLimits = resolveLimits(
+        axisLimits.electrical, timeData.min
     );
     const selectedSeries = timeData.series[0];
     const electricalCanvas =
@@ -424,9 +500,8 @@ function renderSelectedGraph(dashboardData, positionData) {
                         borderColor: config.borderColor,
                         backgroundColor: config.backgroundColor,
                         fill: true,
-                        tension: 0.3,
                         borderWidth: 2,
-                        pointRadius: 2,
+                        pointRadius: 0,
                         spanGaps: false
                     }]
                 },
@@ -445,11 +520,11 @@ function renderSelectedGraph(dashboardData, positionData) {
                             }
                         },
                         tooltip: createTooltipOptions(),
-                        zoom: createZoomOptions(timeData)
+                        zoom: createZoomOptions(timeData, electricalLimits)
                     },
                     scales: {
-                        x: createTimeAxis(timeData),
-                        y: createYAxis()
+                        x: createTimeAxis(timeData, electricalLimits),
+                        y: createYAxis(electricalLimits)
                     }
                 }
             }
@@ -463,63 +538,120 @@ function renderSelectedGraph(dashboardData, positionData) {
         chart.data.datasets[0].backgroundColor = config.backgroundColor;
         chart.data.datasets[0].spanGaps = false;
 
-        updateChartAppearance(chart, timeData);
+        updateChartAppearance(chart, timeData, electricalLimits);
         chart.update();
     }
 
-    const solarFields = [
-        "actual_azimuth",
-        "theoretical_azimuth",
-        "actual_elevation",
-        "theoretical_elevation"
-    ];
+    const solarMode =
+        document.getElementById("solarGraphType")?.value || "angles";
+    const isDifferences = solarMode === "differences";
 
-    const solarTimeData = prepareTimeData(
-        positionData,
-        solarFields
+    function difference(actual, theoretical, wrap = false) {
+        const a = getNumericValue(actual);
+        const t = getNumericValue(theoretical);
+
+        if (a === null || t === null) return null;
+
+        let d = a - t;
+
+        if (wrap) {
+            d = ((d + 540) % 360) - 180;
+        }
+
+        return d;
+    }
+
+    const solarSource = isDifferences
+        ? positionData.map(item => ({
+            ...item,
+            azimuth_diff: difference(
+                item.actual_azimuth, item.theoretical_azimuth, true
+            ),
+            elevation_diff: difference(
+                item.actual_elevation, item.theoretical_elevation
+            )
+        }))
+        : positionData;
+
+    const solarFields = isDifferences
+        ? ["azimuth_diff", "elevation_diff"]
+        : [
+            "actual_azimuth",
+            "theoretical_azimuth",
+            "actual_elevation",
+            "theoretical_elevation"
+        ];
+
+    const solarTimeData = prepareTimeData(solarSource, solarFields);
+    const solarLimits = resolveLimits(
+        axisLimits.solar, solarTimeData.min
     );
 
-    const solarDatasets = [
-        {
-            label: "Azimute Real (°)",
-            data: solarTimeData.series[0],
-            borderColor: "#05c1ff",
-            backgroundColor: "rgba(56,189,248,0.15)",
-            tension: 0.3,
-            pointRadius: 2,
-            spanGaps: false
-        },
-        {
-            label: "Azimute Teórico (°)",
-            data: solarTimeData.series[1],
-            borderColor: "#864b82",
-            backgroundColor: "rgba(14,165,233,0.15)",
-            tension: 0.3,
-            pointRadius: 2,
-            spanGaps: false
-        },
-        {
-            label: "Elevação Real (°)",
-            data: solarTimeData.series[2],
-            borderColor: "#10b981",
-            backgroundColor: "rgba(16,185,129,0.15)",
-            tension: 0.3,
-            pointRadius: 2,
-            spanGaps: false
-        },
-        {
-            label: "Elevação Teórica (°)",
-            data: solarTimeData.series[3],
-            borderColor: "#ffc55e",
-            backgroundColor: "rgba(34,197,94,0.15)",
-            tension: 0.3,
-            pointRadius: 2,
-            spanGaps: false
-        }
-    ];
+    const solarDatasets = isDifferences
+        ? [
+            {
+                label: "Δ Azimute (Real − Teórico) (°)",
+                data: solarTimeData.series[0],
+                borderColor: "#05c1ff",
+                backgroundColor: "rgba(56,189,248,0.15)",
+                borderWidth: 2,
+                pointRadius: 0,
+                spanGaps: false
+            },
+            {
+                label: "Δ Elevação (Real − Teórico) (°)",
+                data: solarTimeData.series[1],
+                borderColor: "#10b981",
+                backgroundColor: "rgba(16,185,129,0.15)",
+                borderWidth: 2,
+                pointRadius: 0,
+                spanGaps: false
+            }
+        ]
+        : [
+            {
+                label: "Azimute Real (°)",
+                data: solarTimeData.series[0],
+                borderColor: "#0d9488",
+                backgroundColor: "rgba(56,189,248,0.15)",
+                borderDash: [6, 4],
+                borderWidth: 2,
+                pointRadius: 0,
+                spanGaps: false
+            },
+            {
+                label: "Azimute Teórico (°)",
+                data: solarTimeData.series[1],
+                borderColor: "#2563eb",
+                backgroundColor: "rgba(14,165,233,0.15)",
+                borderWidth: 2,
+                pointRadius: 0,
+                spanGaps: false
+            },
+            {
+                label: "Elevação Real (°)",
+                data: solarTimeData.series[2],
+                borderColor: "#f59e0b",
+                backgroundColor: "rgba(16,185,129,0.15)",
+                borderWidth: 2,
+                pointRadius: 0,
+                spanGaps: false
+            },
+            {
+                label: "Elevação Teórica (°)",
+                data: solarTimeData.series[3],
+                borderColor: "#9333ea",
+                backgroundColor: "rgba(34,197,94,0.15)",
+                borderDash: [6, 4],
+                borderWidth: 2,
+                pointRadius: 0,
+                spanGaps: false
+            }
+        ];
 
-    const solarCanvas =
-        document.getElementById("solarAngleChart");
+    const solarBeginAtZero = !isDifferences;
+
+    const solarCanvas = document.getElementById("solarAngleChart");
 
     if (!solarCanvas) {
         console.warn("Canvas solarAngleChart não encontrado.");
@@ -531,9 +663,7 @@ function renderSelectedGraph(dashboardData, positionData) {
             solarCanvas,
             {
                 type: "line",
-                data: {
-                    datasets: solarDatasets
-                },
+                data: { datasets: solarDatasets },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -544,16 +674,14 @@ function renderSelectedGraph(dashboardData, positionData) {
                     plugins: {
                         legend: {
                             display: true,
-                            labels: {
-                                color: textColor
-                            }
+                            labels: { color: textColor }
                         },
                         tooltip: createTooltipOptions(),
-                        zoom: createZoomOptions(solarTimeData)
+                        zoom: createZoomOptions(solarTimeData, solarLimits)
                     },
                     scales: {
-                        x: createTimeAxis(solarTimeData),
-                        y: createYAxis()
+                        x: createTimeAxis(solarTimeData, solarLimits),
+                        y: createYAxis(solarLimits, solarBeginAtZero)
                     }
                 }
             }
@@ -561,18 +689,70 @@ function renderSelectedGraph(dashboardData, positionData) {
     } else {
         const chart = window.solarAngleChartInstance;
 
-        solarDatasets.forEach((dataset, index) => {
-            chart.data.datasets[index].data = dataset.data;
-            chart.data.datasets[index].label = dataset.label;
-            chart.data.datasets[index].borderColor = dataset.borderColor;
-            chart.data.datasets[index].backgroundColor =
-                dataset.backgroundColor;
-            chart.data.datasets[index].spanGaps = false;
-        });
+        chart.data.datasets = solarDatasets;
 
-        updateChartAppearance(chart, solarTimeData);
+        updateChartAppearance(
+            chart, solarTimeData, solarLimits, solarBeginAtZero
+        );
         chart.update();
     }
+}
+
+function rerenderCharts() {
+    if (!Array.isArray(dashboardData) || !Array.isArray(positionData)) return;
+
+    window.electricalChartInstance?.resetZoom?.();
+    window.solarAngleChartInstance?.resetZoom?.();
+
+    renderSelectedGraph(dashboardData, positionData);
+}
+
+function setupAxisLimitControls(key, prefix, Prefix) {
+    const get = suffix => document.getElementById(prefix + suffix);
+    const fields = ["XMin", "XMax", "YMin", "YMax"];
+
+    get("XMin");
+
+    document.getElementById(`apply${Prefix}Limits`)
+        .addEventListener("click", () => {
+            const raw = {
+                xMin: get("XMin").value,
+                xMax: get("XMax").value,
+                yMin: get("YMin").value,
+                yMax: get("YMax").value
+            };
+
+            const xMin = timeToSeconds(raw.xMin);
+            const xMax = timeToSeconds(raw.xMax);
+            const yMin = numberOrUndefined(raw.yMin);
+            const yMax = numberOrUndefined(raw.yMax);
+
+            if (xMin !== null && xMax !== null && xMin >= xMax) {
+                addNotification(
+                    "A hora mínima deve ser menor que a hora máxima.",
+                    "error"
+                );
+                return;
+            }
+
+            if (yMin !== undefined && yMax !== undefined && yMin >= yMax) {
+                addNotification(
+                    "O valor mínimo de Y deve ser menor que o máximo.",
+                    "error"
+                );
+                return;
+            }
+
+            axisLimits[key] = raw;
+            rerenderCharts();
+        });
+
+    document.getElementById(`reset${Prefix}Limits`)
+        .addEventListener("click", () => {
+            fields.forEach(f => { get(f).value = ""; });
+            axisLimits[key] = emptyLimits();
+            rerenderCharts();
+        });
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -582,18 +762,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         String(today.getMonth() + 1).padStart(2, '0') + '-' +
         String(today.getDate()).padStart(2, '0');
 
+    let lastDark = document.body.classList.contains("dark");
+
+    new MutationObserver(() => {
+        const isDark = document.body.classList.contains("dark");
+        if (isDark === lastDark) return;   
+        lastDark = isDark;
+
+        if (Array.isArray(dashboardData) && Array.isArray(positionData)) {
+            renderSelectedGraph(dashboardData, positionData);
+        }
+    }).observe(document.body, {
+        attributes: true,
+        attributeFilter: ["class"]
+    });
+
+    setupAxisLimitControls("electrical", "electrical", "Electrical");
+    setupAxisLimitControls("solar", "solar", "Solar");
+
     document.getElementById('date-monitoring').value =
         formattedDate;
 
-    /*document.getElementById("nav-monitoring").addEventListener(
-        "click", 
+    document.getElementById("nav-monitoring").addEventListener(
+        "click",
         async () => {
-            if (sendData){
-                await renderData();
-                sendData = false;
-            } 
+            await renderData();
         }
-    );*/
+    );
 
     document.getElementById("data-submit-btn1").addEventListener(
         "click", 
@@ -603,11 +798,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     );
 
     document.getElementById('graphSelector').addEventListener(
-        'change', 
+        'change',
         async () => {
             if (!dashboardData && !positionData) return;
 
-            await renderSelectedGraph(dashboardData, positionData);
+            axisLimits.electrical.yMin = "";
+            axisLimits.electrical.yMax = "";
+            document.getElementById("electricalYMin").value = "";
+            document.getElementById("electricalYMax").value = "";
+
+            renderSelectedGraph(dashboardData, positionData);
+        }
+    );
+
+        document.getElementById('solarGraphType').addEventListener(
+        'change',
+        () => {
+            if (!Array.isArray(positionData)) return;
+
+            axisLimits.solar.yMin = "";
+            axisLimits.solar.yMax = "";
+            document.getElementById("solarYMin").value = "";
+            document.getElementById("solarYMax").value = "";
+
+            window.solarAngleChartInstance?.resetZoom?.();
+            renderSelectedGraph(dashboardData, positionData);
         }
     );
 
@@ -617,4 +832,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             await renderData();
         }
     );
+
+    ["electricalChart", "solarAngleChart"].forEach(id => {
+        const canvas = document.getElementById(id);
+        if (!canvas) return;
+
+        const reset = () => Chart.getChart(canvas)?.resetZoom();
+
+        canvas.addEventListener("dblclick", reset);
+
+        const hammer = new Hammer(canvas);
+        hammer.on("doubletap", reset);
+    });
 });

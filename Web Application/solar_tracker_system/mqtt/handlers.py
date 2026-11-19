@@ -166,7 +166,7 @@ def save_panel_position(client, data, user_id, panel_id):
                 }),
                 qos=0
             )
-        if decision == "move_panel":
+        if decision == "move_panel_bf":
             client.publish(
                 f"solar/{panel_id}/control", 
                 json.dumps({
@@ -177,6 +177,30 @@ def save_panel_position(client, data, user_id, panel_id):
                 }),
                 qos=0
             )
+        if decision == "move_panel_az":
+            client.publish(
+                f"solar/{panel_id}/control", 
+                json.dumps({
+                    "action": "move_panel",
+                    "mode": "automatic",
+                    "azimuth": obj.theoretical_azimuth,
+                    "elevation": None,
+                }),
+                qos=0
+            )
+
+        if decision == "move_panel_el":
+                    client.publish(
+                        f"solar/{panel_id}/control", 
+                        json.dumps({
+                            "action": "move_panel",
+                            "mode": "automatic",
+                            "azimuth": None,
+                            "elevation": obj.theoretical_elevation
+                        }),
+                        qos=0
+                    )
+
     if control_mode.mode == "manual":
         decision = DecisionEngine.decide(
             light.luminosity, 

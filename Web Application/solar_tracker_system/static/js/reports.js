@@ -304,16 +304,13 @@ document.addEventListener(
         document.getElementById("date-report").value =
             formattedDate;
 
-        /*document.getElementById("nav-reports")
+        document.getElementById("nav-reports")
             .addEventListener(
                 "click",
                 async () => {
-                    if (sendData) {
-                        sendData = false;
-                        await renderReports();
-                    }
+                    await renderReports();
                 }
-            );*/
+            );
 
         document.getElementById("data-submit-btn2")
             .addEventListener(

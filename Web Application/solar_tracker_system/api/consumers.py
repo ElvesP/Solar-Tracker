@@ -4,26 +4,27 @@ from solar_tracker_system.models import SolarPanel
 
 
 class DashboardConsumer(AsyncWebsocketConsumer):
+    group_name = None
 
     async def connect(self):
         self.panel_id = self.scope['url_route']['kwargs']['panel_id']
 
         try:
             await SolarPanel.objects.aget(id=self.panel_id)
-        except:
+        except SolarPanel.DoesNotExist:
+            print(f"Painel {self.panel_id} não encontrado")
+            await self.close()
+            return
+        except Exception as e:
+            print(f"Erro em connect(): {type(e).__name__}: {e}")
             await self.close()
             return
 
         self.group_name = f"dashboard_panel_{self.panel_id}"
 
-        await self.channel_layer.group_add(
-            self.group_name,
-            self.channel_name
-        )
-
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
         print('WebSocket conectado')
-
 
     async def send_dashboard_data(self, event):
         if self.channel_name is None:
@@ -62,12 +63,11 @@ class DashboardConsumer(AsyncWebsocketConsumer):
 
 
     async def disconnect(self, close_code):
-
-        await self.channel_layer.group_discard(
-            self.group_name,
-            self.channel_name
-        )
-
+        if self.group_name:
+            await self.channel_layer.group_discard(
+                self.group_name,
+                self.channel_name
+            )
         print('WebSocket desconectado')
 
 

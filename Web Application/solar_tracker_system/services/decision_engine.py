@@ -3,10 +3,10 @@ from decimal import Decimal
 
 class DecisionEngine:
 
-    LIGHT_THRESHOLD_MIN = 1000
-    LIGHT_THRESHOLD_MAX = 5000
-    AZ_DIFFERENCE_THRESHOLD = 1
-    EL_DIFFERENCE_THRESHOLD = 1
+    LIGHT_THRESHOLD_MIN = 5000
+    LIGHT_THRESHOLD_MAX = 15000
+    AZ_DIFFERENCE_THRESHOLD = 2
+    EL_DIFFERENCE_THRESHOLD = 2
 
 
     @staticmethod
@@ -49,19 +49,29 @@ class DecisionEngine:
         real_elevation
     ):
 
-        if light_intensity < 1000:
+        if light_intensity < DecisionEngine.LIGHT_THRESHOLD_MIN:
             return 'keep_position'
 
         if DecisionEngine.check_low_light(light_intensity):
             return 'standby'
 
         if DecisionEngine.check_az_movement(
+            theoretical_azimuth, real_azimuth
+            ) and DecisionEngine.check_el_movement(
+                theoretical_elevation, real_elevation):
+
+            return 'move_panel_bf'
+
+        if DecisionEngine.check_az_movement(
             theoretical_azimuth,
             real_azimuth
-        ) or DecisionEngine.check_el_movement(
+        ):
+            return 'move_panel_az'
+
+        if DecisionEngine.check_el_movement(
             theoretical_elevation,
             real_elevation
         ):
-            return 'move_panel'
+            return 'move_panel_el'
 
         return 'keep_position'

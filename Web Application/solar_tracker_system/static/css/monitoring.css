@@ -86,7 +86,7 @@ select{
 
 .chart-container{
     width: 100%;
-    height: 380px;
+    height: 400px;
     position: relative;
     overflow: hidden;
 }
@@ -100,12 +100,195 @@ canvas {
     overflow: hidden;
 }
 
-body.dark .select-modern{
-    background: transparent;
-    border: 1px solid #374151;
-    color: var(--text);
+/* ===== Painel de limites dos eixos ===== */
+.axis-panel {
+    --ap-bg: #f8fafc;
+    --ap-border: #e2e8f0;
+    --ap-text: #1f2937;
+    --ap-muted: #64748b;
+    --ap-input-bg: #ffffff;
+    --ap-accent: #38bdf8;
+    --ap-accent-strong: #0ea5e9;
+
+    margin-top: 16px;
+    background: var(--ap-bg);
+    border: 1px solid var(--ap-border);
+    border-radius: 12px;
+    color: var(--ap-text);
+    overflow: hidden;
 }
 
+body.dark .axis-panel {
+    --ap-bg: rgba(255, 255, 255, 0.04);
+    --ap-border: rgba(255, 255, 255, 0.1);
+    --ap-text: #f5f5f5;
+    --ap-muted: #9ca3af;
+    --ap-input-bg: rgba(0, 0, 0, 0.25);
+}
+
+/* Cabeçalho */
+.axis-panel__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.axis-panel__title::-webkit-details-marker { display: none; }
+.axis-panel__title svg { color: var(--ap-accent-strong); }
+.axis-panel__title:hover { background: rgba(56, 189, 248, 0.08); }
+
+.axis-panel__chevron {
+    margin-left: auto;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--ap-muted);
+    border-bottom: 2px solid var(--ap-muted);
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+}
+
+.axis-panel[open] .axis-panel__chevron {
+    transform: rotate(-135deg);
+}
+
+/* Corpo */
+.axis-panel__body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 16px 24px;
+    padding: 4px 16px 16px;
+    border-top: 1px solid var(--ap-border);
+    padding-top: 16px;
+}
+
+.axis-group {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+}
+
+.axis-group legend {
+    padding: 0;
+    margin-bottom: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ap-muted);
+}
+
+.axis-pair {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.axis-sep {
+    padding-bottom: 9px;
+    color: var(--ap-muted);
+}
+
+/* Campos */
+.axis-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.axis-field span {
+    font-size: 0.75rem;
+    color: var(--ap-muted);
+}
+
+.axis-field input {
+    width: 130px;
+    height: 38px;
+    padding: 0 10px;
+    font: inherit;
+    font-size: 0.9rem;
+    color: var(--ap-text);
+    background: var(--ap-input-bg);
+    border: 1px solid var(--ap-border);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.axis-field input::placeholder { color: var(--ap-muted); }
+
+.axis-field input:focus {
+    border-color: var(--ap-accent);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+}
+
+body.dark .axis-field input[type="time"] { color-scheme: dark; }
+
+/* Remove as setas dos campos numéricos */
+.axis-field input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
+.axis-field input[type="number"]::-webkit-outer-spin-button,
+.axis-field input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Botões */
+.axis-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.axis-btn {
+    height: 38px;
+    padding: 0 18px;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s, border-color 0.15s;
+}
+
+.axis-btn:active { transform: translateY(1px); }
+
+.axis-btn--primary {
+    color: #fff;
+    background: var(--ap-accent-strong);
+    border: 1px solid var(--ap-accent-strong);
+}
+
+.axis-btn--primary:hover { background: #0284c7; border-color: #0284c7; }
+
+.axis-btn--ghost {
+    color: var(--ap-text);
+    background: transparent;
+    border: 1px solid var(--ap-border);
+}
+
+.axis-btn--ghost:hover { border-color: var(--ap-accent); color: var(--ap-accent-strong); }
+
+.axis-btn:focus-visible {
+    outline: 2px solid var(--ap-accent);
+    outline-offset: 2px;
+}
+
+/* Telemóvel */
+@media (max-width: 640px) {
+    .axis-panel__body { flex-direction: column; align-items: stretch; }
+    .axis-pair { width: 100%; }
+    .axis-field { flex: 1; }
+    .axis-field input { width: 100%; }
+    .axis-actions { margin-left: 0; }
+    .axis-btn { flex: 1; }
+}
 
 /* Smartphones grandes */
 @media (max-width: 768px) {
@@ -131,7 +314,7 @@ body.dark .select-modern{
     }
 
     .card-header {
-        flex-direction: row;
+        flex-direction: column;
         align-items: flex-start;
         gap: 10px;
     }

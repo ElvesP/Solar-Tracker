@@ -107,3 +107,14 @@ body.dark .sidebar {
 .sidebar.collapsed .text { 
     display: none; 
 }
+
+@media (max-width: 480px) {
+    .sidebar.collapsed {
+        display: none;
+        width: 0;
+        margin-left: 0;
+    }
+    .main {
+        margin-left: 0;
+    }
+}

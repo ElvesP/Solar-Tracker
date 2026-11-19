@@ -112,3 +112,9 @@
         margin-left: 70px;
     }
 }
+
+@media (max-width: 500px) {
+    .sidebar.collapsed ~ .main {
+        margin-left: 0px;
+    }
+}
