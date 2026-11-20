@@ -147,7 +147,7 @@ function renderSelectedGraph(dashboardData, positionData) {
             source: "dashboard"
         },
         efficiency: {
-            label: "Eficiência (%)",
+            label: "Eficiência de rastreamento (%)",
             field: "tracking_efficiency",
             borderColor: "#a855f7",
             backgroundColor: "rgba(168,85,247,0.15)",
@@ -612,9 +612,8 @@ function renderSelectedGraph(dashboardData, positionData) {
             {
                 label: "Azimute Real (°)",
                 data: solarTimeData.series[0],
-                borderColor: "#0d9488",
+                borderColor: "#62a074",
                 backgroundColor: "rgba(56,189,248,0.15)",
-                borderDash: [6, 4],
                 borderWidth: 2,
                 pointRadius: 0,
                 spanGaps: false
@@ -624,6 +623,7 @@ function renderSelectedGraph(dashboardData, positionData) {
                 data: solarTimeData.series[1],
                 borderColor: "#2563eb",
                 backgroundColor: "rgba(14,165,233,0.15)",
+                borderDash: [6, 4],
                 borderWidth: 2,
                 pointRadius: 0,
                 spanGaps: false
@@ -640,7 +640,7 @@ function renderSelectedGraph(dashboardData, positionData) {
             {
                 label: "Elevação Teórica (°)",
                 data: solarTimeData.series[3],
-                borderColor: "#9333ea",
+                borderColor: "#c74d75",
                 backgroundColor: "rgba(34,197,94,0.15)",
                 borderDash: [6, 4],
                 borderWidth: 2,
@@ -841,7 +841,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         canvas.addEventListener("dblclick", reset);
 
-        const hammer = new Hammer(canvas);
-        hammer.on("doubletap", reset);
+        //const hammer = new Hammer(canvas);
+        //hammer.on("doubletap", reset);
     });
 });
